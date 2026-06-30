@@ -1,0 +1,132 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Categories;
+use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
+
+class ProductController extends Controller
+{
+    public function index()
+    {
+        $products = Product::with('category')->get();
+        return view('Products.index', compact('products'));
+    }
+    public function create()
+    {
+        $categories = Categories::where('status', 1)->get();
+        return view('Products.create', compact('categories'));
+    }
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'description' => 'required|string',
+            'category_id' => 'required|exists:categories,id',
+            'images' => 'required|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'detail' => 'required|string',
+            'status' => 'required|in:0,1',
+        ]);
+        $avatarName = null;
+        if ($request->hasFile('avatar')) {
+            $avatar = $request->file('avatar');
+            $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
+            $avatar->storeAs('images', $avatarName, 'public');
+        }
+
+        $imageNames = [];
+        if ($request->hasFile('images')) {
+            $images = $request->file('images');
+            foreach ($images as $key => $image) {
+                $imageName = time() . '_' . $key . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('products', $imageName, 'public');
+                $imageNames[] = $imageName;
+            }
+        }
+
+        Product::create([
+            'name' => $request->name,
+            'slug' => Str::slug($request->name),
+            'category_id' => $request->category_id,
+            'description' => $request->description,
+            'detail' => $request->detail,
+            'avatar' => $avatarName,
+            'images' => $imageNames,
+            'status' => $request->status,
+        ]);
+        return redirect()->route('products.index')->with('success', 'Product created successfully');
+    }
+    public function show(string $slug, string $id)
+    {
+        $product = Product::with('category')->findOrFail($id);
+        return view('Products.detail', compact('product'));
+    }
+
+    public function edit(string $id)
+    {
+        $product = Product::findOrFail($id);
+        $categories = Categories::where('status', 1)->get();
+        return view('Products.edit', compact('product', 'categories'));
+    }
+
+    public function update(Request $request, string $id)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'description' => 'required|string',
+            'category_id' => 'required|exists:categories,id',
+            'images' => 'nullable|array',
+            'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
+            'detail' => 'required|string',
+            'status' => 'required|in:0,1',
+        ]);
+        $product = Product::find($id);
+        $avatarName = $product->avatar;
+        if ($request->hasFile('avatar')) {
+            $avatar = $request->file('avatar');
+            $avatarName = time() . '.' . $avatar->getClientOriginalExtension();
+            $avatar->storeAs('images', $avatarName, 'public');
+        }
+        $imageNames = $product->images;
+        if ($request->hasFile('images')) {
+            $imageNames = [];
+            $images = $request->file('images');
+            foreach ($product->images as $image) {
+                Storage::disk('public')->delete('products/' . $image);
+            }
+            foreach ($images as $key => $image) {
+                $imageName = time() . '_' . $key . '.' . $image->getClientOriginalExtension();
+                $image->storeAs('products', $imageName, 'public');
+                $imageNames[] = $imageName;
+            }
+        }
+
+        $product->update([
+            'name' => $request->name,
+            'slug' => Str::slug($request->name),
+            'category_id' => $request->category_id,
+            'description' => $request->description,
+            'detail' => $request->detail,
+            'avatar' => $avatarName,
+            'images' => $imageNames,
+            'status' => $request->status,
+        ]);
+        return redirect()->route('products.index')->with('success', 'Product updated successfully');
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     */
+    public function destroy(string $id)
+    {
+        $product = Product::findOrFail($id);
+        $product->delete();
+        return redirect()->route('products.index')->with('success', 'Product deleted successfully');
+    }
+}
