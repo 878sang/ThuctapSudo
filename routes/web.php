@@ -21,6 +21,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}', [CategoriesController::class, 'show'])->name('categories.show');
         Route::get('/{id}/edit', [CategoriesController::class, 'edit'])->name('categories.edit');
         Route::put('/{id}', [CategoriesController::class, 'update'])->name('categories.update');
+        Route::get('/{id}/check', [CategoriesController::class, 'check_has_products'])->name('categories.check');
         Route::delete('/{id}', [CategoriesController::class, 'destroy'])->name('categories.destroy');
     });
     Route::prefix('products')->group(function () {

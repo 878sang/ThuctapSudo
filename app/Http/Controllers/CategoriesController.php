@@ -98,9 +98,42 @@ class CategoriesController extends Controller
         ]);
         return redirect()->route('categories.index')->with('success', 'Category updated successfully.');
     }
-    public function destroy($id)
+    public function check_has_products(Request $request, $id)
     {
-        Categories::find($id)->delete();
-        return redirect()->route('categories.index')->with('success', 'Category deleted successfully.');
+        $category = Categories::find($id);
+        if ($category->products()->count() > 0) {
+            $otherCategories = Categories::where('id', '!=', $id)->get();
+            return response()->json([
+                'has_products' => true,
+                'other_categories' => $otherCategories,
+            ]);
+        } else {
+            return response()->json([
+                'has_products' => false,
+            ]);
+        }
+    }
+    public function destroy(Request $request, $id)
+    {
+        $category = Categories::findOrFail($id);
+
+        $option = $request->option;
+        if ($option === 'move_products_and_delete_category') {
+
+            Product::where('category_id', $id)
+                ->update([
+                    'category_id' => $request->new_category_id
+                ]);
+        }
+
+        if ($option === 'delete_products_and_category') {
+
+            Product::where('category_id', $id)->delete();
+        }
+        $category->delete();
+
+        return response()->json([
+            'success' => true
+        ]);
     }
 }
