@@ -14,10 +14,18 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
-        $credentials = $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);
+        $credentials = $request->validate(
+            [
+                'email' => 'required|email',
+                'password' => 'required',
+            ],
+            [
+                'email.required' => 'Email là bắt buộc',
+                'email.email' => 'Email không hợp lệ',
+                'password.required' => 'Mật khẩu là bắt buộc',
+            ],
+            ['message' => 'Thông tin đăng nhập không chính xác.']
+        );
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
