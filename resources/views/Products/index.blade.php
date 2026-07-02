@@ -19,6 +19,15 @@
             Thêm sản phẩm
         </x-button>
     </div>
+    <div>
+        <form action="{{ route('products.index') }}" method="GET">
+            <select name="status" id="status" onchange="this.form.submit()">
+                <option value="all" {{ !request()->has('status') ? 'selected' : '' }}>Tất cả</option>
+                <option value="active" {{ request()->has('status')&&request()->status == 'active' ? 'selected' : '' }}>Sản phẩm</option>
+                <option value="trash" {{ request()->has('status')&&request()->status == 'trash' ? 'selected' : '' }}>Thùng rác</option>
+            </select>
+        </form>
+    </div>
 
     <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden backdrop-blur-sm">
 
@@ -48,12 +57,12 @@
                         </td>
                         <td class="py-4 px-6">
                             <a href="{{ route('products.show',[$product->slug,$product->id ]) }}"><span class="text-sm font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors duration-150">
-                                    {{ $product->name }}
+                                    {{ $product->name}}
                                 </span></a>
                         </td>
                         <td class="py-4 px-6">
                             <span class="inline-flex font-mono text-xs text-slate-500 bg-slate-100/80 px-2.5 py-1 rounded-lg border border-slate-200/50">
-                                {{ $product->category->name }}
+                                {{ $product->category->name ??'Không có danh mục'}}
                             </span>
                         </td>
                         <td class="py-4 px-6">
@@ -67,7 +76,12 @@
                             </p>
                         </td>
                         <td class="py-4 px-6 text-center">
-                            @if($product->status == 1)
+                            @if($product->deleted_at)
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 ring-1 ring-red-600/20 shadow-sm">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                                Đã xóa
+                            </span>
+                            @elseif($product->status == 1)
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20 shadow-sm">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Hoạt động
@@ -83,13 +97,36 @@
                             {{ $product->created_at ? $product->created_at->format('d/m/Y H:i') : 'N/A' }}
                         </td>
                         <td class="py-4 px-6 text-center">
+                            @if ($product->deleted_at)
+                            <div class="flex items-center justify-center gap-2">
+                                <form action="{{ route('products.restore', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn khôi phục Sản phẩm này?')" class="inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150" title="Khôi phục">
+                                        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 10h5V5m0 0l-4 4m4-4l4 4M21 14a8 8 0 11-2.34-5.66" />
+                                        </svg>
+                                    </button>
+                                </form>
+                                <form action="{{ route('products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa Sản phẩm này? Hành động này không thể hoàn tác.')" class="inline">
+                                    @csrf
+                                    @method('DELETE')
+                                    <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150" title="Xóa vĩnh viễn">
+                                        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                        </svg>
+                                    </button>
+                                </form>
+                            </div>
+                            @else
                             <div class="flex items-center justify-center gap-2">
                                 <a href="{{ route('products.edit', $product->id) }}" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-150" title="Chỉnh sửa">
                                     <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                     </svg>
                                 </a>
-                                <form action="{{ route('products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa danh mục này? Hành động này không thể hoàn tác.')" class="inline">
+                                <form action="{{ route('products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này? Hành động này không thể hoàn tác.')" class="inline">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150" title="Xóa">
@@ -99,6 +136,7 @@
                                     </button>
                                 </form>
                             </div>
+                            @endif
                         </td>
                     </tr>
                     @empty

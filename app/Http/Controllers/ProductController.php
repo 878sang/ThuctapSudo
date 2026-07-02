@@ -10,9 +10,15 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with('category')->get();
+        if ($request->status == 'active') {
+            $products = Product::with('category')->get();
+        } elseif ($request->status == 'trash') {
+            $products = Product::onlyTrashed()->with('category')->get();
+        } else {
+            $products = Product::withTrashed()->with('category')->get();
+        }
         return view('Products.index', compact('products'));
     }
     public function create()
@@ -154,12 +160,19 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', 'Product updated successfully');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    public function restore(string $id)
+    {
+        $product = Product::onlyTrashed()->findOrFail($id);
+        $product->restore();
+        return redirect()->route('products.index')->with('success', 'Product restored successfully');
+    }
     public function destroy(string $id)
     {
-        $product = Product::findOrFail($id);
+        $product = Product::withTrashed()->findOrFail($id);
+        if ($product->deleted_at) {
+            $product->forceDelete();
+            return redirect()->route('products.index')->with('success', 'Product deleted successfully');
+        }
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted successfully');
     }
