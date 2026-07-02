@@ -21,11 +21,28 @@
     </div>
     <div>
         <form action="{{ route('products.index') }}" method="GET">
-            <select name="status" id="status" onchange="this.form.submit()">
-                <option value="all" {{ !request()->has('status') ? 'selected' : '' }}>Tất cả</option>
-                <option value="active" {{ request()->has('status')&&request()->status == 'active' ? 'selected' : '' }}>Sản phẩm</option>
-                <option value="trash" {{ request()->has('status')&&request()->status == 'trash' ? 'selected' : '' }}>Thùng rác</option>
+            <select name="action" id="action" onchange="this.form.submit()">
+                <option value="active" {{ request()->has('action')&&request()->action == 'active' ? 'selected' : '' }}>Sản phẩm</option>
+                <option value="trash" {{ request()->has('action')&&request()->action == 'trash' ? 'selected' : '' }}>Thùng rác</option>
             </select>
+            <select name="category" id="category" onchange="this.form.submit()">
+                <option value="all" {{ !request()->has('category') ? 'selected' : '' }}>Tất cả danh mục</option>
+                @foreach($categories as $category)
+                <option value="{{ $category->id }}" {{ request()->has('category')&&request()->category == $category->id ? 'selected' : '' }}>{{ $category->name }}</option>
+                @endforeach
+            </select>
+            <select name="status" id="status" onchange="this.form.submit()">
+                <option value="all" {{ !request()->has('status') ? 'selected' : '' }}>Trạng thái</option>
+                <option value="1" {{ request()->has('status')&&request()->status == '1' ? 'selected' : '' }}>Hoạt động</option>
+                <option value="0" {{ request()->has('status')&&request()->status == '0' ? 'selected' : '' }}>Ngưng hoạt động</option>
+            </select>
+            <select name="sort" id="sort" onchange="this.form.submit()">
+                <option value="" {{ !request()->has('sort') ? 'selected' : '' }}>Sắp xếp</option>
+                <option value="asc" {{ request()->has('sort')&&request()->sort == 'asc' ? 'selected' : '' }}>Tăng dần</option>
+                <option value="desc" {{ request()->has('sort')&&request()->sort == 'desc' ? 'selected' : '' }}>Giảm dần</option>
+            </select>
+            <input type="search" name="search" placeholder="Tìm kiếm sản phẩm" value="{{ request()->search }}" />
+            <button type="submit" class="bg-indigo-500 text-white px-4 py-2 rounded-xl">Tìm kiếm</button>
         </form>
     </div>
 
@@ -158,7 +175,10 @@
                     </tr>
                     @endforelse
                 </tbody>
+
             </table>
+
         </div>
+        <div class="p-4"> {{ $products->links() }}</div>
     </div>
     @endsection

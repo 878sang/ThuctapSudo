@@ -12,14 +12,28 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        if ($request->status == 'active') {
-            $products = Product::with('category')->get();
-        } elseif ($request->status == 'trash') {
-            $products = Product::onlyTrashed()->with('category')->get();
-        } else {
-            $products = Product::withTrashed()->with('category')->get();
+        $categories = Categories::where('status', 1)->select('id', 'name')->get();
+        $query = Product::withTrashed()->with('category');
+        if ($request->has('category') && $request->category !== 'all') {
+            $query->where('category_id', $request->category);
         }
-        return view('Products.index', compact('products'));
+        if ($request->has('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+        if (in_array($request->sort, ['asc', 'desc'])) {
+            $query->orderBy('name', $request->sort);
+        }
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        if ($request->action == 'trash' && $request->action !== 'all') {
+            $query->where('deleted_at', '!=', null);
+        } else {
+            $query->where('deleted_at', null);
+        }
+
+        $products = $query->paginate(10)->withQueryString();
+        return view('Products.index', compact('products', 'categories'));
     }
     public function create()
     {
