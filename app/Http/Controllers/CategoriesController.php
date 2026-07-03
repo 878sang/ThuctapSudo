@@ -37,16 +37,16 @@ class CategoriesController extends Controller
     }
     public function store(StoreCategoryRequest $request)
     {
-        $filename = null;
+        $fileName = null;
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('images', $filename, 'public');
+            $fileName = time() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('images', $fileName, 'public');
         }
         $category = Categories::create([
             'name' => $request->name,
             'description' => $request->description,
-            'avatar' => $filename,
+            'avatar' => $fileName,
             'status' => $request->status,
             'slug' => Str::slug($request->name),
         ]);
@@ -60,17 +60,17 @@ class CategoriesController extends Controller
     public function update(UpdateCategoryRequest $request, $id)
     {
         $category = Categories::find($id);
-        $filename = $category->avatar;
+        $fileName = $category->avatar;
         if ($request->hasFile('avatar')) {
             Storage::disk('public')->delete('images/' . $category->avatar);
             $file = $request->file('avatar');
-            $filename = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('images', $filename, 'public');
+            $fileName = time() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs('images', $fileName, 'public');
         }
         $category->update([
             'name' => $request->name,
             'description' => $request->description,
-            'avatar' => $filename,
+            'avatar' => $fileName,
             'status' => $request->status,
             'slug' => Str::slug($request->name),
         ]);
