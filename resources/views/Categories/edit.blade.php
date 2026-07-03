@@ -1,6 +1,12 @@
 @extends('Layout.main')
 @section('title', 'Sửa Danh Mục Sản Phẩm')
 @section('content')
+<div class="max-w-xl mx-auto">
+    <x-breadcrumb :items="[
+        ['label' => 'Danh mục', 'url' => route('categories.index')],
+        ['label' => 'Chỉnh sửa']
+    ]" />
+</div>
 <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
     <div class="mb-6 flex justify-between items-center">
         <h1 class="text-xl font-bold text-gray-800">Sửa Danh Mục Mới</h1>
@@ -8,7 +14,7 @@
             &larr; Quay lại
         </a>
     </div>
-    <form action="{{ route('categories.update', $category->id) }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+    <form action="{{ route('categories.update', $category->id) }}" method="POST" enctype="multipart/form-data" class="space-y-4" novalidate>
         @csrf
         @method('PUT')
         <div>
@@ -19,9 +25,7 @@
                 value="{{ old('name', $category->name) }}"
                 placeholder="Nhập tên danh mục..."
                 class="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 @error('name') border-red-500 @enderror">
-            @error('name')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+            <x-form-error name="name" />
         </div>
         <div>
             <label>Ảnh hiện tại</label>
@@ -34,9 +38,7 @@
                 id="avatar"
                 accept="image/*"
                 class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 @error('avatar') border-red-500 @enderror">
-            @error('avatar')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+            <x-form-error name="avatar" />
         </div>
         <div>
             <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Mô tả <span class="text-red-500">*</span></label>
@@ -45,9 +47,7 @@
                 rows="3"
                 placeholder="Mô tả ngắn về danh mục..."
                 class="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 @error('description') border-red-500 @enderror">{{ old('description', $category->description) }}</textarea>
-            @error('description')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+            <x-form-error name="description" />
         </div>
 
         <div>
@@ -58,9 +58,7 @@
                 <option value="1" {{ old('status', $category->status) == '1' ? 'selected' : '' }}>Hoạt động</option>
                 <option value="0" {{ old('status', $category->status) == '0' ? 'selected' : '' }}>Tạm ẩn</option>
             </select>
-            @error('status')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+            <x-form-error name="status" />
         </div>
 
         <div class="flex justify-end space-x-2 pt-2">

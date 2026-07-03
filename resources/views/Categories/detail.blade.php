@@ -3,12 +3,11 @@
 @section('content')
 <div class="max-w-5xl mx-auto">
     <div class="mb-6 flex items-center justify-between">
-        <nav class="flex text-sm text-gray-500 space-x-2">
-            <a href="{{ route('categories.index') }}" class="hover:text-indigo-600 transition-colors">Danh mục</a>
-            <span>/</span>
-            <span class="text-gray-800 font-medium truncate max-w-[200px]">{{ $category->name }}</span>
-        </nav>
-        <a href="{{ route('categories.index') }}" class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
+        <x-breadcrumb :items="[
+            ['label' => 'Danh mục', 'url' => route('categories.index')],
+            ['label' => $category->name]
+        ]" />
+        <a href="{{ route('categories.index') }}" class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors mb-5">
             &larr; Quay lại danh sách
         </a>
     </div>

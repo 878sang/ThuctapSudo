@@ -1,6 +1,12 @@
 @extends('Layout.main')
 @section('title', 'Thêm sản phẩm mới')
 @section('content')
+<div class="max-w-xl mx-auto">
+    <x-breadcrumb :items="[
+        ['label' => 'Sản phẩm', 'url' => route('products.index')],
+        ['label' => 'Thêm mới']
+    ]" />
+</div>
 <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
 
     <div class="mb-6 flex justify-between items-center">
@@ -10,7 +16,7 @@
         </a>
     </div>
 
-    <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4">
+    <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4" novalidate>
         @csrf
 
         <div>
@@ -22,9 +28,7 @@
                 required
                 placeholder="Nhập tên sản phẩm..."
                 class="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 @error('name') border-red-500 @enderror">
-            @error('name')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+            <x-form-error name="name" />
         </div>
         <div>
             <label for="category_id" class="block text-sm font-medium text-gray-700 mb-1">Danh mục <span class="text-red-500">*</span></label>
@@ -39,9 +43,7 @@
                 </option>
                 @endforeach
             </select>
-            @error('category_id')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+            <x-form-error name="category_id" />
         </div>
         <div>
             <label for="avatar" class="block text-sm font-medium text-gray-700 mb-1">Ảnh đại diện <span class="text-red-500">*</span></label>
@@ -51,9 +53,7 @@
                 required
                 accept="image/*"
                 class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 @error('avatar') border-red-500 @enderror">
-            @error('avatar')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+            <x-form-error name="avatar" />
         </div>
         <div>
             <label for="description" class="block text-sm font-medium text-gray-700 mb-1">Mô tả <span class="text-red-500">*</span></label>
@@ -63,9 +63,7 @@
                 required
                 placeholder="Mô tả ngắn về sản phẩm..."
                 class="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 @error('description') border-red-500 @enderror">{{ old('description') }}</textarea>
-            @error('description')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+            <x-form-error name="description" />
         </div>
         <div>
             <label for="images" class="block text-sm font-medium text-gray-700 mb-1">Ảnh sản phẩm <span class="text-red-500">*</span></label>
@@ -76,20 +74,14 @@
                 multiple
                 accept="image/*"
                 class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-semibold file:bg-indigo-50 file:text-indigo-700 hover:file:bg-indigo-100 @error('images') border-red-500 @enderror">
-            @error('images.*')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
-            @error('images')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+            <x-form-error name="images" />
+            <x-form-error name="images.*" />
         </div>
         <div>
             <label for="detail" class="block text-sm font-medium text-gray-700 mb-1">Chi tiết sản phẩm</label>
             <input id="detail" type="hidden" name="detail" value="{{ old('detail') }}">
             <trix-editor input="detail" class="border border-gray-300 rounded-md p-2 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white" style="min-height: 350px;"></trix-editor>
-            @error('detail')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+            <x-form-error name="detail" />
         </div>
 
         <div>
@@ -101,9 +93,7 @@
                 <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>Hoạt động</option>
                 <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Tạm ẩn</option>
             </select>
-            @error('status')
-            <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-            @enderror
+            <x-form-error name="status" />
         </div>
         <div class="flex justify-end space-x-2 pt-2">
             <x-button href="{{ route('products.index') }}" class="bg-white text-gray-800">

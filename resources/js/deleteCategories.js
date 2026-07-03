@@ -1,16 +1,105 @@
-let deleteCategoryId = null;
+let deleteState = {
+    id: null,
+    url: null,
+    type: null
+};
 
-document.querySelectorAll('input[name="delete_option"]').forEach(radio => {
-    radio.addEventListener('change', function () {
-        const select = document.getElementById('new_category_id');
-        select.disabled = (this.value !== 'move');
-    });
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('.btn-delete');
+    if (!btn) return;
+
+    openDeleteModal(
+        btn.dataset.id,
+        btn.dataset.url,
+        btn.dataset.type
+    );
 });
 
-window.closeDeleteModal = closeDeleteModal;
+
+window.openDeleteModal = openDeleteModal;
+async function openDeleteModal(id, url, type) {
+    if (!url) {
+        url = `/categories/${id}`;
+    }
+    if (!type) {
+        type = 'category';
+    }
+
+    deleteState = { id, url, type };
+
+    const modal = document.getElementById('deleteModal');
+    const card = document.getElementById('deleteModalCard');
+    const options = document.getElementById('categoryOptions');
+
+
+    document.getElementById('deleteModalTitle').innerText =
+        type === 'category' ? 'Xóa danh mục' : 'Xác nhận xóa';
+
+    document.getElementById('deleteModalDescription').innerText =
+        type === 'category'
+            ? 'Danh mục có thể chứa sản phẩm.'
+            : 'Bạn có chắc chắn muốn xóa?';
+
+    resetModalUI();
+
+    if (type === 'category') {
+        options.classList.remove('hidden');
+        await loadCategoryData(id);
+    } else {
+        options.classList.add('hidden');
+    }
+
+    modal.classList.remove('hidden');
+    void modal.offsetWidth;
+
+    card.classList.remove('scale-95', 'opacity-0');
+    card.classList.add('scale-100', 'opacity-100');
+}
+
+
+function resetModalUI() {
+    const select = document.getElementById('new_category_id');
+
+    if (select) {
+        select.innerHTML = '';
+        select.disabled = true;
+    }
+
+    const radio = document.querySelector('input[value="delete_all"]');
+    if (radio) radio.checked = true;
+}
+
+
+async function loadCategoryData(id) {
+    try {
+        const res = await fetch(`/categories/${id}/check`);
+        const data = await res.json();
+
+        const select = document.getElementById('new_category_id');
+        select.innerHTML = '';
+
+        (data.other_categories || []).forEach(c => {
+            select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
+        });
+
+        select.disabled = true;
+
+    } catch (error) {
+        console.error(error);
+        alert('Lỗi tải dữ liệu category');
+    }
+}
+
+
+document.addEventListener('click', function (e) {
+    if (e.target.closest('#closeDeleteModal')) {
+        closeDeleteModal();
+    }
+});
+
 function closeDeleteModal() {
-    const modal = document.getElementById('deleteCategoryModal');
-    const card = document.getElementById('deleteCategoryModalCard');
+    const modal = document.getElementById('deleteModal');
+    const card = document.getElementById('deleteModalCard');
 
     card.classList.remove('scale-100', 'opacity-100');
     card.classList.add('scale-95', 'opacity-0');
@@ -20,81 +109,103 @@ function closeDeleteModal() {
     }, 150);
 }
 
-window.openDeleteModal = openDeleteModal;
-async function openDeleteModal(id) {
-    deleteCategoryId = id;
-    try {
-        const res = await fetch(`/categories/${id}/check`);
-        const data = await res.json();
 
-        if (!data.has_products) {
-            if (confirm('Bạn có chắc chắn muốn xóa danh mục này?')) {
-                await deleteCategory(null, null);
-            }
-            return;
-        }
-
+document.addEventListener('change', function (e) {
+    if (e.target.name === 'delete_option') {
         const select = document.getElementById('new_category_id');
-        select.innerHTML = '';
-        data.other_categories.forEach(c => {
-            select.innerHTML += `<option value="${c.id}">${c.name}</option>`;
-        });
+        if (!select) return;
 
-        document.querySelector('input[value="delete_all"]').checked = true;
-        select.disabled = true;
-
-        const modal = document.getElementById('deleteCategoryModal');
-        const card = document.getElementById('deleteCategoryModalCard');
-
-        modal.classList.remove('hidden');
-
-        void modal.offsetWidth;
-
-        card.classList.remove('scale-95', 'opacity-0');
-        card.classList.add('scale-100', 'opacity-100');
-    } catch (error) {
-        console.error(error);
-        alert("Lỗi tải dữ liệu kiểm tra");
+        select.disabled = (e.target.value !== 'move');
     }
-}
-
-document.getElementById('confirmDeleteBtn').addEventListener('click', async function () {
-    const selectedOption = document.querySelector('input[name="delete_option"]:checked').value;
-
-    let optionParam = null;
-    let newCategoryId = null;
-
-    if (selectedOption === 'delete_all') {
-        optionParam = 'delete_products_and_category';
-    } else if (selectedOption === 'move') {
-        optionParam = 'move_products_and_delete_category';
-        newCategoryId = document.getElementById('new_category_id').value;
-        if (!newCategoryId) {
-            alert('Vui lòng chọn danh mục cần chuyển đến!');
-            return;
-        }
-    }
-
-    await deleteCategory(optionParam, newCategoryId);
 });
 
-async function deleteCategory(option, newCategoryId) {
-    const res = await fetch(`/categories/${deleteCategoryId}`, {
-        method: 'DELETE',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
-        },
-        body: JSON.stringify({
-            option: option,
-            new_category_id: newCategoryId
-        })
-    });
+document.addEventListener('click', function (e) {
+    const btn = e.target.closest('#confirmDeleteBtn');
+    if (!btn) return;
 
-    const data = await res.json();
-    if (data.success) {
-        location.reload();
-    } else {
-        alert('Có lỗi xảy ra khi xóa danh mục!');
+    handleDelete();
+});
+
+
+async function handleDelete() {
+
+    let payload = {};
+
+    if (deleteState.type === 'category') {
+
+        const option = document.querySelector(
+            'input[name="delete_option"]:checked'
+        )?.value;
+
+        if (option === 'delete_all') {
+            payload.option = 'delete_products_and_category';
+        }
+
+        if (option === 'move') {
+            const newId = document.getElementById('new_category_id').value;
+
+            if (!newId) {
+                alert('Vui lòng chọn danh mục!');
+                return;
+            }
+
+            payload.option = 'move_products_and_delete_category';
+            payload.new_category_id = newId;
+        }
+    }
+
+    await sendDeleteRequest(payload);
+}
+
+async function sendDeleteRequest(payload = {}) {
+
+    if (deleteState.type !== 'category') {
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = deleteState.url;
+        form.style.display = 'none';
+
+
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        const methodInput = document.createElement('input');
+        methodInput.type = 'hidden';
+        methodInput.name = '_method';
+        methodInput.value = 'DELETE';
+        form.appendChild(methodInput);
+
+        document.body.appendChild(form);
+        form.submit();
+        return;
+    }
+
+    try {
+        const res = await fetch(deleteState.url, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute('content')
+            },
+            body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message || 'Có lỗi xảy ra!');
+        }
+
+    } catch (error) {
+        console.error(error);
+        alert('Lỗi hệ thống!');
     }
 }

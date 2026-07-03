@@ -96,7 +96,7 @@ class ProductController extends Controller
             'images' => $imageNames,
             'status' => $request->status,
         ]);
-        return redirect()->route('products.index')->with('success', 'Product created successfully');
+        return redirect()->route('products.index')->with('success', 'Thêm sản phẩm thành công!');
     }
     public function show(string $slug, string $id)
     {
@@ -171,23 +171,23 @@ class ProductController extends Controller
             'images' => $imageNames,
             'status' => $request->status,
         ]);
-        return redirect()->route('products.index')->with('success', 'Product updated successfully');
+        return redirect()->route('products.index')->with('success', 'Cập nhật thông tin sản phẩm thành công!');
     }
 
     public function restore(string $id)
     {
         $product = Product::onlyTrashed()->findOrFail($id);
         $product->restore();
-        return redirect()->route('products.index')->with('success', 'Product restored successfully');
+        return redirect()->route('products.index')->with('success', 'Khôi phục sản phẩm thành công!');
     }
     public function destroy(string $id)
     {
         $product = Product::withTrashed()->findOrFail($id);
         if ($product->deleted_at) {
             $product->forceDelete();
-            return redirect()->route('products.index')->with('success', 'Product deleted successfully');
+            return redirect()->route('products.index')->with('success', 'Xóa sản phẩm vĩnh viễn thành công!');
         }
         $product->delete();
-        return redirect()->route('products.index')->with('success', 'Product deleted successfully');
+        return redirect()->route('products.index')->with('success', 'Xóa sản phẩm thành công!');
     }
 }

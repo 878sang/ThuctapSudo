@@ -13,12 +13,15 @@ class CategoriesController extends Controller
     public function index(Request $request)
     {
         if ($request->status == 'active') {
-            $categories = Categories::get();
+            $categories = Categories::query();
         } elseif ($request->status == 'trash') {
-            $categories = Categories::onlyTrashed()->get();
+            $categories = Categories::onlyTrashed();
         } else {
-            $categories = Categories::withTrashed()->get();
+            $categories = Categories::withTrashed();
         }
+
+        $categories = $categories->paginate(5);
+
         return view('categories.index', compact('categories'));
     }
     public function show(string $id)
@@ -115,18 +118,14 @@ class CategoriesController extends Controller
     }
     public function checkHasProducts(Request $request, $id)
     {
-        $category = Categories::find($id);
-        if ($category->products()->withTrashed()->count() > 0) {
-            $otherCategories = Categories::where('id', '!=', $id)->get();
-            return response()->json([
-                'has_products' => true,
-                'other_categories' => $otherCategories,
-            ]);
-        } else {
-            return response()->json([
-                'has_products' => false,
-            ]);
-        }
+        $category = Categories::findOrFail($id);
+        $otherCategories = Categories::where('id', '!=', $id)->get();
+        $hasProducts = $category->products()->withTrashed()->count() > 0;
+
+        return response()->json([
+            'has_products' => $hasProducts,
+            'other_categories' => $otherCategories,
+        ]);
     }
     public function destroy(Request $request, $id)
     {
