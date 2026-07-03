@@ -22,7 +22,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/edit', [CategoriesController::class, 'edit'])->name('categories.edit');
         Route::put('/{id}', [CategoriesController::class, 'update'])->name('categories.update');
         Route::patch('/{id}/restore', [CategoriesController::class, 'restore'])->name('categories.restore');
-        Route::get('/{id}/check', [CategoriesController::class, 'check_has_products'])->name('categories.check');
+        Route::get('/{id}/check', [CategoriesController::class, 'checkHasProducts'])->name('categories.check');
         Route::delete('/{id}', [CategoriesController::class, 'destroy'])->name('categories.destroy');
     });
     Route::prefix('products')->group(function () {

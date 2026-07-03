@@ -113,7 +113,7 @@ class CategoriesController extends Controller
         $category->restore();
         return redirect()->route('categories.index')->with('success', 'Danh mục đã được khôi phục thành công.');
     }
-    public function check_has_products(Request $request, $id)
+    public function checkHasProducts(Request $request, $id)
     {
         $category = Categories::find($id);
         if ($category->products()->withTrashed()->count() > 0) {
