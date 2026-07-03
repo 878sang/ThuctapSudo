@@ -10,10 +10,30 @@ use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $products = Product::with('category')->get();
-        return view('Products.index', compact('products'));
+        $categories = Categories::where('status', 1)->select('id', 'name')->get();
+        $query = Product::withTrashed()->with('category');
+        if ($request->has('category') && $request->category !== 'all') {
+            $query->where('category_id', $request->category);
+        }
+        if ($request->has('status') && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+        if (in_array($request->sort, ['asc', 'desc'])) {
+            $query->orderBy('name', $request->sort);
+        }
+        if ($request->has('search')) {
+            $query->where('name', 'like', '%' . $request->search . '%');
+        }
+        if ($request->action == 'trash' && $request->action !== 'all') {
+            $query->where('deleted_at', '!=', null);
+        } else {
+            $query->where('deleted_at', null);
+        }
+
+        $products = $query->paginate(10)->withQueryString();
+        return view('Products.index', compact('products', 'categories'));
     }
     public function create()
     {
@@ -154,12 +174,19 @@ class ProductController extends Controller
         return redirect()->route('products.index')->with('success', 'Product updated successfully');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    public function restore(string $id)
+    {
+        $product = Product::onlyTrashed()->findOrFail($id);
+        $product->restore();
+        return redirect()->route('products.index')->with('success', 'Product restored successfully');
+    }
     public function destroy(string $id)
     {
-        $product = Product::findOrFail($id);
+        $product = Product::withTrashed()->findOrFail($id);
+        if ($product->deleted_at) {
+            $product->forceDelete();
+            return redirect()->route('products.index')->with('success', 'Product deleted successfully');
+        }
         $product->delete();
         return redirect()->route('products.index')->with('success', 'Product deleted successfully');
     }

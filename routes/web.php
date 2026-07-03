@@ -21,6 +21,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}', [CategoriesController::class, 'show'])->name('categories.show');
         Route::get('/{id}/edit', [CategoriesController::class, 'edit'])->name('categories.edit');
         Route::put('/{id}', [CategoriesController::class, 'update'])->name('categories.update');
+        Route::patch('/{id}/restore', [CategoriesController::class, 'restore'])->name('categories.restore');
+        Route::get('/{id}/check', [CategoriesController::class, 'checkHasProducts'])->name('categories.check');
         Route::delete('/{id}', [CategoriesController::class, 'destroy'])->name('categories.destroy');
     });
     Route::prefix('products')->group(function () {
@@ -30,6 +32,7 @@ Route::middleware('auth')->group(function () {
         Route::get('/{id}/edit', [ProductController::class, 'edit'])->name('products.edit');
         Route::get('/{slug}/{id}', [ProductController::class, 'show'])->name('products.show');
         Route::put('/{id}', [ProductController::class, 'update'])->name('products.update');
+        Route::patch('/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
         Route::delete('/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
     });
 });

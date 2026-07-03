@@ -10,9 +10,15 @@ use App\Models\Product;
 
 class CategoriesController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Categories::all();
+        if ($request->status == 'active') {
+            $categories = Categories::get();
+        } elseif ($request->status == 'trash') {
+            $categories = Categories::onlyTrashed()->get();
+        } else {
+            $categories = Categories::withTrashed()->get();
+        }
         return view('categories.index', compact('categories'));
     }
     public function show(string $id)
@@ -98,9 +104,54 @@ class CategoriesController extends Controller
         ]);
         return redirect()->route('categories.index')->with('success', 'Category updated successfully.');
     }
-    public function destroy($id)
+    public function restore($id)
     {
-        Categories::find($id)->delete();
-        return redirect()->route('categories.index')->with('success', 'Category deleted successfully.');
+        $category = Categories::onlyTrashed()->find($id);
+        if (!$category) {
+            return redirect()->route('categories.index')->with('error', 'Danh mục không tồn tại.');
+        }
+        $category->restore();
+        return redirect()->route('categories.index')->with('success', 'Danh mục đã được khôi phục thành công.');
+    }
+    public function checkHasProducts(Request $request, $id)
+    {
+        $category = Categories::find($id);
+        if ($category->products()->withTrashed()->count() > 0) {
+            $otherCategories = Categories::where('id', '!=', $id)->get();
+            return response()->json([
+                'has_products' => true,
+                'other_categories' => $otherCategories,
+            ]);
+        } else {
+            return response()->json([
+                'has_products' => false,
+            ]);
+        }
+    }
+    public function destroy(Request $request, $id)
+    {
+        $category = Categories::withTrashed()->findOrFail($id);
+
+        $option = $request->option;
+        if ($option === 'move_products_and_delete_category') {
+
+            Product::withTrashed()->where('category_id', $id)
+                ->update([
+                    'category_id' => $request->new_category_id
+                ]);
+        }
+        if ($option === 'delete_products_and_category') {
+
+            Product::where('category_id', $id)->delete();
+        }
+        if ($category->trashed()) {
+            $category->forceDelete();
+            return redirect()->route('categories.index')->with('success', 'Danh mục đã được xóa thành công.');
+        } else {
+            $category->delete();
+        }
+        return response()->json([
+            'success' => true
+        ]);
     }
 }

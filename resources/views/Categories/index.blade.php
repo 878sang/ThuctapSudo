@@ -22,8 +22,16 @@
             <span>Thêm danh mục</span>
         </a>
     </div>
-
-    <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden backdrop-blur-sm">
+    <div>
+        <form action="{{ route('categories.index') }}" method="GET">
+            <select name="status" id="status" onchange="this.form.submit()">
+                <option value="all" {{ !request()->has('status') ? 'selected' : '' }}>Tất cả</option>
+                <option value="active" {{ request()->has('status')&&request()->status == 'active' ? 'selected' : '' }}>Sản phẩm</option>
+                <option value="trash" {{ request()->has('status')&&request()->status == 'trash' ? 'selected' : '' }}>Thùng rác</option>
+            </select>
+        </form>
+    </div>
+    <div class="bg-white min-h-screen rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden backdrop-blur-sm">
 
         <div class="overflow-x-auto">
             <table class="w-full text-left border-collapse">
@@ -64,7 +72,12 @@
                             </p>
                         </td>
                         <td class="py-4 px-6 text-center">
-                            @if($category->status == 1)
+                            @if($category->deleted_at)
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 ring-1 ring-red-600/20 shadow-sm">
+                                <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
+                                Đã xóa
+                            </span>
+                            @elseif($category->status == 1)
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20 shadow-sm">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Hoạt động
@@ -80,22 +93,41 @@
                             {{ $category->created_at ? $category->created_at->format('d/m/Y H:i') : 'N/A' }}
                         </td>
                         <td class="py-4 px-6 text-center">
+                            @if ($category->deleted_at)
                             <div class="flex items-center justify-center gap-2">
-                                <a href="{{ route('categories.edit', $category->id) }}" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-150" title="Chỉnh sửa">
-                                    <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                                    </svg>
-                                </a>
-                                <form action="{{ route('categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa danh mục này? Hành động này không thể hoàn tác.')" class="inline">
+                                <form action="{{ route('categories.restore', $category->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn khôi phục Sản phẩm này?')" class="inline">
+                                    @csrf
+                                    @method('PATCH')
+                                    <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150" title="Khôi phục">
+                                        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                                        </svg>
+                                    </button>
+                                </form>
+                                <form action="{{ route('categories.destroy', $category->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa Sản phẩm này? Hành động này không thể hoàn tác.')" class="inline">
                                     @csrf
                                     @method('DELETE')
-                                    <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150" title="Xóa">
+                                    <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150" title="Xóa vĩnh viễn">
                                         <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                         </svg>
                                     </button>
                                 </form>
                             </div>
+                            @else
+                            <div class="flex items-center justify-center gap-2">
+                                <a href="{{ route('categories.edit', $category->id) }}" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-150" title="Chỉnh sửa">
+                                    <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                                    </svg>
+                                </a>
+                                <button type="button" onclick="openDeleteModal('{{ $category->id }}')" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150" title="Xóa">
+                                    <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    </svg>
+                                </button>
+                            </div>
+                            @endif
                         </td>
                     </tr>
                     @empty
@@ -121,6 +153,54 @@
                     @endforelse
                 </tbody>
             </table>
+        </div>
+        <div id="deleteCategoryModal" class="fixed inset-0 z-50 flex items-center justify-center hidden bg-slate-900/60 backdrop-blur-sm transition-all duration-300">
+            <div id="deleteCategoryModalCard" class="bg-white rounded-2xl border border-slate-200 shadow-2xl max-w-md w-full p-6 mx-4 transform transition-all duration-300 scale-95 opacity-0">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="p-2.5 bg-rose-50 rounded-xl text-rose-600">
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                    </div>
+                    <div>
+                        <h5 class="text-lg font-bold text-slate-900">Xóa danh mục</h5>
+                        <p class="text-xs text-slate-500 mt-0.5">Danh mục này hiện đang chứa sản phẩm.</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4 my-5">
+                    <p class="text-sm text-slate-600">Vui lòng chọn phương án xử lý cho các sản phẩm con:</p>
+
+                    <div class="space-y-3">
+                        <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-slate-300 hover:bg-slate-50/50 cursor-pointer transition-all duration-150">
+                            <input type="radio" name="delete_option" value="delete_all" checked class="mt-1 w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                            <div>
+                                <span class="block text-sm font-semibold text-slate-800">Xóa tất cả sản phẩm</span>
+                            </div>
+                        </label>
+
+                        <label class="flex items-start gap-3 p-3 rounded-xl border border-slate-200 hover:border-slate-350 hover:bg-slate-50/50 cursor-pointer transition-all duration-150">
+                            <input type="radio" name="delete_option" value="move" class="mt-1 w-4 h-4 text-indigo-600 focus:ring-indigo-500 border-slate-300">
+                            <div>
+                                <span class="block text-sm font-semibold text-slate-800">Chuyển sang danh mục khác</span>
+                            </div>
+                        </label>
+                    </div>
+
+                    <div class="mt-3">
+                        <select id="new_category_id" class="w-full px-3.5 py-2 text-sm bg-white border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 disabled:bg-slate-50 disabled:text-slate-400 disabled:border-slate-200 transition-all duration-150" disabled>
+                        </select>
+                    </div>
+                </div>
+                <div class="flex items-center justify-end gap-3 pt-3 border-t border-slate-100">
+                    <button type="button" class="px-4.5 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-100 rounded-xl transition-colors duration-150" onclick="closeDeleteModal()">
+                        Hủy bỏ
+                    </button>
+                    <button type="button" class="px-4.5 py-2 text-sm font-semibold text-white bg-rose-600 hover:bg-rose-700 active:bg-rose-800 rounded-xl shadow-lg shadow-rose-100 transition-all duration-150 hover:-translate-y-0.5" id="confirmDeleteBtn">
+                        Xác nhận xóa
+                    </button>
+                </div>
+            </div>
         </div>
     </div>
     @endsection
