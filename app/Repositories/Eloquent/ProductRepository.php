@@ -65,8 +65,7 @@ class ProductRepository implements ProductRepositoryInterface
     }
     public function update(array $data, int $id)
     {
-        $product = $this->product::find($id);
-        return $product ? $product->update($data) : false;
+        return $this->product::find($id)->update($data);
     }
     public function deleteByCategoryId(int $categoryId)
     {
@@ -79,16 +78,14 @@ class ProductRepository implements ProductRepositoryInterface
     public function restore(int $id)
     {
         $product = $this->findOnlyTrashed($id);
-        return $product ? $product->restore() : false;
+        return $product->restore();
     }
     public function forceDelete(int $id)
     {
-        $product = $this->product::withTrashed()->find($id);
-        return $product ? $product->forceDelete() : false;
+        return $this->product::withTrashed()->find($id)->forceDelete();
     }
     public function delete(int $id)
     {
-        $product = $this->product::find($id);
-        return $product ? $product->delete() : false;
+        return $this->product::find($id)->delete();
     }
 }
