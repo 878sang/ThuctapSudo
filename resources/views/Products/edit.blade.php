@@ -102,8 +102,8 @@
                 id="status"
                 required
                 class="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 @error('status') border-red-500 @enderror">
-                <option value="1" {{ old('status', '1') == '1' ? 'selected' : '' }}>Hoạt động</option>
-                <option value="0" {{ old('status') == '0' ? 'selected' : '' }}>Tạm ẩn</option>
+                <option value="1" {{ old('status', $product->status) == '1' ? 'selected' : '' }}>Hoạt động</option>
+                <option value="0" {{ old('status', $product->status) == '0' ? 'selected' : '' }}>Tạm ẩn</option>
             </select>
             <x-form-error name="status" />
         </div>
@@ -112,7 +112,7 @@
                 Hủy
             </a>
             <button type="submit" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
-                Thêm mới
+                Lưu
             </button>
         </div>
     </form>

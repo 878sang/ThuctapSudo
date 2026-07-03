@@ -6,29 +6,29 @@ use App\Models\Categories;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
-use App\Models\Product;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
+use App\Repositories\Interfaces\CategoryRepositoryInterface;
+use App\Repositories\Interfaces\ProductRepositoryInterface;
 
 class CategoriesController extends Controller
 {
+    protected CategoryRepositoryInterface $categoryRepository;
+    protected ProductRepositoryInterface $productRepository;
+    public function __construct(CategoryRepositoryInterface $categoryRepository, ProductRepositoryInterface $productRepository)
+    {
+        $this->categoryRepository = $categoryRepository;
+        $this->productRepository = $productRepository;
+    }
     public function index(Request $request)
     {
-        if ($request->status == 'active') {
-            $categories = Categories::query();
-        } elseif ($request->status == 'trash') {
-            $categories = Categories::onlyTrashed();
-        } else {
-            $categories = Categories::withTrashed();
-        }
-
-        $categories = $categories->paginate(5);
+        $categories = $this->categoryRepository->getFilteredCategories($request);
 
         return view('categories.index', compact('categories'));
     }
     public function show(string $id)
     {
-        $category = Categories::with('products')->findOrFail($id);
+        $category = $this->categoryRepository->getWithProducts($id);
         return view('categories.detail', compact('category'));
     }
     public function create()
@@ -37,58 +37,52 @@ class CategoriesController extends Controller
     }
     public function store(StoreCategoryRequest $request)
     {
+        $data = $request->validated();
         $fileName = null;
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
             $fileName = time() . '.' . $file->getClientOriginalExtension();
             $file->storeAs('images', $fileName, 'public');
         }
-        $category = Categories::create([
-            'name' => $request->name,
-            'description' => $request->description,
-            'avatar' => $fileName,
-            'status' => $request->status,
-            'slug' => Str::slug($request->name),
-        ]);
+        $data['avatar'] = $fileName;
+        $data['slug'] = Str::slug($request->name);
+        $this->categoryRepository->create($data);
         return redirect()->route('categories.index')->with('success', 'Danh mục đã được thêm thành công!');
     }
     public function edit($id)
     {
-        $category = Categories::find($id);
+        $category = $this->categoryRepository->getById($id);
         return view('categories.edit', compact('category'));
     }
     public function update(UpdateCategoryRequest $request, $id)
     {
-        $category = Categories::find($id);
+        $data = $request->validated();
+        $category = $this->categoryRepository->getById($id);
         $fileName = $category->avatar;
         if ($request->hasFile('avatar')) {
             Storage::disk('public')->delete('images/' . $category->avatar);
             $file = $request->file('avatar');
             $fileName = time() . '.' . $file->getClientOriginalExtension();
             $file->storeAs('images', $fileName, 'public');
+            $data['avatar'] = $fileName;
         }
-        $category->update([
-            'name' => $request->name,
-            'description' => $request->description,
-            'avatar' => $fileName,
-            'status' => $request->status,
-            'slug' => Str::slug($request->name),
-        ]);
+        $data['slug'] = Str::slug($request->name);
+        $this->categoryRepository->update($data, $id);
         return redirect()->route('categories.index')->with('success', 'Category updated successfully.');
     }
     public function restore($id)
     {
-        $category = Categories::onlyTrashed()->find($id);
+        $category = $this->categoryRepository->getOnlyTrashed($id);
         if (!$category) {
             return redirect()->route('categories.index')->with('error', 'Danh mục không tồn tại.');
         }
-        $category->restore();
+        $this->categoryRepository->restore($id);
         return redirect()->route('categories.index')->with('success', 'Danh mục đã được khôi phục thành công.');
     }
     public function checkHasProducts(Request $request, $id)
     {
-        $category = Categories::findOrFail($id);
-        $otherCategories = Categories::where('id', '!=', $id)->get();
+        $category = $this->categoryRepository->getWithProducts($id);
+        $otherCategories = $this->categoryRepository->getOtherCategories($id);
         $hasProducts = $category->products()->withTrashed()->count() > 0;
 
         return response()->json([
@@ -98,25 +92,22 @@ class CategoriesController extends Controller
     }
     public function destroy(Request $request, $id)
     {
-        $category = Categories::withTrashed()->findOrFail($id);
+        $category = $this->categoryRepository->getWithTrashed($id);
 
         $option = $request->option;
         if ($option === 'move_products_and_delete_category') {
 
-            Product::withTrashed()->where('category_id', $id)
-                ->update([
-                    'category_id' => $request->new_category_id
-                ]);
+            $this->productRepository->moveProductsToNewCategory($id, $request->new_category_id);
         }
         if ($option === 'delete_products_and_category') {
 
-            Product::where('category_id', $id)->delete();
+            $this->productRepository->deleteByCategoryId($id);
         }
         if ($category->trashed()) {
-            $category->forceDelete();
+            $this->categoryRepository->forceDelete($id);
             return redirect()->route('categories.index')->with('success', 'Danh mục đã được xóa thành công.');
         } else {
-            $category->delete();
+            $this->categoryRepository->delete($id);
         }
         return response()->json([
             'success' => true
