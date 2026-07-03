@@ -111,7 +111,7 @@
                         </td>
                         <td class="py-4 px-6">
                             @if($product->avatar)
-                            <img src="{{ asset('storage/images/' . $product->avatar) }}"
+                            <img src="{{ $product->avatar_url }}"
                                 alt="{{ $product->name }}"
                                 class="w-12 h-12 rounded-xl object-cover ring-2 ring-slate-100 group-hover:scale-105 transition-transform duration-200">
                             @else

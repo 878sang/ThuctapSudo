@@ -19,7 +19,7 @@
                     <div class="swiper-wrapper">
                         @if($product->avatar)
                         <div class="swiper-slide flex items-center justify-center h-[300px] md:h-[380px]">
-                            <img src="{{ asset('storage/images/' . $product->avatar) }}"
+                            <img src="{{ $product->avatar_url }}"
                                 class="max-w-full max-h-full object-contain rounded-xl"
                                 alt="{{ $product->name }}">
                         </div>
@@ -27,7 +27,7 @@
                         @if(!empty($product->images) && is_array($product->images))
                         @foreach($product->images as $img)
                         <div class="swiper-slide flex items-center justify-center h-[300px] md:h-[380px]">
-                            <img src="{{ asset('storage/products/' . $img) }}"
+                            <img src="{{ $img }}"
                                 class="max-w-full max-h-full object-contain rounded-xl"
                                 alt="Ảnh phụ sản phẩm">
                         </div>
@@ -40,14 +40,13 @@
                     <div class="swiper-wrapper">
                         @if($product->avatar)
                         <div class="swiper-slide cursor-pointer border-2 border-transparent rounded-xl overflow-hidden bg-gray-50 p-1">
-                            <img src="{{ asset('storage/images/' . $product->avatar) }}"
-                                class="w-full h-16 object-contain rounded-lg"
+                            <img src="{{ $product->avatar_url }}" class="w-full h-16 object-contain rounded-lg"
                                 alt="">
                         </div>
                         @endif
                         @foreach($product->images as $img)
                         <div class="swiper-slide cursor-pointer border-2 border-transparent rounded-xl overflow-hidden bg-gray-50 p-1">
-                            <img src="{{ asset('storage/products/' . $img) }}"
+                            <img src="{{ $img }}"
                                 class="w-full h-16 object-contain rounded-lg"
                                 alt="">
                         </div>

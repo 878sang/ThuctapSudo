@@ -80,7 +80,7 @@
                                 <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
                                 Đã xóa
                             </span>
-                            @elseif($category->status == 1)
+                            @elseif($category->isActive())
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20 shadow-sm">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Hoạt động
@@ -128,6 +128,7 @@
                                 <button type="button" 
                                     data-id="{{ $category->id }}"
                                     data-url="{{ route('categories.destroy', $category->id) }}"
+                                    data-check-url="{{ route('categories.check', $category->id) }}"
                                     data-type="category"
                                     class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150 btn-delete" 
                                     title="Xóa">

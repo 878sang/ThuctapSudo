@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 use App\Models\Product;
+use App\Http\Requests\StoreCategoryRequest;
+use App\Http\Requests\UpdateCategoryRequest;
 
 class CategoriesController extends Controller
 {
@@ -33,25 +35,8 @@ class CategoriesController extends Controller
     {
         return view('categories.create');
     }
-    public function store(Request $request)
+    public function store(StoreCategoryRequest $request)
     {
-        $request->validate(
-            [
-                'name' => 'required',
-                'description' => 'required',
-                'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'status' => 'required',
-            ],
-            [
-                'name.required' => 'Tên danh mục là bắt buộc',
-                'description.required' => 'Mô tả danh mục là bắt buộc',
-                'avatar.required' => 'Ảnh danh mục là bắt buộc',
-                'avatar.max' => 'Ảnh danh mục không được vượt quá 2MB',
-                'avatar.mimes' => 'Ảnh danh mục phải là định dạng jpeg,png,jpg,gif',
-                'status.required' => 'Trạng thái danh mục là bắt buộc',
-            ],
-            ['message' => 'Thông tin danh mục không chính xác.']
-        );
         $filename = null;
         if ($request->hasFile('avatar')) {
             $file = $request->file('avatar');
@@ -72,25 +57,9 @@ class CategoriesController extends Controller
         $category = Categories::find($id);
         return view('categories.edit', compact('category'));
     }
-    public function update(Request $request, $id)
+    public function update(UpdateCategoryRequest $request, $id)
     {
         $category = Categories::find($id);
-        $request->validate(
-            [
-                'name' => 'required',
-                'description' => 'required',
-                'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
-                'status' => 'required',
-            ],
-            [
-                'name.required' => 'Tên danh mục là bắt buộc',
-                'description.required' => 'Mô tả danh mục là bắt buộc',
-                'avatar.max' => 'Ảnh danh mục không được vượt quá 2MB',
-                'avatar.mimes' => 'Ảnh danh mục phải là định dạng jpeg,png,jpg,gif',
-                'status.required' => 'Trạng thái danh mục là bắt buộc',
-            ],
-            ['message' => 'Thông tin danh mục không chính xác.']
-        );
         $filename = $category->avatar;
         if ($request->hasFile('avatar')) {
             Storage::disk('public')->delete('images/' . $category->avatar);

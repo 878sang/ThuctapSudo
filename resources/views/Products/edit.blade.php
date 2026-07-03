@@ -48,7 +48,7 @@
         <div>
             <div>
                 <label>Ảnh hiện tại</label>
-                <img src="{{ asset('storage/images/' . $category->avatar) }}" class="w-24 h-24" alt="">
+                <img src="{{ $product->avatar_url }}" class="w-24 h-24" alt="">
             </div>
         </div>
         <div>
@@ -71,9 +71,11 @@
         </div>
         <div>
             <label>Ảnh hiện tại</label>
-            @foreach ($product->images as $image)
-            <img src="{{ asset('storage/products/' . $image) }}" class="w-24 h-24" alt="">
+            @if(!empty($product->image_urls))
+            @foreach ($product->image_urls as $url)
+            <img src="{{ $url }}" class="w-24 h-24" alt="">
             @endforeach
+            @endif
         </div>
 
         <div>

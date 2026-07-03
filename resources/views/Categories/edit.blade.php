@@ -29,7 +29,7 @@
         </div>
         <div>
             <label>Ảnh hiện tại</label>
-            <img src="{{ asset('storage/images/' . $category->avatar) }}" class="w-24 h-24 " alt="">
+            <img src="{{ $category->avatar_url }}" class="w-24 h-24 " alt="">
         </div>
         <div>
             <label for=" avatar" class="block text-sm font-medium text-gray-700 mb-1">Ảnh đại diện <span class="text-red-500">*</span></label>

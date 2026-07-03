@@ -1,7 +1,8 @@
 let deleteState = {
     id: null,
     url: null,
-    type: null
+    type: null,
+    checkUrl: null
 };
 
 document.addEventListener('click', function (e) {
@@ -11,13 +12,14 @@ document.addEventListener('click', function (e) {
     openDeleteModal(
         btn.dataset.id,
         btn.dataset.url,
-        btn.dataset.type
+        btn.dataset.type,
+        btn.dataset.checkUrl
     );
 });
 
 
 window.openDeleteModal = openDeleteModal;
-async function openDeleteModal(id, url, type) {
+async function openDeleteModal(id, url, type, checkUrl) {
     if (!url) {
         url = `/categories/${id}`;
     }
@@ -25,7 +27,7 @@ async function openDeleteModal(id, url, type) {
         type = 'category';
     }
 
-    deleteState = { id, url, type };
+    deleteState = { id, url, type, checkUrl };
 
     const modal = document.getElementById('deleteModal');
     const card = document.getElementById('deleteModalCard');
@@ -72,7 +74,8 @@ function resetModalUI() {
 
 async function loadCategoryData(id) {
     try {
-        const res = await fetch(`/categories/${id}/check`);
+        const checkUrl = deleteState.checkUrl || `/categories/${id}/check`;
+        const res = await fetch(checkUrl);
         const data = await res.json();
 
         const select = document.getElementById('new_category_id');
