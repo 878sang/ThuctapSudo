@@ -43,19 +43,19 @@ class ProductRepository implements ProductRepositoryInterface
         }
         return $query->paginate($perPage)->withQueryString();
     }
-    public function getById($id)
+    public function getById(int $id)
     {
         return $this->product::find($id);
     }
-    public function findWithTrashed($id)
+    public function findWithTrashed(int $id)
     {
         return $this->product::withTrashed()->find($id);
     }
-    public function findOnlyTrashed($id)
+    public function findOnlyTrashed(int $id)
     {
         return $this->product::onlyTrashed()->find($id);
     }
-    public function findWithCategory($id)
+    public function findWithCategory(int $id)
     {
         return $this->product::with('category')->findOrFail($id);
     }
@@ -63,9 +63,10 @@ class ProductRepository implements ProductRepositoryInterface
     {
         return $this->product::create($data);
     }
-    public function update(array $data, $id)
+    public function update(array $data, int $id)
     {
-        return $this->product::find($id)->update($data);
+        $product = $this->product::find($id);
+        return $product ? $product->update($data) : false;
     }
     public function deleteByCategoryId(int $categoryId)
     {
@@ -78,14 +79,16 @@ class ProductRepository implements ProductRepositoryInterface
     public function restore(int $id)
     {
         $product = $this->findOnlyTrashed($id);
-        return $product->restore();
+        return $product ? $product->restore() : false;
     }
-    public function forceDelete($id)
+    public function forceDelete(int $id)
     {
-        return $this->product::withTrashed()->find($id)->forceDelete();
+        $product = $this->product::withTrashed()->find($id);
+        return $product ? $product->forceDelete() : false;
     }
-    public function delete($id)
+    public function delete(int $id)
     {
-        return $this->product::find($id)->delete();
+        $product = $this->product::find($id);
+        return $product ? $product->delete() : false;
     }
 }

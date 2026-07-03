@@ -29,19 +29,19 @@ class CategoryRepository implements CategoryRepositoryInterface
         }
         return $categories->paginate(5);
     }
-    public function getWithProducts($id)
+    public function getWithProducts(int $id)
     {
         return $this->category::with('products')->findOrFail($id);
     }
-    public function getWithTrashed($id)
+    public function getWithTrashed(int $id)
     {
         return $this->category::withTrashed()->find($id);
     }
-    public function getOnlyTrashed($id)
+    public function getOnlyTrashed(int $id)
     {
         return $this->category::onlyTrashed()->find($id);
     }
-    public function getById($id)
+    public function getById(int $id)
     {
         return $this->category::find($id);
     }
@@ -49,7 +49,7 @@ class CategoryRepository implements CategoryRepositoryInterface
     {
         return $this->category::create($data);
     }
-    public function update(array $data, $id)
+    public function update(array $data, int $id)
     {
         return $this->category::where('id', $id)->update($data);
     }
@@ -60,13 +60,13 @@ class CategoryRepository implements CategoryRepositoryInterface
     public function restore(int $id)
     {
         $category = $this->getOnlyTrashed($id);
-        return $category->restore();
+        return $category ? $category->restore() : false;
     }
-    public function forceDelete($id)
+    public function forceDelete(int $id)
     {
         return $this->category::where('id', $id)->forceDelete();
     }
-    public function delete($id)
+    public function delete(int $id)
     {
         return $this->category::where('id', $id)->delete();
     }
