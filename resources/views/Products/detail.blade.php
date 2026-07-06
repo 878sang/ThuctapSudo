@@ -11,7 +11,6 @@
             &larr; Quay lại danh sách
         </a>
     </div>
-
     <div class="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden p-6 md:p-8">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
             <div>
@@ -25,9 +24,10 @@
                         </div>
                         @endif
                         @if(!empty($product->images) && is_array($product->images))
-                        @foreach($product->images as $img)
+                        @foreach($product->image_urls as $imgUrl)
+                        {{$imgUrl}}
                         <div class="swiper-slide flex items-center justify-center h-[300px] md:h-[380px]">
-                            <img src="{{ $img }}"
+                            <img src="{{ $imgUrl }}"
                                 class="max-w-full max-h-full object-contain rounded-xl"
                                 alt="Ảnh phụ sản phẩm">
                         </div>

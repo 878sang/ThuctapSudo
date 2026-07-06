@@ -105,6 +105,6 @@ class BaseRepository implements BaseRepositoryInterface
 
     public function orderBy(...$data)
     {
-        return $this->model->orderBy($data);
+        return $this->model->orderBy(...$data);
     }
 }

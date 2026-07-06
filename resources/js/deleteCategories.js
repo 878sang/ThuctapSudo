@@ -165,7 +165,7 @@ async function handleDelete() {
 
 async function sendDeleteRequest(payload = {}) {
 
-    if (deleteState.type !== 'category') {
+    if (deleteState.type !== 'category' && deleteState.type !== 'category-force') {
         const form = document.createElement('form');
         form.method = 'POST';
         form.action = deleteState.url;
