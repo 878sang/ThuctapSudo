@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Categories;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
@@ -28,7 +27,7 @@ class CategoriesController extends Controller
     }
     public function show(string $id)
     {
-        $category = $this->categoryRepository->getWithProducts($id);
+        $category = $this->categoryRepository->with(['products'])->findOrFail($id);
         return view('categories.detail', compact('category'));
     }
     public function create()
@@ -51,13 +50,13 @@ class CategoriesController extends Controller
     }
     public function edit($id)
     {
-        $category = $this->categoryRepository->getById($id);
+        $category = $this->categoryRepository->findOrFail($id);
         return view('categories.edit', compact('category'));
     }
     public function update(UpdateCategoryRequest $request, $id)
     {
         $data = $request->validated();
-        $category = $this->categoryRepository->getById($id);
+        $category = $this->categoryRepository->findOrFail($id);
         $fileName = $category->avatar;
         if ($request->hasFile('avatar')) {
             Storage::disk('public')->delete('images/' . $category->avatar);
@@ -72,7 +71,7 @@ class CategoriesController extends Controller
     }
     public function restore($id)
     {
-        $category = $this->categoryRepository->getOnlyTrashed($id);
+        $category = $this->categoryRepository->onlyTrashed($id);
         if (!$category) {
             return redirect()->route('categories.index')->with('error', 'Danh mục không tồn tại.');
         }
@@ -81,9 +80,8 @@ class CategoriesController extends Controller
     }
     public function checkHasProducts(Request $request, $id)
     {
-        $category = $this->categoryRepository->getWithProducts($id);
         $otherCategories = $this->categoryRepository->getOtherCategories($id);
-        $hasProducts = $category->products()->withTrashed()->count() > 0;
+        $hasProducts = $this->productRepository->where('category_id', $id)->withTrashed()->count() > 0;
 
         return response()->json([
             'has_products' => $hasProducts,
@@ -92,7 +90,7 @@ class CategoriesController extends Controller
     }
     public function destroy(Request $request, $id)
     {
-        $category = $this->categoryRepository->getWithTrashed($id);
+        $category = $this->categoryRepository->withTrashed($id);
 
         $option = $request->option;
         if ($option === 'move_products_and_delete_category') {

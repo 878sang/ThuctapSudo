@@ -4,22 +4,16 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\Product;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
-use Illuminate\Http\Request;
 
-class ProductRepository implements ProductRepositoryInterface
+class ProductRepository extends BaseRepository implements ProductRepositoryInterface
 {
-    protected Product $product;
     public function __construct(Product $product)
     {
-        $this->product = $product;
-    }
-    public function getAll()
-    {
-        return $this->product::active()->paginate(10);
+        $this->model = $product;
     }
     public function getFilteredProducts(array $filters, int $perPage = 10)
     {
-        $query = $this->product::query();
+        $query = $this->model->query();
         if (isset($filters['category']) && $filters['category'] !== 'all') {
             $query->ofCategory($filters['category']);
         }
@@ -43,49 +37,12 @@ class ProductRepository implements ProductRepositoryInterface
         }
         return $query->paginate($perPage)->withQueryString();
     }
-    public function getById(int $id)
-    {
-        return $this->product::find($id);
-    }
-    public function findWithTrashed(int $id)
-    {
-        return $this->product::withTrashed()->find($id);
-    }
-    public function findOnlyTrashed(int $id)
-    {
-        return $this->product::onlyTrashed()->find($id);
-    }
-    public function findWithCategory(int $id)
-    {
-        return $this->product::with('category')->findOrFail($id);
-    }
-    public function create(array $data)
-    {
-        return $this->product::create($data);
-    }
-    public function update(array $data, int $id)
-    {
-        return $this->product::find($id)->update($data);
-    }
     public function deleteByCategoryId(int $categoryId)
     {
-        return $this->product::withTrashed()->where('category_id', $categoryId)->delete();
+        return $this->model->withTrashed()->where('category_id', $categoryId)->delete();
     }
     public function moveProductsToNewCategory(int $oldCategoryId, int $newCategoryId)
     {
-        return $this->product::withTrashed()->where('category_id', $oldCategoryId)->update(['category_id' => $newCategoryId]);
-    }
-    public function restore(int $id)
-    {
-        $product = $this->findOnlyTrashed($id);
-        return $product->restore();
-    }
-    public function forceDelete(int $id)
-    {
-        return $this->product::withTrashed()->find($id)->forceDelete();
-    }
-    public function delete(int $id)
-    {
-        return $this->product::find($id)->delete();
+        return $this->model->withTrashed()->where('category_id', $oldCategoryId)->update(['category_id' => $newCategoryId]);
     }
 }

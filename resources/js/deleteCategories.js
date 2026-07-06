@@ -33,21 +33,22 @@ async function openDeleteModal(id, url, type, checkUrl) {
     const card = document.getElementById('deleteModalCard');
     const options = document.getElementById('categoryOptions');
 
-
-    document.getElementById('deleteModalTitle').innerText =
-        type === 'category' ? 'Xóa danh mục' : 'Xác nhận xóa';
-
-    document.getElementById('deleteModalDescription').innerText =
-        type === 'category'
-            ? 'Danh mục có thể chứa sản phẩm.'
-            : 'Bạn có chắc chắn muốn xóa?';
-
     resetModalUI();
 
     if (type === 'category') {
-        options.classList.remove('hidden');
-        await loadCategoryData(id);
+        const hasProducts = await loadCategoryData(id);
+        if (hasProducts) {
+            document.getElementById('deleteModalTitle').innerText = 'Xóa danh mục';
+            document.getElementById('deleteModalDescription').innerText = 'Danh mục có thể chứa sản phẩm.';
+            options.classList.remove('hidden');
+        } else {
+            document.getElementById('deleteModalTitle').innerText = 'Xác nhận xóa';
+            document.getElementById('deleteModalDescription').innerText = 'Bạn có chắc chắn muốn xóa danh mục này?';
+            options.classList.add('hidden');
+        }
     } else {
+        document.getElementById('deleteModalTitle').innerText = 'Xác nhận xóa';
+        document.getElementById('deleteModalDescription').innerText = 'Bạn có chắc chắn muốn xóa?';
         options.classList.add('hidden');
     }
 
@@ -87,9 +88,11 @@ async function loadCategoryData(id) {
 
         select.disabled = true;
 
+        return data.has_products;
     } catch (error) {
         console.error(error);
         alert('Lỗi tải dữ liệu category');
+        return false;
     }
 }
 

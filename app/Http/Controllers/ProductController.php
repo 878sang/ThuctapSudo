@@ -60,13 +60,13 @@ class ProductController extends Controller
     }
     public function show(string $slug, string $id)
     {
-        $product = $this->productRepository->getById($id);
+        $product = $this->productRepository->findOrFail($id);
         return view('Products.detail', compact('product'));
     }
 
     public function edit(string $id)
     {
-        $product = $this->productRepository->getById($id);
+        $product = $this->productRepository->findOrFail($id);
         $categories = $this->categoryRepository->getAll();
         return view('Products.edit', compact('product', 'categories'));
     }
@@ -74,7 +74,7 @@ class ProductController extends Controller
     public function update(UpdateProductRequest $request, string $id)
     {
         $data = $request->validated();
-        $product = $this->productRepository->getById($id);
+        $product = $this->productRepository->findOrFail($id);
 
         $avatarName = $product->avatar;
         if ($request->hasFile('avatar')) {
@@ -116,7 +116,7 @@ class ProductController extends Controller
     }
     public function destroy(string $id)
     {
-        $product = $this->productRepository->findWithTrashed($id);
+        $product = $this->productRepository->withTrashed($id);
         if ($product->deleted_at) {
             $this->productRepository->forceDelete($id);
             return redirect()->route('products.index')->with('success', 'Xóa sản phẩm vĩnh viễn thành công!');
