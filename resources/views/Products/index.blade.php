@@ -3,6 +3,9 @@
 @section('content')
 
 <div class="max-w-7xl mx-auto">
+    <x-breadcrumb :items="[
+        ['label' => 'Sản phẩm']
+    ]" />
     <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-6 mb-8">
         <div class="flex items-center gap-4">
             <div class="p-3 bg-gradient-to-tr from-indigo-500 to-violet-600 rounded-2xl text-white shadow-md shadow-indigo-200">
@@ -70,7 +73,7 @@
                             {{ $product->id }}
                         </td>
                         <td class="py-4 px-6">
-                            <img src="{{ asset('storage/images/' . $product->avatar) }}" alt="{{ $product->name }}" class="w-10 h-10 rounded-xl object-cover ring-2 ring-slate-100 group-hover:scale-105 transition-transform duration-200">
+                            <img src="{{ $product->avatar_url }}" alt="{{ $product->name }}" class="w-10 h-10 rounded-xl object-cover ring-2 ring-slate-100 group-hover:scale-105 transition-transform duration-200">
                         </td>
                         <td class="py-4 px-6">
                             <a href="{{ route('products.show',[$product->slug,$product->id ]) }}"><span class="text-sm font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors duration-150">
@@ -97,8 +100,8 @@
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 ring-1 ring-red-600/20 shadow-sm">
                                 <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
                                 Đã xóa
-                            </span>
-                            @elseif($product->status == 1)
+                             </span>
+                            @elseif($product->isActive())
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20 shadow-sm">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Hoạt động
@@ -126,15 +129,12 @@
                                         </svg>
                                     </button>
                                 </form>
-                                <form action="{{ route('products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa Sản phẩm này? Hành động này không thể hoàn tác.')" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150" title="Xóa vĩnh viễn">
-                                        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-                                </form>
+                                <button type="button" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150 btn-delete" title="Xóa"
+                                    data-id="{{ $product->id }}"
+                                    data-url="{{ route('products.destroy', $product->id) }}"
+                                    data-type="product">
+                                    Xóa
+                                </button>
                             </div>
                             @else
                             <div class="flex items-center justify-center gap-2">
@@ -143,15 +143,12 @@
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                     </svg>
                                 </a>
-                                <form action="{{ route('products.destroy', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này? Hành động này không thể hoàn tác.')" class="inline">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150" title="Xóa">
-                                        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                        </svg>
-                                    </button>
-                                </form>
+                                <button type="button" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150 btn-delete" title="Xóa"
+                                    data-id="{{ $product->id }}"
+                                    data-url="{{ route('products.destroy', $product->id) }}"
+                                    data-type="product">
+                                    Xóa
+                                </button>
                             </div>
                             @endif
                         </td>
@@ -179,6 +176,6 @@
             </table>
 
         </div>
-        <div class="p-4"> {{ $products->links() }}</div>
+        <x-pagination :items="$products" />
     </div>
     @endsection

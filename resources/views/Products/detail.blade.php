@@ -3,12 +3,11 @@
 @section('content')
 <div class="max-w-5xl mx-auto">
     <div class="mb-6 flex items-center justify-between">
-        <nav class="flex text-sm text-gray-500 space-x-2">
-            <a href="{{ route('products.index') }}" class="hover:text-indigo-600 transition-colors">Sản phẩm</a>
-            <span>/</span>
-            <span class="text-gray-800 font-medium truncate max-w-[200px]">{{ $product->name }}</span>
-        </nav>
-        <a href="{{ route('products.index') }}" class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors">
+        <x-breadcrumb :items="[
+            ['label' => 'Sản phẩm', 'url' => route('products.index')],
+            ['label' => $product->name]
+        ]" />
+        <a href="{{ route('products.index') }}" class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors mb-5">
             &larr; Quay lại danh sách
         </a>
     </div>
@@ -20,7 +19,7 @@
                     <div class="swiper-wrapper">
                         @if($product->avatar)
                         <div class="swiper-slide flex items-center justify-center h-[300px] md:h-[380px]">
-                            <img src="{{ asset('storage/images/' . $product->avatar) }}"
+                            <img src="{{ $product->avatar_url }}"
                                 class="max-w-full max-h-full object-contain rounded-xl"
                                 alt="{{ $product->name }}">
                         </div>
@@ -28,7 +27,7 @@
                         @if(!empty($product->images) && is_array($product->images))
                         @foreach($product->images as $img)
                         <div class="swiper-slide flex items-center justify-center h-[300px] md:h-[380px]">
-                            <img src="{{ asset('storage/products/' . $img) }}"
+                            <img src="{{ $img }}"
                                 class="max-w-full max-h-full object-contain rounded-xl"
                                 alt="Ảnh phụ sản phẩm">
                         </div>
@@ -41,14 +40,13 @@
                     <div class="swiper-wrapper">
                         @if($product->avatar)
                         <div class="swiper-slide cursor-pointer border-2 border-transparent rounded-xl overflow-hidden bg-gray-50 p-1">
-                            <img src="{{ asset('storage/images/' . $product->avatar) }}"
-                                class="w-full h-16 object-contain rounded-lg"
+                            <img src="{{ $product->avatar_url }}" class="w-full h-16 object-contain rounded-lg"
                                 alt="">
                         </div>
                         @endif
                         @foreach($product->images as $img)
                         <div class="swiper-slide cursor-pointer border-2 border-transparent rounded-xl overflow-hidden bg-gray-50 p-1">
-                            <img src="{{ asset('storage/products/' . $img) }}"
+                            <img src="{{ $img }}"
                                 class="w-full h-16 object-contain rounded-lg"
                                 alt="">
                         </div>

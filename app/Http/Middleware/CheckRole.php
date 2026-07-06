@@ -15,7 +15,7 @@ class CheckRole
      */
     public function handle(Request $request, Closure $next): Response
     {
-        if ($request->user() && $request->user()->role !== 'super_admin') {
+        if ($request->user() && !$request->user()->isSuperAdmin()) {
             return redirect()->route('products.index')->with('error', 'Bạn không có quyền truy cập vào trang này!');
         }
         return $next($request);
