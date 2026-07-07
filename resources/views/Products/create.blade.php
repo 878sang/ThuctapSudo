@@ -61,9 +61,16 @@
             <x-form-error name="sku" />
         </div>
         <div>
-            <label for="brand" class="block text-sm font-medium text-gray-700 mb-1">Brand <span class="text-red-500">*</span></label>
-            <input type="text" name="brand" id="brand" value="{{ old('brand') }}" required placeholder="Nhập brand..." class="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 @error('brand') border-red-500 @enderror">
-            <x-form-error name="brand" />
+            <label for="brand_id" class="block text-sm font-medium text-gray-700 mb-1">Thương hiệu <span class="text-red-500">*</span></label>
+            <select name="brand_id" id="brand_id" required class="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 @error('brand_id') border-red-500 @enderror">
+                <option value="">-- Chọn thương hiệu --</option>
+                @foreach($brands as $brand)
+                    <option value="{{ $brand->id }}" {{ old('brand_id') == $brand->id ? 'selected' : '' }}>
+                        {{ $brand->name }}
+                    </option>
+                @endforeach
+            </select>
+            <x-form-error name="brand_id" />
         </div>
         <div>
             <label for="cost_price" class="block text-sm font-medium text-gray-700 mb-1">Giá vốn <span class="text-red-500">*</span></label>

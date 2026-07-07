@@ -7,10 +7,14 @@ use App\Repositories\Eloquent\ProductRepository;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Repositories\Eloquent\CategoryRepository;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
+use App\Services\BrandService;
 use App\Services\Interfaces\CategoryServiceInterface;
 use App\Services\CategoryService;
 use App\Services\Interfaces\ProductServiceInterface;
 use App\Services\ProductService;
+use App\Services\Interfaces\BrandServiceInterface;
+use App\Repositories\Interfaces\BrandRepositoryInterface;
+use App\Repositories\Eloquent\BrandRepository;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -34,6 +38,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ProductServiceInterface::class,
             ProductService::class
+        );
+        $this->app->bind(
+            BrandServiceInterface::class,
+            BrandService::class
+        );
+        $this->app->bind(
+            BrandRepositoryInterface::class,
+            BrandRepository::class
         );
     }
 

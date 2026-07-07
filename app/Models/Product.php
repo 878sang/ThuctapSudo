@@ -17,7 +17,7 @@ class Product extends Model
     protected $fillable = [
         'name',
         'sku',
-        'brand',
+        'brand_id',
         'cost_price',
         'price',
         'sale_price',
@@ -47,6 +47,10 @@ class Product extends Model
     public function category()
     {
         return $this->belongsTo(Categories::class, 'category_id');
+    }
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id');
     }
 
 
@@ -85,6 +89,11 @@ class Product extends Model
     public function scopeOfCategory($query, $categoryId)
     {
         return $query->where('category_id', $categoryId);
+    }
+
+    public function scopeOfBrand($query, $brandId)
+    {
+        return $query->where('brand_id', $brandId);
     }
 
 

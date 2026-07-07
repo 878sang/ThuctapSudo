@@ -19,6 +19,10 @@ class BaseService implements BaseServiceInterface
     {
         return $this->repository->getAll();
     }
+    public function getActive()
+    {
+        return $this->repository->getActive();
+    }
     public function paginate(int $perpage = 10)
     {
         return $this->repository->paginate($perpage);

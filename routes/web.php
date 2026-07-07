@@ -4,6 +4,7 @@ use App\Http\Controllers\CategoriesController;
 use App\Http\Controllers\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\BrandController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -34,5 +35,15 @@ Route::middleware('auth')->group(function () {
         Route::put('/{id}', [ProductController::class, 'update'])->name('products.update');
         Route::patch('/{id}/restore', [ProductController::class, 'restore'])->name('products.restore');
         Route::delete('/{id}', [ProductController::class, 'destroy'])->name('products.destroy');
+    });
+    Route::prefix('brands')->group(function () {
+        Route::get('/', [BrandController::class, 'index'])->name('brands.index');
+        Route::get('/create', [BrandController::class, 'create'])->name('brands.create');
+        Route::post('/', [BrandController::class, 'store'])->name('brands.store');
+        Route::get('/{id}/edit', [BrandController::class, 'edit'])->name('brands.edit');
+        Route::get('/{slug}/{id}', [BrandController::class, 'show'])->name('brands.show');
+        Route::put('/{id}', [BrandController::class, 'update'])->name('brands.update');
+        Route::patch('/{id}/restore', [BrandController::class, 'restore'])->name('brands.restore');
+        Route::delete('/{id}', [BrandController::class, 'destroy'])->name('brands.destroy');
     });
 });

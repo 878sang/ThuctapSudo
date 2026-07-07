@@ -7,7 +7,6 @@ use App\Services\Interfaces\CategoryServiceInterface;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 use App\Services\Interfaces\ProductServiceInterface;
 use Override;
 
@@ -41,7 +40,7 @@ class CategoryService extends BaseService implements CategoryServiceInterface
     public function update(array $data,  Request $request, int $id)
     {
         $category = $this->repository->findOrFail($id);
-        $data['avatar'] = $this->uploadFile($request, 'avatar', 'images');
+        $data['avatar'] = $this->uploadFile($request, 'avatar', 'images', $category->avatar);
         $data['slug'] = Str::slug($request->name);
         return parent::update($data, $request, $id);
     }

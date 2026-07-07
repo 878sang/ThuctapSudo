@@ -40,6 +40,12 @@
                 <option value="inactive" {{ request()->has('status')&&request()->status == 'inactive' ? 'selected' : '' }}>Ngưng hoạt động</option>
                 <option value="draft" {{ request()->has('status')&&request()->status == 'draft' ? 'selected' : '' }}>Nháp</option>
             </select>
+            <select name="brand" id="brand" onchange="this.form.submit()">
+                <option value="all" {{ !request()->has('brand') ? 'selected' : '' }}>Tất cả thương hiệu</option>
+                @foreach($brands as $brand)
+                <option value="{{ $brand->id }}" {{ request()->has('brand')&&request()->brand == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
+                @endforeach
+            </select>
             <select name="sort" id="sort" onchange="this.form.submit()">
                 <option value="" {{ !request()->has('sort') ? 'selected' : '' }}>Sắp xếp</option>
                 <option value="asc" {{ request()->has('sort')&&request()->sort == 'asc' ? 'selected' : '' }}>Tăng dần</option>
@@ -60,6 +66,7 @@
                         <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider w-24">Ảnh</th>
                         <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Tên Sản phẩm / SKU</th>
                         <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Danh mục</th>
+                        <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Thương hiệu</th>
                         <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Giá bán</th>
                         <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Tồn kho / Tối thiểu</th>
                         <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider w-32 text-center">Trạng thái</th>
@@ -86,6 +93,9 @@
                         </td>
                         <td class="py-4 px-6 text-sm text-slate-600">
                             {{ $product->category->name ?? 'Không có danh mục' }}
+                        </td>
+                        <td class="py-4 px-6 text-sm text-slate-600">
+                            {{ $product->brand->name ?? 'Không có thương hiệu' }}
                         </td>
                         <td class="py-4 px-6">
                             @if($product->sale_price)

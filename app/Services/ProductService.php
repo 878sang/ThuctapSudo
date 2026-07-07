@@ -9,7 +9,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use App\Models\Product;
 use Illuminate\Validation\ValidationException;
-use App\Http\Resources\ProductResource;
 use Override;
 
 /**
@@ -23,7 +22,7 @@ class ProductService extends BaseService implements ProductServiceInterface
     }
     public function getFilteredProducts(Request $request, int $perPage = 10)
     {
-        $filters = $request->only(['category', 'status', 'sort', 'search', 'action']);
+        $filters = $request->only(['category', 'status', 'brand', 'sort', 'search', 'action']);
         return $this->repository->getFilteredProducts($filters, $perPage);;
     }
     public function deleteByCategoryId(int $categoryId)

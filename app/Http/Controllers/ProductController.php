@@ -8,29 +8,35 @@ use App\Http\Requests\UpdateProductRequest;
 use App\Services\Interfaces\ProductServiceInterface;
 use App\Services\Interfaces\CategoryServiceInterface;
 use App\Http\Resources\ProductResource;
+use App\Services\Interfaces\BrandServiceInterface;
 
 class ProductController extends Controller
 {
     protected ProductServiceInterface $productService;
     protected CategoryServiceInterface $categoryService;
-    public function __construct(ProductServiceInterface $productService, CategoryServiceInterface $categoryService)
+    protected BrandServiceInterface $brandService;
+    public function __construct(ProductServiceInterface $productService, CategoryServiceInterface $categoryService, BrandServiceInterface $brandService)
     {
         $this->productService = $productService;
         $this->categoryService = $categoryService;
+        $this->brandService = $brandService;
     }
     public function index(Request $request)
     {
-        $categories = $this->categoryService->getAll();
+        $categories = $this->categoryService->getActive();
+        $brands = $this->brandService->getActive();
         $products = $this->productService->getFilteredProducts($request, 10);
         return view('Products.index', [
             'products' => ProductResource::collection($products),
-            'categories' => $categories
+            'categories' => $categories,
+            'brands' => $brands
         ]);
     }
     public function create()
     {
-        $categories = $this->categoryService->getAll();
-        return view('Products.create', compact('categories'));
+        $categories = $this->categoryService->getActive();
+        $brands = $this->brandService->getActive();
+        return view('Products.create', compact('categories', 'brands'));
     }
     public function store(StoreProductRequest $request)
     {
@@ -49,8 +55,9 @@ class ProductController extends Controller
     public function edit(string $id)
     {
         $product = $this->productService->findOrFail($id);
-        $categories = $this->categoryService->getAll();
-        return view('Products.edit', compact('product', 'categories'));
+        $categories = $this->categoryService->getActive();
+        $brands = $this->brandService->getActive();
+        return view('Products.edit', compact('product', 'categories', 'brands'));
     }
 
     public function update(UpdateProductRequest $request, string $id)
