@@ -16,16 +16,15 @@
             <div>
                 <div class="swiper mainSwiper mb-4 border border-gray-200 rounded-2xl bg-gray-50 p-4">
                     <div class="swiper-wrapper">
-                        @if($product->avatar)
+                        @if($product->thumbnail)
                         <div class="swiper-slide flex items-center justify-center h-[300px] md:h-[380px]">
-                            <img src="{{ $product->avatar_url }}"
+                            <img src="{{ $product->thumbnail_url }}"
                                 class="max-w-full max-h-full object-contain rounded-xl"
                                 alt="{{ $product->name }}">
                         </div>
                         @endif
-                        @if(!empty($product->images) && is_array($product->images))
-                        @foreach($product->image_urls as $imgUrl)
-                        {{$imgUrl}}
+                        @if(!empty($product->gallery) && is_array($product->gallery))
+                        @foreach($product->gallery_urls as $imgUrl)
                         <div class="swiper-slide flex items-center justify-center h-[300px] md:h-[380px]">
                             <img src="{{ $imgUrl }}"
                                 class="max-w-full max-h-full object-contain rounded-xl"
@@ -35,16 +34,16 @@
                         @endif
                     </div>
                 </div>
-                @if(!empty($product->images) && is_array($product->images) && count($product->images) > 0)
+                @if(!empty($product->gallery_urls) && is_array($product->gallery_urls) && count($product->gallery_urls) > 0)
                 <div class="swiper thumbSwiper">
                     <div class="swiper-wrapper">
-                        @if($product->avatar)
+                        @if($product->thumbnail)
                         <div class="swiper-slide cursor-pointer border-2 border-transparent rounded-xl overflow-hidden bg-gray-50 p-1">
-                            <img src="{{ $product->avatar_url }}" class="w-full h-16 object-contain rounded-lg"
+                            <img src="{{ $product->thumbnail_url }}" class="w-full h-16 object-contain rounded-lg"
                                 alt="">
                         </div>
                         @endif
-                        @foreach($product->images as $img)
+                        @foreach($product->gallery_urls as $img)
                         <div class="swiper-slide cursor-pointer border-2 border-transparent rounded-xl overflow-hidden bg-gray-50 p-1">
                             <img src="{{ $img }}"
                                 class="w-full h-16 object-contain rounded-lg"
@@ -61,7 +60,7 @@
                         <span class="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 ring-1 ring-indigo-600/10">
                             {{ $product->category->name ?? 'Không rõ danh mục' }}
                         </span>
-                        @if($product->status == 1)
+                        @if($product->isActive())
                         <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                             Hoạt động
@@ -134,20 +133,4 @@
 
     </div>
 </div>
-@push('scripts')
-<script>
-    const thumbSwiper = new Swiper('.thumbSwiper', {
-        spaceBetween: 10,
-        slidesPerView: 4,
-        watchSlidesProgress: true,
-    });
-
-    const mainSwiper = new Swiper('.mainSwiper', {
-        spaceBetween: 10,
-        thumbs: {
-            swiper: thumbSwiper,
-        },
-    });
-</script>
-@endpush
 @endsection

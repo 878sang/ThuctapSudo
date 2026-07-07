@@ -3,8 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Services\Interfaces\ProductServiceInterface;
@@ -64,8 +62,7 @@ class ProductController extends Controller
     }
     public function destroy(string $id)
     {
-        $isForceDeleted = $this->productService->delete($id);
-        $message = $isForceDeleted ? 'Xóa sản phẩm vĩnh viễn thành công!' : 'Xóa sản phẩm thành công!';
-        return redirect()->route('products.index')->with('success', $message);
+        $this->productService->delete($id);
+        return redirect()->route('products.index')->with('success', 'Xóa sản phẩm thành công!');
     }
 }

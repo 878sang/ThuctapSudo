@@ -10,21 +10,38 @@ class Product extends Model
 {
     use SoftDeletes, HasFactory;
 
-    const STATUS_ACTIVE = 1;
-    const STATUS_HIDDEN = 0;
+    const STATUS_ACTIVE = 'active';
+    const STATUS_DRAFT = 'draft';
+    const STATUS_INACTIVE = 'inactive';
 
     protected $fillable = [
         'name',
+        'sku',
+        'brand',
+        'cost_price',
+        'price',
+        'sale_price',
+        'stock',
+        'minimum_stock',
+        'weight',
+        'length',
+        'width',
+        'height',
+        'featured',
+        'seo_title',
+        'seo_description',
+        'seo_keyword',
+        'published_at',
         'category_id',
         'description',
         'detail',
-        'avatar',
+        'thumbnail',
         'slug',
-        'images',
+        'gallery',
         'status',
     ];
     protected $casts = [
-        'images' => 'array',
+        'gallery' => 'array',
     ];
     public function category()
     {
@@ -80,16 +97,16 @@ class Product extends Model
         }
     }
 
-    public function getAvatarUrlAttribute(): string
+    public function getThumbnailUrlAttribute(): string
     {
-        return asset('storage/images/' . $this->avatar);
+        return asset('storage/images/' . $this->thumbnail);
     }
 
-    public function getImageUrlsAttribute(): array
+    public function getGalleryUrlsAttribute(): array
     {
-        if (!$this->images || !is_array($this->images)) {
+        if (!$this->gallery || !is_array($this->gallery)) {
             return [];
         }
-        return array_map(fn($img) => asset('storage/products/' . $img), $this->images);
+        return array_map(fn($img) => asset('storage/products/' . $img), $this->gallery);
     }
 }
