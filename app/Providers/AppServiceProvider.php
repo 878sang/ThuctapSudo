@@ -7,6 +7,10 @@ use App\Repositories\Eloquent\ProductRepository;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 use App\Repositories\Eloquent\CategoryRepository;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
+use App\Services\Interfaces\CategoryServiceInterface;
+use App\Services\CategoryService;
+use App\Services\Interfaces\ProductServiceInterface;
+use App\Services\ProductService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -22,6 +26,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             CategoryRepositoryInterface::class,
             CategoryRepository::class
+        );
+        $this->app->bind(
+            CategoryServiceInterface::class,
+            CategoryService::class
+        );
+        $this->app->bind(
+            ProductServiceInterface::class,
+            ProductService::class
         );
     }
 

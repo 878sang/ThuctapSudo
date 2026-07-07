@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Repositories\Interfaces;
+namespace App\Services\Interfaces;
 
 use Illuminate\Http\Request;
 
-interface CategoryRepositoryInterface extends BaseRepositoryInterface
+interface CategoryServiceInterface extends BaseServiceInterface
 {
     public function getFilteredCategories(Request $request);
     public function getOtherCategories(int $id);

@@ -6,20 +6,15 @@ use App\Models\Categories;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use Illuminate\Http\Request;
 
-class CategoryRepository implements CategoryRepositoryInterface
+class CategoryRepository extends BaseRepository implements CategoryRepositoryInterface
 {
-    protected Categories $category;
     public function __construct(Categories $category)
     {
-        $this->category = $category;
-    }
-    public function getAll()
-    {
-        return $this->category::active()->paginate(10);
+        $this->model = $category;
     }
     public function getFilteredCategories(Request $request)
     {
-        $categories = $this->category::query();
+        $categories = $this->model::query();
         if ($request->status == 'active') {
             $categories->active();
         } elseif ($request->status == 'trash') {
@@ -29,45 +24,8 @@ class CategoryRepository implements CategoryRepositoryInterface
         }
         return $categories->paginate(5);
     }
-    public function getWithProducts(int $id)
-    {
-        return $this->category::with('products')->findOrFail($id);
-    }
-    public function getWithTrashed(int $id)
-    {
-        return $this->category::withTrashed()->find($id);
-    }
-    public function getOnlyTrashed(int $id)
-    {
-        return $this->category::onlyTrashed()->find($id);
-    }
-    public function getById(int $id)
-    {
-        return $this->category::find($id);
-    }
-    public function create(array $data)
-    {
-        return $this->category::create($data);
-    }
-    public function update(array $data, int $id)
-    {
-        return $this->category::where('id', $id)->update($data);
-    }
     public function getOtherCategories(int $id)
     {
-        return $this->category::where('id', '!=', $id)->get();
-    }
-    public function restore(int $id)
-    {
-        $category = $this->getOnlyTrashed($id);
-        return $category ? $category->restore() : false;
-    }
-    public function forceDelete(int $id)
-    {
-        return $this->category::where('id', $id)->forceDelete();
-    }
-    public function delete(int $id)
-    {
-        return $this->category::where('id', $id)->delete();
+        return $this->model->where('id', '!=', $id)->get();
     }
 }
