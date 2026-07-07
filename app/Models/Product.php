@@ -61,6 +61,10 @@ class Product extends Model
     {
         return $this->status == self::STATUS_ACTIVE;
     }
+    public function isDraft(): bool
+    {
+        return $this->status == self::STATUS_DRAFT;
+    }
 
     public function scopeOrderAsc($query)
     {
