@@ -42,6 +42,7 @@ class Product extends Model
     ];
     protected $casts = [
         'gallery' => 'array',
+        'published_at' => 'datetime',
     ];
     public function category()
     {

@@ -13,7 +13,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     }
     public function getFilteredProducts(array $filters, int $perPage = 10)
     {
-        $query = $this->model->query();
+        $query = $this->model->query()->with('category');
         if (isset($filters['category']) && $filters['category'] !== 'all') {
             $query->ofCategory($filters['category']);
         }

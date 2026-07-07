@@ -7,6 +7,7 @@ use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Services\Interfaces\ProductServiceInterface;
 use App\Services\Interfaces\CategoryServiceInterface;
+use App\Http\Resources\ProductResource;
 
 class ProductController extends Controller
 {
@@ -21,7 +22,10 @@ class ProductController extends Controller
     {
         $categories = $this->categoryService->getAll();
         $products = $this->productService->getFilteredProducts($request, 10);
-        return view('Products.index', compact('products', 'categories'));
+        return view('Products.index', [
+            'products' => ProductResource::collection($products),
+            'categories' => $categories
+        ]);
     }
     public function create()
     {
@@ -37,7 +41,9 @@ class ProductController extends Controller
     public function show(string $slug, string $id)
     {
         $product = $this->productService->findOrFail($id);
-        return view('Products.detail', compact('product'));
+        return view('Products.detail', [
+            'product' => new ProductResource($product)
+        ]);
     }
 
     public function edit(string $id)

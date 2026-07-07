@@ -7,9 +7,9 @@ use App\Services\Interfaces\ProductServiceInterface;
 use App\Repositories\Interfaces\ProductRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 use App\Models\Product;
 use Illuminate\Validation\ValidationException;
+use App\Http\Resources\ProductResource;
 use Override;
 
 /**
@@ -24,7 +24,7 @@ class ProductService extends BaseService implements ProductServiceInterface
     public function getFilteredProducts(Request $request, int $perPage = 10)
     {
         $filters = $request->only(['category', 'status', 'sort', 'search', 'action']);
-        return $this->repository->getFilteredProducts($filters, $perPage);
+        return $this->repository->getFilteredProducts($filters, $perPage);;
     }
     public function deleteByCategoryId(int $categoryId)
     {

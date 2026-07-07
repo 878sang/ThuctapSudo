@@ -110,8 +110,8 @@
                             {{ $product->id }}
                         </td>
                         <td class="py-4 px-6">
-                            @if($product->avatar)
-                            <img src="{{ $product->avatar_url }}"
+                            @if($product->thumbnail_url)
+                            <img src="{{ $product->thumbnail_url }}"
                                 alt="{{ $product->name }}"
                                 class="w-12 h-12 rounded-xl object-cover ring-2 ring-slate-100 group-hover:scale-105 transition-transform duration-200">
                             @else
@@ -136,10 +136,15 @@
                             </p>
                         </td>
                         <td class="py-4 px-6 text-center">
-                            @if($product->status == 1)
+                            @if($product->isActive())
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20 shadow-sm">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                                 Hoạt động
+                            </span>
+                            @elseif($product->isDraft())
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 ring-1 ring-slate-500/10">
+                                <span class="w-1.5 h-1.5 rounded-full bg-slate-400"></span>
+                                Nháp
                             </span>
                             @else
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 ring-1 ring-slate-500/10">
