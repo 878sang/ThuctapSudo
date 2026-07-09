@@ -29,3 +29,4 @@ class BrandRepository extends BaseRepository implements BrandRepositoryInterface
         return $brands->paginate($perPage);
     }
 }
+

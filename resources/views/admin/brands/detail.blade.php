@@ -1,13 +1,13 @@
-@extends('Layout.main')
+@extends('admin.Layout.main')
 @section('title', 'Chi Tiết Thương Hiệu')
 @section('content')
 <div class="max-w-5xl mx-auto">
     <div class="mb-6 flex items-center justify-between">
         <x-breadcrumb :items="[
-            ['label' => 'Thương hiệu', 'url' => route('brands.index')],
+            ['label' => 'Thương hiệu', 'url' => route('admin.brands.index')],
             ['label' => $brand->name]
         ]" />
-        <a href="{{ route('brands.index') }}" class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors mb-5">
+        <a href="{{ route('admin.brands.index') }}" class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors mb-5">
             &larr; Quay lại danh sách
         </a>
     </div>
@@ -44,14 +44,14 @@
             </div>
             
             <div class="flex md:flex-col gap-3 justify-end items-start mt-4 md:mt-0">
-                <a href="{{ route('brands.edit', $brand->id) }}"
+                <a href="{{ route('admin.brands.edit', $brand->id) }}"
                     class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm transition-colors shadow-sm">
                     <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                     </svg>
                     Chỉnh sửa
                 </a>
-                <form action="{{ route('brands.destroy', $brand->id) }}"
+                <form action="{{ route('admin.brands.destroy', $brand->id) }}"
                     method="POST"
                     onsubmit="return confirm('Bạn có chắc chắn muốn xóa thương hiệu này? Hành động này sẽ không thể hoàn tác.')"
                     class="inline">
@@ -99,7 +99,7 @@
                             <img src="{{ $product->thumbnail_url }}" alt="{{ $product->name }}" class="w-10 h-10 rounded-xl object-cover ring-2 ring-slate-100 group-hover:scale-105 transition-transform duration-200">
                         </td>
                         <td class="py-4 px-6">
-                            <a href="{{ route('products.show', [$product->slug, $product->id]) }}">
+                            <a href="{{ route('admin.products.show', [$product->slug, $product->id]) }}">
                                 <span class="text-sm font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors duration-150 block">
                                     {{ $product->name }}
                                 </span>
@@ -130,3 +130,4 @@
     </div>
 </div>
 @endsection
+

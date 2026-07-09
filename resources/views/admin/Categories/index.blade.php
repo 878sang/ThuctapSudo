@@ -1,4 +1,4 @@
-@extends('Layout.main')
+@extends('admin.Layout.main')
 @section('title', 'Danh Mục Sản Phẩm')
 @section('content')
 <div class="max-w-7xl mx-auto">
@@ -18,7 +18,7 @@
             </div>
         </div>
 
-        <a href="{{ route('categories.create') }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-semibold rounded-xl text-sm shadow-lg shadow-indigo-150 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0">
+        <a href="{{ route('admin.categories.create') }}" class="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-700 hover:to-violet-700 text-white font-semibold rounded-xl text-sm shadow-lg shadow-indigo-150 transition-all duration-200 hover:-translate-y-0.5 active:translate-y-0">
             <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
             </svg>
@@ -26,7 +26,7 @@
         </a>
     </div>
     <div>
-        <form action="{{ route('categories.index') }}" method="GET">
+        <form action="{{ route('admin.categories.index') }}" method="GET">
             <select name="status" id="status" onchange="this.form.submit()">
                 <option value="all" {{ !request()->has('status') ? 'selected' : '' }}>Tất cả</option>
                 <option value="active" {{ request()->has('status')&&request()->status == 'active' ? 'selected' : '' }}>Sản phẩm</option>
@@ -60,7 +60,7 @@
                             <img src="{{ asset('storage/images/' . $category->avatar) }}" alt="{{ $category->name }}" class="w-10 h-10 rounded-xl object-cover ring-2 ring-slate-100 group-hover:scale-105 transition-transform duration-200">
                         </td>
                         <td class="py-4 px-6">
-                            <a href="{{route('categories.show', $category->id)}}"><span class="text-sm font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors duration-150">
+                            <a href="{{route('admin.categories.show', $category->id)}}"><span class="text-sm font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors duration-150">
                                     {{ $category->name }}
                                 </span></a>
                         </td>
@@ -98,7 +98,7 @@
                         <td class="py-4 px-6 text-center">
                             @if ($category->deleted_at)
                             <div class="flex items-center justify-center gap-2">
-                                <form action="{{ route('categories.restore', $category->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn khôi phục danh mục này?')" class="inline">
+                                <form action="{{ route('admin.categories.restore', $category->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn khôi phục danh mục này?')" class="inline">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150" title="Khôi phục">
@@ -109,7 +109,7 @@
                                 </form>
                                 <button type="button" 
                                     data-id="{{ $category->id }}"
-                                    data-url="{{ route('categories.destroy', $category->id) }}"
+                                    data-url="{{ route('admin.categories.destroy', $category->id) }}"
                                     data-type="category-force"
                                     class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150 btn-delete" 
                                     title="Xóa vĩnh viễn">
@@ -120,15 +120,15 @@
                             </div>
                             @else
                             <div class="flex items-center justify-center gap-2">
-                                <a href="{{ route('categories.edit', $category->id) }}" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-150" title="Chỉnh sửa">
+                                <a href="{{ route('admin.categories.edit', $category->id) }}" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-150" title="Chỉnh sửa">
                                     <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                     </svg>
                                 </a>
                                 <button type="button" 
                                     data-id="{{ $category->id }}"
-                                    data-url="{{ route('categories.destroy', $category->id) }}"
-                                    data-check-url="{{ route('categories.check', $category->id) }}"
+                                    data-url="{{ route('admin.categories.destroy', $category->id) }}"
+                                    data-check-url="{{ route('admin.categories.check', $category->id) }}"
                                     data-type="category"
                                     class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150 btn-delete" 
                                     title="Xóa">
@@ -151,7 +151,7 @@
                                 </div>
                                 <h3 class="text-sm font-semibold text-slate-800">Không có danh mục nào</h3>
                                 <p class="text-xs text-slate-500 mt-1 max-w-xs">Bắt đầu tạo danh mục đầu tiên của bạn để phân loại sản phẩm trong cửa hàng.</p>
-                                <a href="{{ route('categories.create') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-xl hover:bg-indigo-700 transition-colors">
+                                <a href="{{ route('admin.categories.create') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-xl hover:bg-indigo-700 transition-colors">
                                     <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                     </svg>
@@ -167,3 +167,4 @@
         <x-pagination :items="$categories" />
     </div>
     @endsection
+

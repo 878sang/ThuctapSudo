@@ -8,3 +8,4 @@ interface ProductRepositoryInterface extends BaseRepositoryInterface
     public function deleteByCategoryId(int $categoryId);
     public function moveProductsToNewCategory(int $oldCategoryId, int $newCategoryId);
 }
+

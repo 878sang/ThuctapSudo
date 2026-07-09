@@ -26,3 +26,4 @@ interface BaseRepositoryInterface
     public function with(array $data);
     public function orderBy(...$args);
 }
+

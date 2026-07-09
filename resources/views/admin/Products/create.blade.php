@@ -1,9 +1,9 @@
-@extends('Layout.main')
+@extends('admin.Layout.main')
 @section('title', 'Thêm sản phẩm mới')
 @section('content')
 <div class="max-w-xl mx-auto">
     <x-breadcrumb :items="[
-        ['label' => 'Sản phẩm', 'url' => route('products.index')],
+        ['label' => 'Sản phẩm', 'url' => route('admin.products.index')],
         ['label' => 'Thêm mới']
     ]" />
 </div>
@@ -11,12 +11,12 @@
 
     <div class="mb-6 flex justify-between items-center">
         <h1 class="text-xl font-bold text-gray-800">Thêm Sản Phẩm Mới</h1>
-        <a href="{{ route('products.index') }}" class="text-sm text-indigo-600 hover:underline">
+        <a href="{{ route('admin.products.index') }}" class="text-sm text-indigo-600 hover:underline">
             &larr; Quay lại
         </a>
     </div>
 
-    <form action="{{ route('products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4" novalidate>
+    <form action="{{ route('admin.products.store') }}" method="POST" enctype="multipart/form-data" class="space-y-4" novalidate>
         @csrf
 
         <div>
@@ -179,10 +179,10 @@
             <x-form-error name="status" />
         </div>
         <div class="flex justify-end space-x-2 pt-2">
-            <x-button href="{{ route('products.index') }}" class="bg-white text-gray-800">
+            <x-button href="{{ route('admin.products.index') }}" class="bg-white text-gray-800">
                 Hủy
             </x-button>
-            <x-button href="{{ route('products.create') }}" type="submit">
+            <x-button href="{{ route('admin.products.create') }}" type="submit">
                 Thêm sản phẩm
             </x-button>
         </div>
@@ -190,3 +190,4 @@
 
 </div>
 @endsection
+

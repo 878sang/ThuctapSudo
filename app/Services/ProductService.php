@@ -84,8 +84,9 @@ class ProductService extends BaseService implements ProductServiceInterface
         $data = $this->repository->withTrashed($id);
         if ($data->deleted_at) {
             $this->repository->forceDelete($id);
-            return redirect()->route('products.index')->with('success', 'Xóa sản phẩm vĩnh viễn thành công!');
+            return redirect()->route('admin.products.index')->with('success', 'Xóa sản phẩm vĩnh viễn thành công!');
         }
         return parent::delete($id, $request);
     }
 }
+

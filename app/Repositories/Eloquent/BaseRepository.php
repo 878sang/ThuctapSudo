@@ -111,3 +111,4 @@ class BaseRepository implements BaseRepositoryInterface
         return $this->model->orderBy(...$data);
     }
 }
+

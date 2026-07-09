@@ -20,7 +20,7 @@
 </head>
 
 <body class="h-full text-slate-800 antialiased flex">
-    @include('Layout.sidebar')
+    @include('admin.Layout.sidebar')
     <div class="flex flex-1 flex-col min-w-0 overflow-hidden">
         <main class="flex-1 overflow-y-auto bg-slate-50 p-6 md:p-8">
             <x-alert />
