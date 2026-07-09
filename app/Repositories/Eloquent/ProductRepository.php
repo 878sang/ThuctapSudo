@@ -49,3 +49,4 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         return $this->model->withTrashed()->where('category_id', $oldCategoryId)->update(['category_id' => $newCategoryId]);
     }
 }
+

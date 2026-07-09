@@ -1,20 +1,20 @@
-@extends('Layout.main')
+@extends('admin.Layout.main')
 @section('title', 'Sửa Danh Mục Sản Phẩm')
 @section('content')
 <div class="max-w-xl mx-auto">
     <x-breadcrumb :items="[
-        ['label' => 'Danh mục', 'url' => route('categories.index')],
+        ['label' => 'Danh mục', 'url' => route('admin.categories.index')],
         ['label' => 'Chỉnh sửa']
     ]" />
 </div>
 <div class="max-w-xl mx-auto bg-white p-6 rounded-lg shadow-md">
     <div class="mb-6 flex justify-between items-center">
         <h1 class="text-xl font-bold text-gray-800">Sửa Danh Mục Mới</h1>
-        <a href="{{ route('categories.index') }}" class="text-sm text-indigo-600 hover:underline">
+        <a href="{{ route('admin.categories.index') }}" class="text-sm text-indigo-600 hover:underline">
             &larr; Quay lại
         </a>
     </div>
-    <form action="{{ route('categories.update', $category->id) }}" method="POST" enctype="multipart/form-data" class="space-y-4" novalidate>
+    <form action="{{ route('admin.categories.update', $category->id) }}" method="POST" enctype="multipart/form-data" class="space-y-4" novalidate>
         @csrf
         @method('PUT')
         <div>
@@ -62,7 +62,7 @@
         </div>
 
         <div class="flex justify-end space-x-2 pt-2">
-            <a href="{{ route('categories.index') }}" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+            <a href="{{ route('admin.categories.index') }}" class="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                 Hủy
             </a>
             <button type="submit" class="px-4 py-2 bg-indigo-600 border border-transparent rounded-md text-sm font-medium text-white hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -73,3 +73,4 @@
 
 </div>
 @endsection
+

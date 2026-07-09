@@ -42,8 +42,9 @@ class BrandService extends BaseService implements BrandServiceInterface
         $data = $this->repository->withTrashed($id);
         if ($data->deleted_at) {
             $this->repository->forceDelete($id);
-            return redirect()->route('brands.index')->with('success', 'Xóa thương hiệu vĩnh viễn thành công!');
+            return redirect()->route('admin.brands.index')->with('success', 'Xóa thương hiệu vĩnh viễn thành công!');
         }
         return parent::delete($id, $request);
     }
 }
+

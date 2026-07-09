@@ -124,3 +124,4 @@ class Product extends Model
         return array_map(fn($img) => asset('storage/products/' . $img), $this->gallery);
     }
 }
+

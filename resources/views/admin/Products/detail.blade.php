@@ -1,13 +1,13 @@
-@extends('Layout.main')
+@extends('admin.Layout.main')
 @section('title', 'Chi tiết sản phẩm')
 @section('content')
 <div class="max-w-5xl mx-auto">
     <div class="mb-6 flex items-center justify-between">
         <x-breadcrumb :items="[
-            ['label' => 'Sản phẩm', 'url' => route('products.index')],
+            ['label' => 'Sản phẩm', 'url' => route('admin.products.index')],
             ['label' => $product->name]
         ]" />
-        <a href="{{ route('products.index') }}" class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors mb-5">
+        <a href="{{ route('admin.products.index') }}" class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors mb-5">
             &larr; Quay lại danh sách
         </a>
     </div>
@@ -93,14 +93,14 @@
 
                 <!-- Nút thao tác -->
                 <div class="border-t border-gray-100 pt-6 flex flex-wrap gap-3">
-                    <a href="{{ route('products.edit', $product->id) }}"
+                    <a href="{{ route('admin.products.edit', $product->id) }}"
                         class="flex-1 min-w-[120px] inline-flex justify-center items-center gap-2 px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm transition-colors shadow-sm">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
                         Chỉnh sửa
                     </a>
-                    <form action="{{ route('products.destroy', $product->id) }}"
+                    <form action="{{ route('admin.products.destroy', $product->id) }}"
                         method="POST"
                         onsubmit="return confirm('Bạn có chắc chắn muốn xóa sản phẩm này?')"
                         class="flex-1 min-w-[120px]">
@@ -134,3 +134,4 @@
     </div>
 </div>
 @endsection
+

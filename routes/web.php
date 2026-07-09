@@ -1,10 +1,11 @@
 <?php
 
-use App\Http\Controllers\CategoriesController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\Admin\CategoriesController;
+use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BrandController;
+use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Client\CategoriesClientController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -14,7 +15,9 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
-Route::middleware('auth')->group(function () {
+Route::get('categories', [CategoriesClientController::class, 'showClient'])->name('categories.showClient');
+
+Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::prefix('categories')->middleware('role')->group(function () {
         Route::get('/', [CategoriesController::class, 'index'])->name('categories.index');
         Route::get('/create', [CategoriesController::class, 'create'])->name('categories.create');

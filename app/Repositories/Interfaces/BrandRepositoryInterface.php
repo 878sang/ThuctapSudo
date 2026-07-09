@@ -8,3 +8,4 @@ interface BrandRepositoryInterface extends BaseRepositoryInterface
 {
     public function getFilteredBrands(Request $request, int $perPage = 10);
 }
+

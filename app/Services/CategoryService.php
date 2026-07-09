@@ -61,3 +61,4 @@ class CategoryService extends BaseService implements CategoryServiceInterface
         return parent::delete($id, $request);
     }
 }
+

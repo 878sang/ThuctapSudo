@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use Illuminate\Http\Request;
 use App\Http\Requests\StoreProductRequest;
@@ -9,6 +9,7 @@ use App\Services\Interfaces\ProductServiceInterface;
 use App\Services\Interfaces\CategoryServiceInterface;
 use App\Http\Resources\ProductResource;
 use App\Services\Interfaces\BrandServiceInterface;
+use App\Http\Controllers\Controller;
 
 class ProductController extends Controller
 {
@@ -26,7 +27,7 @@ class ProductController extends Controller
         $categories = $this->categoryService->getActive();
         $brands = $this->brandService->getActive();
         $products = $this->productService->getFilteredProducts($request, 10);
-        return view('Products.index', [
+        return view('admin.Products.index', [
             'products' => ProductResource::collection($products),
             'categories' => $categories,
             'brands' => $brands
@@ -36,18 +37,18 @@ class ProductController extends Controller
     {
         $categories = $this->categoryService->getActive();
         $brands = $this->brandService->getActive();
-        return view('Products.create', compact('categories', 'brands'));
+        return view('admin.Products.create', compact('categories', 'brands'));
     }
     public function store(StoreProductRequest $request)
     {
         $data = $request->validated();
         $this->productService->create($data, $request);
-        return redirect()->route('products.index')->with('success', 'Thêm sản phẩm thành công!');
+        return redirect()->route('admin.products.index')->with('success', 'Thêm sản phẩm thành công!');
     }
     public function show(string $slug, string $id)
     {
         $product = $this->productService->findOrFail($id);
-        return view('Products.detail', [
+        return view('admin.Products.detail', [
             'product' => new ProductResource($product)
         ]);
     }
@@ -57,7 +58,7 @@ class ProductController extends Controller
         $product = $this->productService->findOrFail($id);
         $categories = $this->categoryService->getActive();
         $brands = $this->brandService->getActive();
-        return view('Products.edit', compact('product', 'categories', 'brands'));
+        return view('admin.Products.edit', compact('product', 'categories', 'brands'));
     }
 
     public function update(UpdateProductRequest $request, string $id)
@@ -65,17 +66,17 @@ class ProductController extends Controller
         $data = $request->validated();
 
         $this->productService->update($data, $request, $id);
-        return redirect()->route('products.index')->with('success', 'Cập nhật thông tin sản phẩm thành công!');
+        return redirect()->route('admin.products.index')->with('success', 'Cập nhật thông tin sản phẩm thành công!');
     }
 
     public function restore(string $id)
     {
         $this->productService->restore($id);
-        return redirect()->route('products.index')->with('success', 'Khôi phục sản phẩm thành công!');
+        return redirect()->route('admin.products.index')->with('success', 'Khôi phục sản phẩm thành công!');
     }
     public function destroy(string $id)
     {
         $this->productService->delete($id);
-        return redirect()->route('products.index')->with('success', 'Xóa sản phẩm thành công!');
+        return redirect()->route('admin.products.index')->with('success', 'Xóa sản phẩm thành công!');
     }
 }

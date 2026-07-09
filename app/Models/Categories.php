@@ -41,3 +41,4 @@ class Categories extends Model
         return asset('storage/images/' . $this->avatar);
     }
 }
+

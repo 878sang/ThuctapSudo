@@ -29,3 +29,4 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
         return $this->model->where('id', '!=', $id)->get();
     }
 }
+

@@ -1,4 +1,4 @@
-@extends('Layout.main')
+@extends('admin.Layout.main')
 @section('title', 'Quản Lý Thương Hiệu')
 @section('content')
 
@@ -19,13 +19,13 @@
                 <p class="text-slate-500 text-sm mt-1">Quản lý các thương hiệu sản phẩm trong hệ thống</p>
             </div>
         </div>
-        <x-button href="{{ route('brands.create') }}">
+        <x-button href="{{ route('admin.brands.create') }}">
             Thêm thương hiệu
         </x-button>
     </div>
 
     <div class="mb-6">
-        <form action="{{ route('brands.index') }}" method="GET" class="flex flex-col sm:flex-row gap-4 items-center">
+        <form action="{{ route('admin.brands.index') }}" method="GET" class="flex flex-col sm:flex-row gap-4 items-center">
             <div class="w-full sm:w-48">
                 <select name="status" id="status" onchange="this.form.submit()" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500">
                     <option value="all" {{ !request()->has('status') || request()->status == 'all' ? 'selected' : '' }}>Tất cả trạng thái</option>
@@ -72,7 +72,7 @@
                             <img src="{{ $brand->logo_url }}" alt="{{ $brand->name }}" class="h-10 w-auto object-contain mx-auto rounded-md">
                         </td>
                         <td class="py-4 px-6">
-                            <a href="{{ route('brands.show', [$brand->slug, $brand->id]) }}">
+                            <a href="{{ route('admin.brands.show', [$brand->slug, $brand->id]) }}">
                                 <span class="text-sm font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors duration-150 block">
                                     {{ $brand->name }}
                                 </span>
@@ -107,7 +107,7 @@
                         <td class="py-4 px-6 text-center">
                             @if ($brand->deleted_at)
                             <div class="flex items-center justify-center gap-2">
-                                <form action="{{ route('brands.restore', $brand->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn khôi phục Thương hiệu này?')" class="inline">
+                                <form action="{{ route('admin.brands.restore', $brand->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn khôi phục Thương hiệu này?')" class="inline">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150" title="Khôi phục">
@@ -119,21 +119,21 @@
                                 </form>
                                 <button type="button" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150 btn-delete" title="Xóa"
                                     data-id="{{ $brand->id }}"
-                                    data-url="{{ route('brands.destroy', $brand->id) }}"
+                                    data-url="{{ route('admin.brands.destroy', $brand->id) }}"
                                     data-type="brand">
                                     Xóa
                                 </button>
                             </div>
                             @else
                             <div class="flex items-center justify-center gap-2">
-                                <a href="{{ route('brands.edit', $brand->id) }}" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-150" title="Chỉnh sửa">
+                                <a href="{{ route('admin.brands.edit', $brand->id) }}" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-150" title="Chỉnh sửa">
                                     <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                     </svg>
                                 </a>
                                 <button type="button" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150 btn-delete" title="Xóa"
                                     data-id="{{ $brand->id }}"
-                                    data-url="{{ route('brands.destroy', $brand->id) }}"
+                                    data-url="{{ route('admin.brands.destroy', $brand->id) }}"
                                     data-type="brand">
                                     Xóa
                                 </button>
@@ -152,7 +152,7 @@
                                 </div>
                                 <h3 class="text-sm font-semibold text-slate-800">Không có thương hiệu nào</h3>
                                 <p class="text-xs text-slate-500 mt-1 max-w-xs">Bắt đầu tạo thương hiệu đầu tiên của bạn trong hệ thống.</p>
-                                <a href="{{ route('brands.create') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-xl hover:bg-indigo-700 transition-colors">
+                                <a href="{{ route('admin.brands.create') }}" class="mt-4 inline-flex items-center gap-2 px-4 py-2 bg-indigo-600 text-white text-xs font-semibold rounded-xl hover:bg-indigo-700 transition-colors">
                                     <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
                                     </svg>
@@ -172,3 +172,4 @@
 <x-delete-modal />
 
 @endsection
+

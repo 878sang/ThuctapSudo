@@ -1,13 +1,13 @@
-@extends('Layout.main')
+@extends('admin.Layout.main')
 @section('title', 'Chi Tiết Danh Mục')
 @section('content')
 <div class="max-w-5xl mx-auto">
     <div class="mb-6 flex items-center justify-between">
         <x-breadcrumb :items="[
-            ['label' => 'Danh mục', 'url' => route('categories.index')],
+            ['label' => 'Danh mục', 'url' => route('admin.categories.index')],
             ['label' => $category->name]
         ]" />
-        <a href="{{ route('categories.index') }}" class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors mb-5">
+        <a href="{{ route('admin.categories.index') }}" class="inline-flex items-center text-sm text-indigo-600 hover:text-indigo-800 font-medium transition-colors mb-5">
             &larr; Quay lại danh sách
         </a>
     </div>
@@ -55,14 +55,14 @@
                 </div>
 
                 <div class="border-t border-gray-100 pt-6 mt-6 flex gap-3">
-                    <a href="{{ route('categories.edit', $category->id) }}"
+                    <a href="{{ route('admin.categories.edit', $category->id) }}"
                         class="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-indigo-650 hover:bg-indigo-700 text-white font-medium rounded-lg text-sm transition-colors shadow-sm bg-indigo-600">
                         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                         </svg>
                         Chỉnh sửa danh mục
                     </a>
-                    <form action="{{ route('categories.destroy', $category->id) }}"
+                    <form action="{{ route('admin.categories.destroy', $category->id) }}"
                         method="POST"
                         onsubmit="return confirm('Bạn có chắc chắn muốn xóa danh mục này? Hành động này sẽ không thể hoàn tác.')">
                         @csrf
@@ -154,7 +154,7 @@
                             @endif
                         </td>
                         <td class="py-4 px-6 text-center">
-                            <a href="{{ route('products.show', [$product->slug,$product->id]) }}" class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold text-indigo-650 hover:text-white bg-indigo-50 hover:bg-indigo-600 border border-indigo-100 rounded-lg transition-all">
+                            <a href="{{ route('admin.products.show', [$product->slug,$product->id]) }}" class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold text-indigo-650 hover:text-white bg-indigo-50 hover:bg-indigo-600 border border-indigo-100 rounded-lg transition-all">
                                 Xem chi tiết &rarr;
                             </a>
                         </td>
@@ -166,7 +166,7 @@
         @else
         <div class="text-center py-10 border border-dashed border-gray-200 rounded-xl">
             <p class="text-sm text-gray-500">Chưa có sản phẩm nào thuộc danh mục này.</p>
-            <a href="{{ route('products.create') }}" class="mt-3 inline-flex items-center gap-1.5 text-xs text-indigo-600 font-semibold hover:underline">
+            <a href="{{ route('admin.products.create') }}" class="mt-3 inline-flex items-center gap-1.5 text-xs text-indigo-600 font-semibold hover:underline">
                 Thêm sản phẩm mới &rarr;
             </a>
         </div>
@@ -175,3 +175,4 @@
 
 </div>
 @endsection
+
