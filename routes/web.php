@@ -6,6 +6,8 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Client\CategoriesClientController;
+use App\Http\Controllers\Client\ProductClientController;
+use App\Http\Controllers\Client\CartClientController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -16,6 +18,9 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
 Route::get('categories', [CategoriesClientController::class, 'showClient'])->name('categories.showClient');
+Route::get('categories/{id}', [CategoriesClientController::class, 'detailClient'])->name('categories.detailClient');
+Route::get('products/{id}', [ProductClientController::class, 'productDetailClient'])->name('products.detailClient');
+Route::get('cart', [CartClientController::class, 'cartClient'])->name('cart.showClient');
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::prefix('categories')->middleware('role')->group(function () {
