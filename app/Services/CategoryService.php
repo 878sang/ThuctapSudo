@@ -7,7 +7,6 @@ use App\Services\Interfaces\CategoryServiceInterface;
 use App\Repositories\Interfaces\CategoryRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 use App\Services\Interfaces\ProductServiceInterface;
 use Override;
 
@@ -33,29 +32,15 @@ class CategoryService extends BaseService implements CategoryServiceInterface
     #[Override]
     public function create(array $data, Request $request)
     {
-        $fileName = null;
-        if ($request->hasFile('avatar')) {
-            $file = $request->file('avatar');
-            $fileName = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('images', $fileName, 'public');
-        }
-        $data['avatar'] = $fileName;
+        $data['avatar'] = $this->uploadFile($request, 'avatar', 'images');
         $data['slug'] = Str::slug($request->name);
-
         return parent::create($data, $request);
     }
     #[Override]
     public function update(array $data,  Request $request, int $id)
     {
         $category = $this->repository->findOrFail($id);
-        $fileName = $category->avatar;
-        if ($request->hasFile('avatar')) {
-            Storage::disk('public')->delete('images/' . $category->avatar);
-            $file = $request->file('avatar');
-            $fileName = time() . '.' . $file->getClientOriginalExtension();
-            $file->storeAs('images', $fileName, 'public');
-            $data['avatar'] = $fileName;
-        }
+        $data['avatar'] = $this->uploadFile($request, 'avatar', 'images', $category->avatar);
         $data['slug'] = Str::slug($request->name);
         return parent::update($data, $request, $id);
     }

@@ -12,7 +12,10 @@ class BaseRepository implements BaseRepositoryInterface
     {
         return $this->model->all();
     }
-
+    public function getActive()
+    {
+        return $this->model::active()->get();
+    }
     public function paginate(int $perPage)
     {
         return $this->model->paginate($perPage);

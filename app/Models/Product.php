@@ -10,25 +10,47 @@ class Product extends Model
 {
     use SoftDeletes, HasFactory;
 
-    const STATUS_ACTIVE = 1;
-    const STATUS_HIDDEN = 0;
+    const STATUS_ACTIVE = 'active';
+    const STATUS_DRAFT = 'draft';
+    const STATUS_INACTIVE = 'inactive';
 
     protected $fillable = [
         'name',
+        'sku',
+        'brand_id',
+        'cost_price',
+        'price',
+        'sale_price',
+        'stock',
+        'minimum_stock',
+        'weight',
+        'length',
+        'width',
+        'height',
+        'featured',
+        'seo_title',
+        'seo_description',
+        'seo_keyword',
+        'published_at',
         'category_id',
         'description',
         'detail',
-        'avatar',
+        'thumbnail',
         'slug',
-        'images',
+        'gallery',
         'status',
     ];
     protected $casts = [
-        'images' => 'array',
+        'gallery' => 'array',
+        'published_at' => 'datetime',
     ];
     public function category()
     {
         return $this->belongsTo(Categories::class, 'category_id');
+    }
+    public function brand()
+    {
+        return $this->belongsTo(Brand::class, 'brand_id');
     }
 
 
@@ -43,6 +65,10 @@ class Product extends Model
     public function isActive(): bool
     {
         return $this->status == self::STATUS_ACTIVE;
+    }
+    public function isDraft(): bool
+    {
+        return $this->status == self::STATUS_DRAFT;
     }
 
     public function scopeOrderAsc($query)
@@ -65,6 +91,11 @@ class Product extends Model
         return $query->where('category_id', $categoryId);
     }
 
+    public function scopeOfBrand($query, $brandId)
+    {
+        return $query->where('brand_id', $brandId);
+    }
+
 
     public function scopeFilterStatus($query, $status)
     {
@@ -80,16 +111,16 @@ class Product extends Model
         }
     }
 
-    public function getAvatarUrlAttribute(): string
+    public function getThumbnailUrlAttribute(): string
     {
-        return asset('storage/images/' . $this->avatar);
+        return asset('storage/images/' . $this->thumbnail);
     }
 
-    public function getImageUrlsAttribute(): array
+    public function getGalleryUrlsAttribute(): array
     {
-        if (!$this->images || !is_array($this->images)) {
+        if (!$this->gallery || !is_array($this->gallery)) {
             return [];
         }
-        return array_map(fn($img) => asset('storage/products/' . $img), $this->images);
+        return array_map(fn($img) => asset('storage/products/' . $img), $this->gallery);
     }
 }

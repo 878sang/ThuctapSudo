@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreCategoryRequest;
 use App\Http\Requests\UpdateCategoryRequest;
 use App\Services\Interfaces\CategoryServiceInterface;
 use App\Services\Interfaces\ProductServiceInterface;
+use App\Http\Resources\CategoryResource;
 
 class CategoriesController extends Controller
 {
@@ -21,15 +20,17 @@ class CategoriesController extends Controller
     }
     public function index(Request $request)
     {
-
         $categories = $this->categoryService->getFilteredCategories($request);
-
-        return view('categories.index', compact('categories'));
+        return view('categories.index', [
+            'categories' => CategoryResource::collection($categories)
+        ]);
     }
     public function show(string $id)
     {
         $category = $this->categoryService->with(['products'])->findOrFail($id);
-        return view('categories.detail', compact('category'));
+        return view('categories.detail', [
+            'category' => new CategoryResource($category)
+        ]);
     }
     public function create()
     {

@@ -36,8 +36,15 @@
             </select>
             <select name="status" id="status" onchange="this.form.submit()">
                 <option value="all" {{ !request()->has('status') ? 'selected' : '' }}>Trạng thái</option>
-                <option value="1" {{ request()->has('status')&&request()->status == '1' ? 'selected' : '' }}>Hoạt động</option>
-                <option value="0" {{ request()->has('status')&&request()->status == '0' ? 'selected' : '' }}>Ngưng hoạt động</option>
+                <option value="active" {{ request()->has('status')&&request()->status == 'active' ? 'selected' : '' }}>Hoạt động</option>
+                <option value="inactive" {{ request()->has('status')&&request()->status == 'inactive' ? 'selected' : '' }}>Ngưng hoạt động</option>
+                <option value="draft" {{ request()->has('status')&&request()->status == 'draft' ? 'selected' : '' }}>Nháp</option>
+            </select>
+            <select name="brand" id="brand" onchange="this.form.submit()">
+                <option value="all" {{ !request()->has('brand') ? 'selected' : '' }}>Tất cả thương hiệu</option>
+                @foreach($brands as $brand)
+                <option value="{{ $brand->id }}" {{ request()->has('brand')&&request()->brand == $brand->id ? 'selected' : '' }}>{{ $brand->name }}</option>
+                @endforeach
             </select>
             <select name="sort" id="sort" onchange="this.form.submit()">
                 <option value="" {{ !request()->has('sort') ? 'selected' : '' }}>Sắp xếp</option>
@@ -57,10 +64,11 @@
                     <tr class="bg-slate-50/70 border-b border-slate-200/50">
                         <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider w-16 text-center">ID</th>
                         <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider w-24">Ảnh</th>
-                        <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Tên Sản phẩm</th>
-                        <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Tên Dah mục</th>
-                        <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Đường dẫn (Slug)</th>
-                        <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Mô tả</th>
+                        <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Tên Sản phẩm / SKU</th>
+                        <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Danh mục</th>
+                        <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Thương hiệu</th>
+                        <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Giá bán</th>
+                        <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider">Tồn kho / Tối thiểu</th>
                         <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider w-32 text-center">Trạng thái</th>
                         <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider w-40">Ngày tạo</th>
                         <th class="py-4 px-6 text-xs font-semibold text-slate-500 uppercase tracking-wider w-36 text-center">Hành động</th>
@@ -73,38 +81,58 @@
                             {{ $product->id }}
                         </td>
                         <td class="py-4 px-6">
-                            <img src="{{ $product->avatar_url }}" alt="{{ $product->name }}" class="w-10 h-10 rounded-xl object-cover ring-2 ring-slate-100 group-hover:scale-105 transition-transform duration-200">
+                            <img src="{{ $product->thumbnail_url }}" alt="{{ $product->name }}" class="w-10 h-10 rounded-xl object-cover ring-2 ring-slate-100 group-hover:scale-105 transition-transform duration-200">
                         </td>
                         <td class="py-4 px-6">
-                            <a href="{{ route('products.show',[$product->slug,$product->id ]) }}"><span class="text-sm font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors duration-150">
-                                    {{ $product->name}}
-                                </span></a>
+                            <a href="{{ route('products.show',[$product->slug,$product->id ]) }}">
+                                <span class="text-sm font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors duration-150 block">
+                                    {{ $product->name }}
+                                </span>
+                            </a>
+                            <span class="text-[10px] font-mono text-slate-400 bg-slate-50 px-1.5 py-0.5 rounded border border-slate-200/50 mt-1 inline-block">SKU: {{ $product->sku }}</span>
+                        </td>
+                        <td class="py-4 px-6 text-sm text-slate-600">
+                            {{ $product->category->name ?? 'Không có danh mục' }}
+                        </td>
+                        <td class="py-4 px-6 text-sm text-slate-600">
+                            {{ $product->brand->name ?? 'Không có thương hiệu' }}
                         </td>
                         <td class="py-4 px-6">
-                            <span class="inline-flex font-mono text-xs text-slate-500 bg-slate-100/80 px-2.5 py-1 rounded-lg border border-slate-200/50">
-                                {{ $product->category->name ??'Không có danh mục'}}
-                            </span>
+                            @if($product->sale_price)
+                            <div class="text-sm font-semibold text-slate-800">{{ number_format($product->sale_price, 0, ',', '.') }}đ</div>
+                            <div class="text-xs text-slate-400 line-through">{{ number_format($product->price, 0, ',', '.') }}đ</div>
+                            @else
+                            <div class="text-sm font-semibold text-slate-800">{{ number_format($product->price, 0, ',', '.') }}đ</div>
+                            @endif
                         </td>
                         <td class="py-4 px-6">
-                            <span class="inline-flex font-mono text-xs text-slate-500 bg-slate-100/80 px-2.5 py-1 rounded-lg border border-slate-200/50">
-                                {{ $product->slug }}
-                            </span>
-                        </td>
-                        <td class="py-4 px-6 max-w-xs sm:max-w-sm">
-                            <p class="text-xs text-slate-500 line-clamp-2 leading-relaxed" title="{{ $product->description }}">
-                                {{ $product->description ?? 'Chưa có mô tả' }}
-                            </p>
+                            <div class="text-sm text-slate-700">
+                                <span class="font-medium {{ $product->stock <= $product->minimum_stock ? 'text-amber-600 font-semibold' : 'text-slate-800' }}">
+                                    {{ $product->stock }}
+                                </span>
+                                <span class="text-xs text-slate-400">/ {{ $product->minimum_stock }}</span>
+                            </div>
+                            @if($product->stock <= $product->minimum_stock)
+                                <span class="inline-flex items-center text-[10px] font-medium text-amber-700 bg-amber-50 px-1.5 py-0.5 rounded border border-amber-200 mt-1">
+                                    Sắp hết hàng
+                                </span>
+                                @endif
                         </td>
                         <td class="py-4 px-6 text-center">
                             @if($product->deleted_at)
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 ring-1 ring-red-600/20 shadow-sm">
                                 <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse"></span>
                                 Đã xóa
-                             </span>
+                            </span>
                             @elseif($product->isActive())
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 ring-1 ring-emerald-600/20 shadow-sm">
                                 <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse"></span>
                                 Hoạt động
+                            </span>
+                            @elseif($product->isDraft())
+                            <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 ring-1 ring-blue-600/20 shadow-sm">
+                                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                                Bản nháp
                             </span>
                             @else
                             <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 ring-1 ring-slate-500/10">

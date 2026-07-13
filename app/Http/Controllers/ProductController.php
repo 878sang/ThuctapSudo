@@ -3,32 +3,40 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
-use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Services\Interfaces\ProductServiceInterface;
 use App\Services\Interfaces\CategoryServiceInterface;
+use App\Http\Resources\ProductResource;
+use App\Services\Interfaces\BrandServiceInterface;
 
 class ProductController extends Controller
 {
     protected ProductServiceInterface $productService;
     protected CategoryServiceInterface $categoryService;
-    public function __construct(ProductServiceInterface $productService, CategoryServiceInterface $categoryService)
+    protected BrandServiceInterface $brandService;
+    public function __construct(ProductServiceInterface $productService, CategoryServiceInterface $categoryService, BrandServiceInterface $brandService)
     {
         $this->productService = $productService;
         $this->categoryService = $categoryService;
+        $this->brandService = $brandService;
     }
     public function index(Request $request)
     {
-        $categories = $this->categoryService->getAll();
+        $categories = $this->categoryService->getActive();
+        $brands = $this->brandService->getActive();
         $products = $this->productService->getFilteredProducts($request, 10);
-        return view('Products.index', compact('products', 'categories'));
+        return view('Products.index', [
+            'products' => ProductResource::collection($products),
+            'categories' => $categories,
+            'brands' => $brands
+        ]);
     }
     public function create()
     {
-        $categories = $this->categoryService->getAll();
-        return view('Products.create', compact('categories'));
+        $categories = $this->categoryService->getActive();
+        $brands = $this->brandService->getActive();
+        return view('Products.create', compact('categories', 'brands'));
     }
     public function store(StoreProductRequest $request)
     {
@@ -39,14 +47,17 @@ class ProductController extends Controller
     public function show(string $slug, string $id)
     {
         $product = $this->productService->findOrFail($id);
-        return view('Products.detail', compact('product'));
+        return view('Products.detail', [
+            'product' => new ProductResource($product)
+        ]);
     }
 
     public function edit(string $id)
     {
         $product = $this->productService->findOrFail($id);
-        $categories = $this->categoryService->getAll();
-        return view('Products.edit', compact('product', 'categories'));
+        $categories = $this->categoryService->getActive();
+        $brands = $this->brandService->getActive();
+        return view('Products.edit', compact('product', 'categories', 'brands'));
     }
 
     public function update(UpdateProductRequest $request, string $id)
@@ -64,8 +75,7 @@ class ProductController extends Controller
     }
     public function destroy(string $id)
     {
-        $isForceDeleted = $this->productService->delete($id);
-        $message = $isForceDeleted ? 'Xóa sản phẩm vĩnh viễn thành công!' : 'Xóa sản phẩm thành công!';
-        return redirect()->route('products.index')->with('success', $message);
+        $this->productService->delete($id);
+        return redirect()->route('products.index')->with('success', 'Xóa sản phẩm thành công!');
     }
 }

@@ -13,7 +13,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     }
     public function getFilteredProducts(array $filters, int $perPage = 10)
     {
-        $query = $this->model->query();
+        $query = $this->model->query()->with('category', 'brand');
         if (isset($filters['category']) && $filters['category'] !== 'all') {
             $query->ofCategory($filters['category']);
         }
@@ -34,6 +34,9 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
 
         if (!empty($filters['action'])) {
             $query->filterTrash($filters['action']);
+        }
+        if (isset($filters['brand']) && $filters['brand'] !== 'all') {
+            $query->ofBrand($filters['brand']);
         }
         return $query->paginate($perPage)->withQueryString();
     }

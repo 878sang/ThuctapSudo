@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Services\Interfaces\BaseServiceInterface;
 use App\Repositories\Interfaces\BaseRepositoryInterface;
 
+use Illuminate\Support\Facades\Storage;
+
 class BaseService implements BaseServiceInterface
 {
     protected BaseRepositoryInterface $repository;
@@ -16,6 +18,10 @@ class BaseService implements BaseServiceInterface
     public function getAll()
     {
         return $this->repository->getAll();
+    }
+    public function getActive()
+    {
+        return $this->repository->getActive();
     }
     public function paginate(int $perpage = 10)
     {
@@ -64,5 +70,34 @@ class BaseService implements BaseServiceInterface
     public function forceDelete($id)
     {
         return $this->repository->forceDelete($id);
+    }
+    protected function uploadFile(Request $request, string $fieldName, string $directory, $oldFileName = null)
+    {
+        if ($request->hasFile($fieldName)) {
+            $file = $request->file($fieldName);
+            $fileName = time() . '.' . $file->getClientOriginalExtension();
+            $file->storeAs($directory, $fileName, 'public');
+            return $fileName;
+        }
+        return $oldFileName;
+    }
+    protected function uploadMultipleFiles(Request $request, string $fieldName, string $directory, array $oldFileNames = [])
+    {
+        if ($request->hasFile($fieldName)) {
+            foreach ($oldFileNames as $oldFile) {
+                if (is_string($oldFile)) {
+                    Storage::disk('public')->delete($directory . '/' . $oldFile);
+                }
+            }
+            $fileNames = [];
+            $files = $request->file($fieldName);
+            foreach ($files as $key => $file) {
+                $fileName = time() . '_' . $key . '.' . $file->getClientOriginalExtension();
+                $file->storeAs($directory, $fileName, 'public');
+                $fileNames[] = $fileName;
+            }
+            return $fileNames;
+        }
+        return $oldFileNames;
     }
 }

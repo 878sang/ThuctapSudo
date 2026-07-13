@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 interface BaseServiceInterface
 {
     public function getAll();
+    public function getActive();
     public function paginate(int $perpage = 10);
     public function find($id);
     public function findOrFail($id);

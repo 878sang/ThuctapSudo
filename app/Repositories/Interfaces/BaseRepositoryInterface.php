@@ -5,6 +5,7 @@ namespace App\Repositories\Interfaces;
 interface BaseRepositoryInterface
 {
     public function getAll();
+    public function getActive();
     public function paginate(int $perPage);
     public function find(int $id);
     public function findOrFail(int $id);
