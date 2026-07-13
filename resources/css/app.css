@@ -8,10 +8,16 @@
 @theme {
     --font-sans: 'Roboto';
     --color-1: #F5F8FF;
+    --color-2: #202F36;
     --color-3: #5D6F7A;
-    --color-7: #006DF0;
+    --color-4: #A1A7AA;
     --color-5: #22343E;
+    --color-6: #0165FC;
+    --color-7: #006DF0;
     --color-8: #DDECFF;
+    --color-9: #DAE6FF;
+    --color-blue_bg: #F0F7FF;
+    --color-blue_button: #EDF3FF;
 }
 
 body {
@@ -29,4 +35,13 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb {
     background: #334155;
     border-radius: 9999px;
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+    display: none;
+}
+
+.hide-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }

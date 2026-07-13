@@ -223,4 +223,92 @@ class CategoriesClientController extends Controller
 
         return view('client.categogies.show', compact('categories'));
     }
+    public function detailClient($id)
+    {
+        $sampleProducts = [
+            [
+                'brand' => 'Schneider Electric',
+                'name' => 'Cầu dao tự động dạng cài SIEMENS NS080N3M2',
+                'price' => '18.187.450',
+                'old_price' => '20.187.450',
+                'discount' => '-23%',
+                'stars' => 4,
+                'reviews' => 227,
+            ],
+            [
+                'brand' => 'Siemens',
+                'name' => 'Bộ lập trình PLC S7-1200 CPU 1214C DC/DC/DC công suất cao bền bỉ cho doanh nghiệp',
+                'price' => '5.620.000',
+                'old_price' => '6.800.000',
+                'discount' => '-17%',
+                'stars' => 5,
+                'reviews' => 94,
+            ],
+            [
+                'brand' => 'Omron',
+                'name' => 'Cảm biến tiệm cận E2E-X5ME1 2M OMRON chính hãng',
+                'price' => '1.250.000',
+                'old_price' => '',
+                'discount' => '',
+                'stars' => 4,
+                'reviews' => 112,
+            ],
+            [
+                'brand' => 'Schneider Electric',
+                'name' => 'Cầu dao tự động dạng cài SIEMENS NS080N3M2',
+                'price' => '18.187.450',
+                'old_price' => '20.187.450',
+                'discount' => '-23%',
+                'stars' => 4,
+                'reviews' => 227,
+            ],
+            [
+                'brand' => 'Siemens',
+                'name' => 'Bộ lập trình PLC S7-1200 CPU 1214C DC/DC/DC công suất cao bền bỉ cho doanh nghiệp',
+                'price' => '5.620.000',
+                'old_price' => '6.800.000',
+                'discount' => '-17%',
+                'stars' => 5,
+                'reviews' => 94,
+            ],
+            [
+                'brand' => 'Omron',
+                'name' => 'Cảm biến tiệm cận E2E-X5ME1 2M OMRON chính hãng',
+                'price' => '1.250.000',
+                'old_price' => '',
+                'discount' => '',
+                'stars' => 4,
+                'reviews' => 112,
+            ],
+            [
+                'brand' => 'Schneider Electric',
+                'name' => 'Cầu dao tự động dạng cài SIEMENS NS080N3M2',
+                'price' => '18.187.450',
+                'old_price' => '20.187.450',
+                'discount' => '-23%',
+                'stars' => 4,
+                'reviews' => 227,
+            ],
+            [
+                'brand' => 'Siemens',
+                'name' => 'Bộ lập trình PLC S7-1200 CPU 1214C DC/DC/DC công suất cao bền bỉ cho doanh nghiệp',
+                'price' => '5.620.000',
+                'old_price' => '6.800.000',
+                'discount' => '-17%',
+                'stars' => 5,
+                'reviews' => 94,
+            ],
+            [
+                'brand' => 'Omron',
+                'name' => 'Cảm biến tiệm cận E2E-X5ME1 2M OMRON chính hãng',
+                'price' => '1.250.000',
+                'old_price' => '',
+                'discount' => '',
+                'stars' => 4,
+                'reviews' => 112,
+            ],
+        ];
+
+        return view('client.categogies.detail', compact('sampleProducts'));
+    }
 }
