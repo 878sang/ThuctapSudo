@@ -123,5 +123,11 @@ class Product extends Model
         }
         return array_map(fn($img) => asset('storage/products/' . $img), $this->gallery);
     }
+
+    public function scopeOrderByPrice($query, $direction = 'asc')
+    {
+        $dir = strtolower($direction) === 'desc' ? 'DESC' : 'ASC';
+        return $query->orderByRaw("COALESCE(sale_price, price) {$dir}");
+    }
 }
 

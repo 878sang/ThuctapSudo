@@ -18,7 +18,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
 Route::get('categories', [CategoriesClientController::class, 'showClient'])->name('categories.showClient');
-Route::get('categories/{id}', [CategoriesClientController::class, 'detailClient'])->name('categories.detailClient');
+Route::get('product', [ProductClientController::class, 'showClient'])->name('products.showClient');
 Route::get('products/{id}', [ProductClientController::class, 'productDetailClient'])->name('products.detailClient');
 Route::get('cart', [CartClientController::class, 'cartClient'])->name('cart.showClient');
 

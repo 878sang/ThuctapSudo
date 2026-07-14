@@ -20,14 +20,21 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         if (isset($filters['status']) && $filters['status'] !== 'all') {
             $query->filterStatus($filters['status']);
         }
-        if (isset($filters['sort']) && in_array($filters['sort'], ['asc', 'desc'])) {
-            if ($filters['sort'] === 'desc') {
-                $query->orderDesc();
-            } else {
-                $query->orderAsc();
+        if (isset($filters['sort'])) {
+            if ($filters['sort'] === 'price_asc') {
+                $query->orderByPrice('asc');
+            } elseif ($filters['sort'] === 'price_desc') {
+                $query->orderByPrice('desc');
+            } elseif ($filters['sort'] === 'newest') {
+                $query->orderBy('created_at', 'desc');
+            } elseif (in_array($filters['sort'], ['asc', 'desc'])) {
+                if ($filters['sort'] === 'desc') {
+                    $query->orderDesc();
+                } else {
+                    $query->orderAsc();
+                }
             }
         }
-
         if (!empty($filters['search'])) {
             $query->search($filters['search']);
         }
@@ -49,4 +56,3 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         return $this->model->withTrashed()->where('category_id', $oldCategoryId)->update(['category_id' => $newCategoryId]);
     }
 }
-

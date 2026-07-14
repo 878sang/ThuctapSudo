@@ -5,9 +5,8 @@
 <div class="bg-blue_bg min-h-screen py-6 rounded-[5px]">
     <div class="max-w-[1440px] mx-auto px-4 mb-4">
         <x-breadcrumb :items="[
-            ['label' => 'Biến tần', 'url' => '#'],
-            ['label' => 'Schneider', 'url' => '#'],
-            ['label' => 'Biến tần ATV212 Schneider ATV212HU40N4']
+            ['label' => $product->category->name ?? 'Danh mục', 'url' => '#'],
+            ['label' => $product->name]
         ]" />
     </div>
 
@@ -19,15 +18,16 @@
                         activeIndex: 0,
                         activeTab: 'image',
                         images: [
-                            @foreach($product['images'] as $img)
-                            '{{ asset($img) }}',
+                            '{{ $product->thumbnail ? $product->thumbnail_url : asset('storage/images/cambien.png') }}',
+                            @foreach($product->gallery_urls as $img)
+                            '{{ $img }}',
                             @endforeach
                         ]
                     }">
                         <div class="bg-white p-5 rounded-[10px]">
                             <div class="mt-11 mx-auto w-[420px] h-[420px] rounded-lg relative overflow-hidden group" :class="activeTab === 'image' ? 'flex items-center justify-center' : ''">
                                 <template x-if="activeTab === 'image'">
-                                    <div class=" flex items-center justify-center">
+                                    <div class="w-full h-full flex items-center justify-center">
                                         <img :src="images[activeIndex]" alt="Main Product Image" class="w-full h-full object-contain transition-transform duration-300">
                                     </div>
                                 </template>
@@ -35,7 +35,7 @@
                                     <iframe class="w-full h-full" src="https://www.youtube.com/embed/z1X2t9iT9W0" title="Altivar 212 Variable Speed Drive Tutorial" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                                 </template>
                             </div>
-                            <div class="flex items-center justify-between">
+                            <div class="flex items-center justify-between mt-3">
                                 <div class="flex items-center gap-2">
                                     <button
                                         @click="activeTab = 'image'"
@@ -76,13 +76,22 @@
                             </div>
                         </div>
                         <div class="flex items-center mt-5 gap-2.5 overflow-x-auto py-1 hide-scrollbar">
-                            @foreach($product['images'] as $index => $img)
+
                             <div
-                                @click="activeIndex = {{ $index }}; activeTab = 'image';"
-                                @mouseover="activeIndex = {{ $index }}; activeTab = 'image';"
-                                :class="activeIndex === {{ $index }} && activeTab === 'image' ? 'border-7 ring-1 ring-7' : 'border-gray-200 hover:border-gray-400'"
-                                class="w-16 h-16 border rounded p-1 cursor-pointer bg-white transition-all shrink-0 flex items-center justify-center">
-                                <img src="{{ asset($img) }}" alt="Thumbnail" class="max-h-full object-contain">
+                                @click="activeIndex = 0; activeTab = 'image';"
+                                @mouseover="activeIndex = 0; activeTab = 'image';"
+                                :class="activeIndex === 0 && activeTab === 'image' ? 'border-7 ring-1 ring-7' : 'border-gray-200 hover:border-gray-400'"
+                                class="w-16 h-16 rounded p-1 cursor-pointer bg-white transition-all shrink-0 flex items-center justify-center">
+                                <img src="{{ $product->thumbnail ? $product->thumbnail_url : asset('storage/images/cambien.png') }}" alt="Thumbnail" class="max-h-full object-contain">
+                            </div>
+
+                            @foreach($product->gallery_urls as $index => $img)
+                            <div
+                                @click="activeIndex = {{ $index + 1 }}; activeTab = 'image';"
+                                @mouseover="activeIndex = {{ $index + 1 }}; activeTab = 'image';"
+                                :class="activeIndex === {{ $index + 1 }} && activeTab === 'image' ? 'border-7 ring-1 ring-7' : 'border-gray-200 hover:border-gray-400'"
+                                class="w-16 h-16 rounded p-1 cursor-pointer bg-white transition-all shrink-0 flex items-center justify-center">
+                                <img src="{{ $img }}" alt="Thumbnail" class="max-h-full object-contain">
                             </div>
                             @endforeach
                         </div>
@@ -98,58 +107,51 @@
                                         <i class="fa-solid fa-star text-[#F29F05]"></i>
                                         <i class="fa-solid fa-star text-[#F29F05] opacity-50"></i>
                                     </div>
-                                    <span class="text-xs text-gray-400 font-semibold">{{ $product['reviewsCount'] }} đánh giá</span>
+                                    <span class="text-xs text-gray-400 font-semibold">{{ $product->reviews ?? 0 }} đánh giá</span>
                                 </div>
                                 <button class="text-[#FF7A00] hover:opacity-90 transition-opacity">
                                     <i class="fa-solid fa-bookmark text-2xl animate-fade-in"></i>
                                 </button>
                             </div>
                             <h1 class="text-xl font-bold text-2 mb-2.5">
-                                {{ $product['name'] }}
+                                {{ $product->name }}
                             </h1>
                             <div class="flex items-center justify-between mb-4">
                                 <span class="bg-8 text-6 px-4 py-2.5 rounded text-xs">
-                                    Schneider
+                                    {{ $product->category->name ?? 'Không danh mục' }}
                                 </span>
                                 <span class="text-sm text-4">
-                                    Mã sản phẩm: {{ $product['sku'] }}
+                                    Mã sản phẩm: {{ $product->sku }}
                                 </span>
                             </div>
                             <div class="flex items-center justify-between mb-4 flex-wrap gap-4">
                                 <div class="flex flex-col">
                                     <div class="text-[28px] font-bold text-[#F86614] leading-none">
-                                        {{ $product['price'] }}đ
+                                        {{ number_format($product->sale_price ?? $product->price, 0, ',', '.') }}đ
                                     </div>
+                                    @if($product->sale_price)
                                     <span class="text-base text-4 line-through mt-1">
-                                        {{ $product['oldPrice'] }}đ
+                                        {{ number_format($product->price, 0, ',', '.') }}đ
                                     </span>
+                                    @endif
                                 </div>
                                 <button class="flex items-center gap-2 hover:opacity-80 transition-opacity">
                                     <i class="fa-solid fa-download text-lg text-7"></i>
                                     <span class="text-sm text-4">Download tài liệu</span>
                                 </button>
                             </div>
-
+                            @if($product->description)
                             <div class="bg-blue_button rounded-[10px] mb-6 py-4 px-5">
-                                <div class="flex items-center gap-3 mb-3">
+                                @foreach (explode("\n", $product->description) as $desc)
+                                <div class="flex items-center gap-3 mb-3 text-sm text-3">
                                     <div class="w-6 h-6 rounded-full bg-7 flex items-center justify-center shrink-0">
                                         <i class="fa-solid fa-bolt text-white text-[10px]"></i>
                                     </div>
-                                    <span class="text-sm text-4 font-medium">Số cực: 2P</span>
+                                    {{ $desc }}
                                 </div>
-                                <div class="flex items-center gap-3 mb-3">
-                                    <div class="w-6 h-6 rounded-full bg-7 flex items-center justify-center shrink-0">
-                                        <i class="fa-solid fa-bolt text-white text-[10px]"></i>
-                                    </div>
-                                    <span class="text-sm text-4 font-medium">Dòng định mức (In): 1A</span>
-                                </div>
-                                <div class="flex items-center gap-3">
-                                    <div class="w-6 h-6 rounded-full bg-7 flex items-center justify-center shrink-0">
-                                        <i class="fa-solid fa-bolt text-white text-[10px]"></i>
-                                    </div>
-                                    <span class="text-sm text-4 font-medium">Dòng ngắn mạch (Icu): 10kA</span>
-                                </div>
+                                @endforeach
                             </div>
+                            @endif
                             <h3 class="text-sm font-bold text-2 mb-3">
                                 Dịch vụ & Khuyến mãi
                             </h3>
@@ -169,7 +171,7 @@
                         </div>
 
                         <div class="flex flex-col gap-2.5">
-                            <button class="w-full bg-8 hover:bg-[#d8e8ff] text-2 font-bold py-3.5 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
+                            <button class="w-full bg-8 hover:bg-[#d8e8ff] text-2 py-3.5 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
                                 <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path d="M23.0196 3.77326C22.4113 3.12444 21.5733 2.77299 20.6811 2.77299H4.29843L4.25788 2.44858C4.00106 1.00225 2.71693 -0.0520797 1.24357 0.00198863H1.01378C0.473098 -0.0250455 0.0270342 0.393984 0 0.934668C0.0270342 1.47535 0.473098 1.88086 1.01378 1.85383H1.24357C1.73019 1.84031 2.16273 2.17824 2.25735 2.66485L3.64961 13.492C4.06864 15.9251 6.21786 17.6688 8.69149 17.5742H19.2754C19.789 17.6283 20.2351 17.2498 20.2891 16.7361C20.3432 16.2225 19.9647 15.7764 19.4511 15.7224C19.397 15.7224 19.3294 15.7224 19.2754 15.7224H8.69149C7.44791 15.7494 6.31248 15.0195 5.82586 13.8705H17.9101C20.2621 13.9516 22.3437 12.3566 22.8979 10.0722L23.6955 6.04413C23.8577 5.21958 23.6143 4.38152 23.0331 3.77326H23.0196Z" fill="#0165FC" />
                                     <path d="M7.42021 24.3326C8.91327 24.3326 10.1236 23.1223 10.1236 21.6292C10.1236 20.1361 8.91327 18.9258 7.42021 18.9258C5.92716 18.9258 4.7168 20.1361 4.7168 21.6292C4.7168 23.1223 5.92716 24.3326 7.42021 24.3326Z" fill="#0165FC" />
@@ -205,19 +207,25 @@
                                 <tr>
                                     <td class="py-2 px-4 border border-[#E9E9E9]">
                                         <div class=" flex items-center gap-3">
-                                            <img src="{{ asset($sp['image']) }}" class="w-18 h-18 object-contain shrink-0 border border-gray-100 rounded" alt="Product thumbnail">
+                                            <img src="{{ $sp->thumbnail ? $sp->thumbnail_url : asset('storage/images/chitiet1.jpg') }}" class="w-18 h-18 object-contain shrink-0 border border-gray-100 rounded" alt="Product thumbnail">
                                             <div class="flex flex-col gap-0.5">
-                                                <span class="text-sm  font-bold text-2 leading-tight">{{ $sp['sku'] }}</span>
-                                                <x-star-rating :stars="$sp['stars']" class="text-[9px]" />
-                                                <span class="text-sm text-[#929B9E] font-medium leading-none">{{ $sp['power'] }}</span>
+                                                <span class="text-sm  font-bold text-2 leading-tight">{{ $sp->sku }}</span>
+                                                <x-star-rating :stars="$sp->stars ?? 5" class="text-[9px]" />
+                                                <span class="text-sm text-[#929B9E] font-medium leading-none">{{ $sp->weight ? $sp->weight . 'kg' : '0.75kW' }}</span>
                                             </div>
                                         </div>
                                     </td>
-                                    <td class="py-3.5 px-4 text-sm border border-[#E9E9E9] text-2 font-medium">{{ $sp['oldPrice'] }} đ</td>
-                                    <td class="py-3.5 px-4 text-sm border border-[#E9E9E9] text-2 font-extrabold">{{ $sp['price'] }} đ</td>
+                                    <td class="py-3.5 px-4 text-sm border border-[#E9E9E9] text-2 font-medium">
+                                        @if($sp->sale_price)
+                                        {{ number_format($sp->price, 0, ',', '.') }} đ
+                                        @else
+                                        -
+                                        @endif
+                                    </td>
+                                    <td class="py-3.5 px-4 text-sm border border-[#E9E9E9] text-2 font-extrabold">{{ number_format($sp->sale_price ?? $sp->price, 0, ',', '.') }} đ</td>
                                     <td class="py-3.5 px-4 border border-[#E9E9E9]">
                                         <span class="text-sm text-7">
-                                            {{ $sp['status'] }}
+                                            {{ $sp->stock > 0 ? 'Còn hàng' : 'Đặt hàng' }}
                                         </span>
                                     </td>
                                     <td class="py-3.5 px-4 border border-[#E9E9E9] text-center">
@@ -225,12 +233,12 @@
                                     </td>
                                     <td class="py-3.5 px-4 border border-[#E9E9E9]">
                                         <div class="flex items-center justify-center gap-2">
-                                            @if($sp['status'] === 'Còn hàng')
+                                            @if($sp->stock > 0)
                                             <button class="w-[46px] h-[46px] bg-[#E8F1FF] hover:bg-[#d0e3ff] text-7 rounded flex items-center justify-center transition-colors cursor-pointer">
                                                 <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                                                     <path d="M23.0196 3.77326C22.4113 3.12444 21.5733 2.77299 20.6811 2.77299H4.29843L4.25788 2.44858C4.00106 1.00225 2.71693 -0.0520797 1.24357 0.00198863H1.01378C0.473098 -0.0250455 0.0270342 0.393984 0 0.934668C0.0270342 1.47535 0.473098 1.88086 1.01378 1.85383H1.24357C1.73019 1.84031 2.16273 2.17824 2.25735 2.66485L3.64961 13.492C4.06864 15.9251 6.21786 17.6688 8.69149 17.5742H19.2754C19.789 17.6283 20.2351 17.2498 20.2891 16.7361C20.3432 16.2225 19.9647 15.7764 19.4511 15.7224C19.397 15.7224 19.3294 15.7224 19.2754 15.7224H8.69149C7.44791 15.7494 6.31248 15.0195 5.82586 13.8705H17.9101C20.2621 13.9516 22.3437 12.3566 22.8979 10.0722L23.6955 6.04413C23.8577 5.21958 23.6143 4.38152 23.0331 3.77326H23.0196Z" fill="#0165FC" />
                                                     <path d="M7.42021 24.3327C8.91327 24.3327 10.1236 23.1224 10.1236 21.6293C10.1236 20.1363 8.91327 18.9259 7.42021 18.9259C5.92716 18.9259 4.7168 20.1363 4.7168 21.6293C4.7168 23.1224 5.92716 24.3327 7.42021 24.3327Z" fill="#0165FC" />
-                                                    <path d="M16.8694 24.3327C18.3625 24.3327 19.5728 23.1224 19.5728 21.6293C19.5728 20.1363 18.3625 18.9259 16.8694 18.9259C15.3764 18.9259 14.166 20.1363 14.166 21.6293C14.166 23.1224 15.3764 24.3327 16.8694 24.3327Z" fill="#0165FC" />
+                                                    <path d="M16.8694 24.3327C18.3625 24.3327 19.5728 23.1224 19.5728 21.6293C19.5728 20.1363 8.3625 18.9259 7.42021 18.9259C5.92716 18.9259 4.7168 20.1363 4.7168 21.6293C4.7168 23.1224 5.92716 24.3327 7.42021 24.3327Z" fill="#0165FC" />
                                                 </svg>
                                             </button>
                                             <button class="bg-7 hover:bg-blue-600 text-white min-w-[140px] h-[46px] rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer uppercase">
@@ -265,6 +273,7 @@
                         </button>
                     </div>
                 </div>
+
                 <div class="rounded-[10px]" x-data="{ tab: 'overview', expanded: false }">
                     <div class="flex items-center gap-4 text-base border-b border-[#DDDDDD] pb-4">
                         <button @click="tab = 'overview'" :class="tab === 'overview' ? 'text-7 font-bold' : 'text-gray-500'" class="cursor-pointer transition-colors">
@@ -277,16 +286,12 @@
                     </div>
                     <template x-if="tab === 'overview'">
                         <div class="mt-5 p-6 bg-white  space-y-4 animate-fade-in">
-                            <h3 class="text-lg font-bold text-2">
-                                Kích thước trọng lượng <span class="text-7 font-bold">“ATV212 Series”</span>
-                            </h3>
-                            <div class="flex items-center gap-2 text-xs text-4">
-                                <span>26 thg 10, 2023</span>
-                                <span>&bull;</span>
-                                <span>từ: <a href="#" class="text-7 hover:underline font-semibold">Admin</a></span>
+                            @if($product->detail)
+                            <div class="flex items-center gap-3 mb-3 text-sm text-3">
+                                {!! $product->detail !!}
                             </div>
+                            @endif
                             <div class="relative rounded-lg overflow-hidden border border-gray-100 bg-[#fdfdfd] transition-all duration-500" :class="expanded ? 'max-h-none pb-16' : 'max-h-[500px]'">
-                                <img src="{{ asset('storage/images/chitiet2.jpg') }}" alt="Technical Banner" class="w-full object-contain">
                                 <template x-if="!expanded">
                                     <div class="absolute inset-x-0 bottom-0 h-36 bg-gradient-to-t from-white to-transparent flex items-end justify-center pb-6 z-10">
                                         <button @click="expanded = true" class="bg-white border border-7 hover:bg-blue-50 text-7 font-bold py-2.5 px-6 rounded-full text-xs transition-colors cursor-pointer shadow-md">
@@ -383,6 +388,7 @@
                         </div>
                     </template>
                 </div>
+
                 <div class="bg-white p-6 rounded-[10px] border border-gray-50">
                     <h2 class="text-[20px] font-bold text-2 mb-6">Đánh giá & Nhận xét</h2>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8 pb-6 border-b border-gray-100">
@@ -533,7 +539,6 @@
                         </div>
                         @endforeach
                     </div>
-                    <x-pagination-client />
                 </div>
             </div>
             <div class="w-full lg:w-[27%] flex flex-col gap-6">
@@ -644,13 +649,13 @@
                     </h3>
                     <div class="flex flex-col gap-4">
                         @foreach($relatedProducts as $rp)
-                        <a href="{{ route('products.detailClient', 1) }}" class="flex items-center gap-3.5 no-underline group">
+                        <a href="{{ route('products.detailClient', $rp->id ) }}" class="flex items-center gap-3.5 no-underline group">
                             <div class="w-25 h-25 rounded shrink-0 flex items-center justify-center bg-white group-hover:border-gray-300 transition-colors">
-                                <img src="{{ asset($rp['image']) }}" alt="Related Product" class="max-h-full object-contain">
+                                <img src="{{ $rp->thumbnail ? $rp->thumbnail_url : asset('storage/images/chitiet1.jpg') }}" alt="Related Product" class="max-h-full object-contain">
                             </div>
                             <div class="min-w-0">
                                 <h4 class="text-sm font-bold text-[#202F36] group-hover:text-7 transition-colors line-clamp-1 leading-snug">
-                                    {{ $rp['sku'] }}
+                                    {{ $rp->sku }}
                                 </h4>
                                 <div class="flex text-[#FF7A00] text-xs gap-0.5 mt-1">
                                     <i class="fa-solid fa-star text-[#F29F05]"></i>
@@ -660,7 +665,7 @@
                                     <i class="fa-solid fa-star-half-stroke text-[#F29F05]"></i>
                                 </div>
                                 <span class="text-sm text-[#929B9E] font-semibold block mt-1.5 leading-none">
-                                    {{ $rp['power'] }}
+                                    {{ $rp->weight ? $rp->weight . 'kg' : '0.75kW' }}
                                 </span>
                             </div>
                         </a>

@@ -1,36 +1,6 @@
 @extends('client.layout.main')
 
 @section('content')
-<style>
-    .filter-dropdown-list::-webkit-scrollbar {
-        width: 4px;
-    }
-
-    .filter-dropdown-list::-webkit-scrollbar-track {
-        background: #f0f4ff;
-        border-radius: 99px;
-    }
-
-    .filter-dropdown-list::-webkit-scrollbar-thumb {
-        background: #006DF0;
-        border-radius: 99px;
-    }
-</style>
-
-@php
-$subcategories = [
-'Cảm biến tiệm cận',
-'Cảm biến quang',
-'Cảm biến sợi quang',
-'Bộ khuếch đại tín hiệu',
-'Cảm biến vùng',
-'Cảm biến áp suất',
-'Cảm biến cùng PAN',
-'Bộ mã hóa vòng quay',
-'Phụ kiện cảm biến',
-'Bộ điều khiển cảm biến',
-];
-@endphp
 
 <div class="pt-6 bg-blue_bg min-h-screen rounded-[5px] pb-10">
     <div class="max-w-[1440px] mx-auto mb-4">
@@ -41,23 +11,8 @@ $subcategories = [
         <div class=" flex flex-col lg:flex-row gap-5 items-start">
             @include('client.layout.filters')
             <div class="w-full lg:w-3/4">
-                <div class="mb-4">
-                    <div class="text-[22px] font-bold mb-5 text-2">Cảm biến</div>
-                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
-                        @foreach ($subcategories as $sub)
-                        <a href="#" class="bg-white rounded-md p-4 flex items-center gap-3 no-underline">
-                            <img src="{{asset('storage/images/cambien.png')}}" alt="{{ $sub }}" class="w-16 h-16 object-contain flex-shrink-0 rounded">
-                            <div class="min-w-0">
-                                <p class="text-sm font-medium text-gray-800 hover:text-7 transition-colors leading-snug">
-                                    {{ $sub }}
-                                </p>
-                            </div>
-                        </a>
-                        @endforeach
-                    </div>
-                </div>
                 <div>
-                    <x-product-card title="Sản phẩm nổi bật" :products="$sampleProducts" />
+                    <x-product-card title="Sản phẩm nổi bật" :products="$products" />
                 </div>
             </div>
             <div class="mt-5 grid grid-cols-2 gap-4 w-full">

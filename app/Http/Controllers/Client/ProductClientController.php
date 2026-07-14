@@ -3,114 +3,36 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Controllers\Controller;
+use App\Services\Interfaces\CategoryServiceInterface;
+use App\Services\Interfaces\ProductServiceInterface;
+use App\Services\Interfaces\BrandServiceInterface;
+use Illuminate\Http\Request;
 
 class ProductClientController extends Controller
 {
+    protected ProductServiceInterface $productService;
+    protected CategoryServiceInterface $categoryService;
+    protected BrandServiceInterface $brandService;
+    public function __construct(ProductServiceInterface $productService, CategoryServiceInterface $categoryService, BrandServiceInterface $brandService)
+    {
+        $this->productService = $productService;
+        $this->categoryService = $categoryService;
+        $this->brandService = $brandService;
+    }
+    public function showClient(Request $request)
+    {
+        $products = $this->productService->getFilteredProducts($request);
+        $categories = $this->categoryService->getActive();
+        $brands = $this->brandService->getActive();
+        $selectedCategory = $categories->find($request->category);
+        $selectedBrand = $brands->find($request->brand);
+        return view('client.products.show', compact('products', 'categories', 'brands', 'selectedCategory', 'selectedBrand'));
+    }
     public function productDetailClient($id)
     {
-        $product = [
-            'id' => $id,
-            'name' => 'Motor circuit breaker,TeSys Deca frame 3,3P,30-40A',
-            'sku' => 'GV3P40',
-            'price' => '1.890.000',
-            'oldPrice' => '2.500.000',
-            'reviewsCount' => 5,
-            'images' => [
-                'storage/images/chitiet1.jpg',
-                'storage/images/chitiet1.jpg',
-                'storage/images/chitiet1.jpg',
-                'storage/images/chitiet1.jpg',
-                'storage/images/chitiet1.jpg',
-            ],
-        ];
-
-        $seriesProducts = [
-            [
-                'sku' => 'ATV212H075M3X',
-                'stars' => 4,
-                'power' => '0.75kW',
-                'oldPrice' => '150.000',
-                'price' => '99.000',
-                'status' => 'Còn hàng',
-                'image' => 'storage/images/chitiet1.jpg',
-            ],
-            [
-                'sku' => 'ATV212H075M3X',
-                'stars' => 3,
-                'power' => '0.75kW',
-                'oldPrice' => '150.000',
-                'price' => '99.000',
-                'status' => 'Đặt hàng',
-                'image' => 'storage/images/chitiet1.jpg',
-            ],
-            [
-                'sku' => 'ATV212H075M3X',
-                'stars' => 4,
-                'power' => '0.75kW',
-                'oldPrice' => '150.000',
-                'price' => '99.000',
-                'status' => 'Còn hàng',
-                'image' => 'storage/images/chitiet1.jpg',
-            ],
-            [
-                'sku' => 'ATV212H075M3X',
-                'stars' => 4,
-                'power' => '0.75kW',
-                'oldPrice' => '150.000',
-                'price' => '99.000',
-                'status' => 'Còn hàng',
-                'image' => 'storage/images/chitiet1.jpg',
-            ],
-            [
-                'sku' => 'ATV212H075M3X',
-                'stars' => 4,
-                'power' => '0.75kW',
-                'oldPrice' => '150.000',
-                'price' => '99.000',
-                'status' => 'Còn hàng',
-                'image' => 'storage/images/chitiet1.jpg',
-            ],
-        ];
-
-        $relatedProducts = [
-            [
-                'sku' => 'ATV212H075M3X',
-                'stars' => 4.5,
-                'power' => '0.75kW',
-                'image' => 'storage/images/chitiet1.jpg',
-            ],
-            [
-                'sku' => 'ATV212H075M3X',
-                'stars' => 4.5,
-                'power' => '0.75kW',
-                'image' => 'storage/images/chitiet1.jpg',
-            ],
-            [
-                'sku' => 'ATV212H075M3X',
-                'stars' => 4.5,
-                'power' => '0.75kW',
-                'image' => 'storage/images/chitiet1.jpg',
-            ],
-            [
-                'sku' => 'ATV212H075M3X',
-                'stars' => 4.5,
-                'power' => '0.75kW',
-                'image' => 'storage/images/chitiet1.jpg',
-            ],
-            [
-                'sku' => 'ATV212H075M3X',
-                'stars' => 4.5,
-                'power' => '0.75kW',
-                'image' => 'storage/images/chitiet1.jpg',
-            ],
-            [
-                'sku' => 'ATV212H075M3X',
-                'stars' => 4.5,
-                'power' => '0.75kW',
-                'image' => 'storage/images/chitiet1.jpg',
-            ],
-        ];
-
+        $product = $this->productService->with(['category'])->findOrFail($id);
+        $seriesProducts = $this->productService->where('category_id', $product->category_id)->get();
+        $relatedProducts = $this->productService->where('brand_id', $product->brand_id)->where('id', '!=', $product->id)->take(6)->get();
         $reviews = [
             [
                 'user' => 'nice.Design',
@@ -137,7 +59,6 @@ class ProductClientController extends Controller
                 'replies' => []
             ]
         ];
-
         return view('client.products.detail', compact('product', 'seriesProducts', 'relatedProducts', 'reviews'));
     }
 }
