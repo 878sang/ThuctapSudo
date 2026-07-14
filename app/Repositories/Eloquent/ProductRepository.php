@@ -20,14 +20,21 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         if (isset($filters['status']) && $filters['status'] !== 'all') {
             $query->filterStatus($filters['status']);
         }
-        if (isset($filters['sort']) && in_array($filters['sort'], ['asc', 'desc'])) {
-            if ($filters['sort'] === 'desc') {
-                $query->orderDesc();
-            } else {
-                $query->orderAsc();
+        if (isset($filters['sort'])) {
+            if ($filters['sort'] === 'price_asc') {
+                $query->orderByPrice('asc');
+            } elseif ($filters['sort'] === 'price_desc') {
+                $query->orderByPrice('desc');
+            } elseif ($filters['sort'] === 'newest') {
+                $query->orderBy('created_at', 'desc');
+            } elseif (in_array($filters['sort'], ['asc', 'desc'])) {
+                if ($filters['sort'] === 'desc') {
+                    $query->orderDesc();
+                } else {
+                    $query->orderAsc();
+                }
             }
         }
-
         if (!empty($filters['search'])) {
             $query->search($filters['search']);
         }
@@ -39,6 +46,17 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
             $query->ofBrand($filters['brand']);
         }
         return $query->paginate($perPage)->withQueryString();
+    }
+    public function getProductsByCategory(int $categoryId)
+    {
+        return $this->model->where('category_id', $categoryId)->get();
+    }
+    public function getProductsByBrand(int $brandId, int $id, int $limit = 6)
+    {
+        return $this->model->where('brand_id', $brandId)
+            ->where('id', '!=', $id)
+            ->take($limit)
+            ->get();
     }
     public function deleteByCategoryId(int $categoryId)
     {

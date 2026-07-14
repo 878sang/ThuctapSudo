@@ -1,4 +1,4 @@
-@extends('Layout.main')
+@extends('admin.Layout.main')
 @section('title', 'Danh Mục Sản Phẩm')
 @section('content')
 
@@ -18,12 +18,12 @@
                 <p class="text-slate-500 text-sm mt-1">Quản lý các Sản Phẩm phân loại sản phẩm trong hệ thống cửa hàng</p>
             </div>
         </div>
-        <x-button href="{{ route('products.create') }}">
+        <x-button href="{{ route('admin.products.create') }}">
             Thêm sản phẩm
         </x-button>
     </div>
     <div>
-        <form action="{{ route('products.index') }}" method="GET">
+        <form action="{{ route('admin.products.index') }}" method="GET">
             <select name="action" id="action" onchange="this.form.submit()">
                 <option value="active" {{ request()->has('action')&&request()->action == 'active' ? 'selected' : '' }}>Sản phẩm</option>
                 <option value="trash" {{ request()->has('action')&&request()->action == 'trash' ? 'selected' : '' }}>Thùng rác</option>
@@ -84,7 +84,7 @@
                             <img src="{{ $product->thumbnail_url }}" alt="{{ $product->name }}" class="w-10 h-10 rounded-xl object-cover ring-2 ring-slate-100 group-hover:scale-105 transition-transform duration-200">
                         </td>
                         <td class="py-4 px-6">
-                            <a href="{{ route('products.show',[$product->slug,$product->id ]) }}">
+                            <a href="{{ route('admin.products.show',[$product->slug,$product->id ]) }}">
                                 <span class="text-sm font-semibold text-slate-800 group-hover:text-indigo-600 transition-colors duration-150 block">
                                     {{ $product->name }}
                                 </span>
@@ -147,7 +147,7 @@
                         <td class="py-4 px-6 text-center">
                             @if ($product->deleted_at)
                             <div class="flex items-center justify-center gap-2">
-                                <form action="{{ route('products.restore', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn khôi phục Sản phẩm này?')" class="inline">
+                                <form action="{{ route('admin.products.restore', $product->id) }}" method="POST" onsubmit="return confirm('Bạn có chắc chắn muốn khôi phục Sản phẩm này?')" class="inline">
                                     @csrf
                                     @method('PATCH')
                                     <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150" title="Khôi phục">
@@ -159,21 +159,21 @@
                                 </form>
                                 <button type="button" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150 btn-delete" title="Xóa"
                                     data-id="{{ $product->id }}"
-                                    data-url="{{ route('products.destroy', $product->id) }}"
+                                    data-url="{{ route('admin.products.destroy', $product->id) }}"
                                     data-type="product">
                                     Xóa
                                 </button>
                             </div>
                             @else
                             <div class="flex items-center justify-center gap-2">
-                                <a href="{{ route('products.edit', $product->id) }}" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-150" title="Chỉnh sửa">
+                                <a href="{{ route('admin.products.edit', $product->id) }}" class="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-xl transition-all duration-150" title="Chỉnh sửa">
                                     <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
                                     </svg>
                                 </a>
                                 <button type="button" class="p-2 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all duration-150 btn-delete" title="Xóa"
                                     data-id="{{ $product->id }}"
-                                    data-url="{{ route('products.destroy', $product->id) }}"
+                                    data-url="{{ route('admin.products.destroy', $product->id) }}"
                                     data-type="product">
                                     Xóa
                                 </button>
@@ -192,7 +192,7 @@
                                 </div>
                                 <h3 class="text-sm font-semibold text-slate-800">Không có sản phẩm nào</h3>
                                 <p class="text-xs text-slate-500 mt-1 max-w-xs">Bắt đầu tạo sản phẩm đầu tiên của bạn để phân loại sản phẩm trong cửa hàng.</p>
-                                <x-button href="{{ route('products.create') }}">
+                                <x-button href="{{ route('admin.products.create') }}">
                                     Thêm sản phẩm
                                 </x-button>
                             </div>
@@ -207,3 +207,4 @@
         <x-pagination :items="$products" />
     </div>
     @endsection
+

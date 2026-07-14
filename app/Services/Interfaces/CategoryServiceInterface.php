@@ -9,3 +9,4 @@ interface CategoryServiceInterface extends BaseServiceInterface
     public function getFilteredCategories(Request $request);
     public function getOtherCategories(int $id);
 }
+

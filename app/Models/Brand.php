@@ -36,3 +36,4 @@ class Brand extends Model
         return $query->where('name', 'like', '%' . $search . '%');
     }
 }
+

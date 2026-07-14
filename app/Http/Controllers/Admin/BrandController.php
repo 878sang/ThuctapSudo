@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Services\Interfaces\BrandServiceInterface;
 use App\Http\Requests\StoreBrandRequest;
@@ -19,49 +20,50 @@ class BrandController extends Controller
     public function index(Request $request)
     {
         $brands = $this->brandService->getFilteredBrands($request, 10);
-        return view('brands.index', compact('brands'));
+        return view('admin.brands.index', compact('brands'));
     }
 
     public function create()
     {
-        return view('brands.create');
+        return view('admin.brands.create');
     }
 
     public function store(StoreBrandRequest $request)
     {
         $data = $request->validated();
         $this->brandService->create($data, $request);
-        return redirect()->route('brands.index')->with('success', 'Tạo thương hiệu thành công.');
+        return redirect()->route('admin.brands.index')->with('success', 'Tạo thương hiệu thành công.');
     }
 
     public function show(string $slug, int $id)
     {
         $brand = $this->brandService->findOrFail($id);
-        return view('brands.detail', compact('brand'));
+        return view('admin.brands.detail', compact('brand'));
     }
 
     public function edit(int $id)
     {
         $brand = $this->brandService->findOrFail($id);
-        return view('brands.edit', compact('brand'));
+        return view('admin.brands.edit', compact('brand'));
     }
 
     public function update(UpdateBrandRequest $request, int  $id)
     {
         $data = $request->validated();
         $this->brandService->update($data, $request, $id);
-        return redirect()->route('brands.index')->with('success', 'Cập nhật thương hiệu thành công.');
+        return redirect()->route('admin.brands.index')->with('success', 'Cập nhật thương hiệu thành công.');
     }
 
     public function restore(int $id)
     {
         $this->brandService->restore($id);
-        return redirect()->route('brands.index')->with('success', 'Khôi phục thương hiệu thành công.');
+        return redirect()->route('admin.brands.index')->with('success', 'Khôi phục thương hiệu thành công.');
     }
 
     public function destroy(int $id)
     {
         $this->brandService->delete($id);
-        return redirect()->route('brands.index')->with('success', 'Xóa thương hiệu thành công.');
+        return redirect()->route('admin.brands.index')->with('success', 'Xóa thương hiệu thành công.');
     }
 }
+

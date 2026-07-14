@@ -1,10 +1,13 @@
 <?php
 
-use App\Http\Controllers\CategoriesController;
-use App\Http\Controllers\ProductController;
+use App\Http\Controllers\Admin\CategoriesController;
+use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\BrandController;
+use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Client\CategoriesClientController;
+use App\Http\Controllers\Client\ProductClientController;
+use App\Http\Controllers\Client\CartClientController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -14,7 +17,12 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 
-Route::middleware('auth')->group(function () {
+Route::get('categories', [CategoriesClientController::class, 'showClient'])->name('categories.showClient');
+Route::get('product', [ProductClientController::class, 'showClient'])->name('products.showClient');
+Route::get('products/{id}', [ProductClientController::class, 'productDetailClient'])->name('products.detailClient');
+Route::get('cart', [CartClientController::class, 'cartClient'])->name('cart.showClient');
+
+Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::prefix('categories')->middleware('role')->group(function () {
         Route::get('/', [CategoriesController::class, 'index'])->name('categories.index');
         Route::get('/create', [CategoriesController::class, 'create'])->name('categories.create');
