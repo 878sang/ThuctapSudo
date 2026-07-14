@@ -33,6 +33,14 @@ class ProductService extends BaseService implements ProductServiceInterface
     {
         return $this->repository->moveProductsToNewCategory($oldCategoryId, $newCategoryId);
     }
+    public function getProductsByCategory(int $categoryId)
+    {
+        return $this->repository->getProductsByCategory($categoryId);
+    }
+    public function getProductsByBrand(int $brandId, int $id, int $limit = 6)
+    {
+        return $this->repository->getProductsByBrand($brandId, $id, $limit);
+    }
     public function generateSlug(string $name): string
     {
         $slug = Str::slug($name);
@@ -89,4 +97,3 @@ class ProductService extends BaseService implements ProductServiceInterface
         return parent::delete($id, $request);
     }
 }
-

@@ -47,6 +47,17 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
         }
         return $query->paginate($perPage)->withQueryString();
     }
+    public function getProductsByCategory(int $categoryId)
+    {
+        return $this->model->where('category_id', $categoryId)->get();
+    }
+    public function getProductsByBrand(int $brandId, int $id, int $limit = 6)
+    {
+        return $this->model->where('brand_id', $brandId)
+            ->where('id', '!=', $id)
+            ->take($limit)
+            ->get();
+    }
     public function deleteByCategoryId(int $categoryId)
     {
         return $this->model->withTrashed()->where('category_id', $categoryId)->delete();

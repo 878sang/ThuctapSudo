@@ -21,4 +21,3 @@ interface BaseServiceInterface
     public function restore(int $id);
     public function forceDelete(int $id);
 }
-

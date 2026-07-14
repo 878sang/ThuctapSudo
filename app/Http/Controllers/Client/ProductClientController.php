@@ -31,8 +31,8 @@ class ProductClientController extends Controller
     public function productDetailClient($id)
     {
         $product = $this->productService->with(['category'])->findOrFail($id);
-        $seriesProducts = $this->productService->where('category_id', $product->category_id)->get();
-        $relatedProducts = $this->productService->where('brand_id', $product->brand_id)->where('id', '!=', $product->id)->take(6)->get();
+        $seriesProducts = $this->productService->getProductsByCategory($product->category_id);
+        $relatedProducts = $this->productService->getProductsByBrand($product->brand_id, $product->id, 6);
         $reviews = [
             [
                 'user' => 'nice.Design',
