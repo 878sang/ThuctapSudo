@@ -8,6 +8,7 @@ use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Client\CategoriesClientController;
 use App\Http\Controllers\Client\ProductClientController;
 use App\Http\Controllers\Client\CartClientController;
+use App\Http\Controllers\Client\CheckoutController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -20,7 +21,15 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
 Route::get('categories', [CategoriesClientController::class, 'showClient'])->name('categories.showClient');
 Route::get('product', [ProductClientController::class, 'showClient'])->name('products.showClient');
 Route::get('products/{id}', [ProductClientController::class, 'productDetailClient'])->name('products.detailClient');
-Route::get('cart', [CartClientController::class, 'cartClient'])->name('cart.showClient');
+Route::prefix('cart')->group(function () {
+    Route::get('/', [CartClientController::class, 'cartClient'])->name('cart.showClient');
+    Route::post('/add', [CartClientController::class, 'add'])->name('cart.add');
+    Route::post('/update', [CartClientController::class, 'update'])->name('cart.update');
+    Route::post('/remove', [CartClientController::class, 'remove'])->name('cart.remove');
+});
+
+Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
+Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
     Route::prefix('categories')->middleware('role')->group(function () {

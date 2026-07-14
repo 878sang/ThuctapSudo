@@ -18,6 +18,7 @@
 <body class="bg-gray-50 min-h-screen">
     @include('client.layout.header')
     <main>
+        <x-alert />
         @yield('content')
     </main>
     @include('client.layout.footer')
