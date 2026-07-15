@@ -15,6 +15,12 @@ use App\Services\ProductService;
 use App\Services\Interfaces\BrandServiceInterface;
 use App\Repositories\Interfaces\BrandRepositoryInterface;
 use App\Repositories\Eloquent\BrandRepository;
+use App\Services\Interfaces\CartServiceInterface;
+use App\Services\CartService;
+use App\Repositories\Interfaces\OrderRepositoryInterface;
+use App\Repositories\Eloquent\OrderRepository;
+use App\Services\Interfaces\OrderServiceInterface;
+use App\Services\OrderService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -46,6 +52,18 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             BrandRepositoryInterface::class,
             BrandRepository::class
+        );
+        $this->app->bind(
+            CartServiceInterface::class,
+            CartService::class
+        );
+        $this->app->bind(
+            OrderRepositoryInterface::class,
+            OrderRepository::class
+        );
+        $this->app->bind(
+            OrderServiceInterface::class,
+            OrderService::class
         );
     }
 

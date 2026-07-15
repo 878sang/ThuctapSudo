@@ -1,7 +1,7 @@
 @extends('client.layout.main')
 
 @section('content')
-<div class="bg-blue_bg min-h-screen pb-12" x-data="{ step: 1, addressMethod: 'account', paymentMethod: 'bank', vatRequired: false }">
+<div class="bg-blue_bg min-h-screen pb-12" x-data="{ step: {{ old('address_method') ? 2 : 1 }}, addressMethod: '{{ old('address_method', 'new') }}', paymentMethod: '{{ old('payment_method', 'bank') }}', vatRequired: {{ old('is_vat') == '1' ? 'true' : 'false' }}, selectedItems: [] }">
     <div class="bg-blue_bg border-b border-gray-100 py-3 mb-6">
         <div class="max-w-[1440px] mx-auto px-4">
             <x-breadcrumb :items="[['label' => 'Giỏ hàng']]" />
@@ -11,7 +11,6 @@
 
         <div class="flex flex-col lg:flex-row gap-6">
             <div class="w-full lg:w-[73%] flex flex-col gap-6">
-                <!-- Step 1: Cart View -->
                 <div x-show="step === 1" class="flex flex-col gap-6">
                     <div class="bg-white rounded-[10px] border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-4 sm:p-5 flex items-center justify-between gap-4">
                         <h1 class="text-[22px] font-bold text-6 flex items-center gap-1">
@@ -29,9 +28,18 @@
                                     <tr class="bg-white text-sm text-[#3D3E3F] font-bold">
                                         <th class="py-4 px-4 rounded-l w-[15%]">
                                             <div class="flex items-center gap-2">
-                                                <input type="checkbox" class="rounded text-6 focus:ring-6 w-4.5 h-4.5 border-[#D9D9D9] cursor-pointer">
-                                                <button class="bg-blue_bg hover:bg-[#DDECFF] text-3 text-[10px] font-bold px-2.5 py-1 rounded-[5px] cursor-pointer shrink-0 transition-colors">
-                                                    Xóa<span class="text-[#F86614]">(6)</span>
+                                                <input type="checkbox" @change="if ($el.checked) { selectedItems = [{{ implode(',', array_keys($cartItems)) }}] } else { selectedItems = [] }"
+                                                    :checked="selectedItems.length === {{ count($cartItems) }} && {{ count($cartItems) }} > 0" class="rounded text-6 focus:ring-6 w-4.5 h-4.5 border-[#D9D9D9] cursor-pointer">
+                                                <form id="bulk-delete-form" action="{{ route('cart.remove') }}" method="POST" style="display: none;">
+                                                    @csrf
+                                                    <input type="hidden" name="product_ids" :value="selectedItems">
+                                                </form>
+                                                <button type="submit"
+                                                    form="bulk-delete-form"
+                                                    :disabled="selectedItems.length === 0"
+                                                    :class="selectedItems.length === 0 ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'"
+                                                    class="bg-blue_bg hover:bg-[#DDECFF] text-3 text-[10px] font-bold px-2.5 py-1 rounded-[5px] shrink-0 transition-colors">
+                                                    Xóa<span class="text-[#F86614]" x-show="selectedItems.length > 0">(<span x-text="selectedItems.length"></span>)</span>
                                                 </button>
                                             </div>
                                         </th>
@@ -45,205 +53,231 @@
                                     @foreach($cartItems as $item)
                                     <tr class="hover:bg-gray-50/50 transition-colors">
                                         <td class="py-4 px-4 align-middle">
-                                            <input type="checkbox" class="rounded text-6 focus:ring-6 w-4.5 h-4.5 border-gray-300 cursor-pointer">
+                                            <input type="checkbox"
+                                                value="{{ $item['product']->id }}"
+                                                x-model="selectedItems"
+                                                class="rounded text-6 focus:ring-6 w-4.5 h-4.5 border-gray-300 cursor-pointer">
                                         </td>
                                         <td class="py-4 px-4">
                                             <div class="flex items-center gap-3">
                                                 <div class="w-20 h-20 rounded-lg shrink-0 flex items-center justify-center">
-                                                    <img src="{{ asset($item['image']) }}" class="w-full h-full object-contain" alt="Product thumbnail">
+                                                    <img src="{{ $item['product']->thumbnail_url }}" class="w-full h-full object-contain" alt="Product thumbnail">
                                                 </div>
                                                 <div class="flex flex-col gap-0.5 min-w-0">
-                                                    <span class="text-sm text-2 leading-snug line-clamp-2">{{ $item['name'] }}</span>
+                                                    <span class="text-sm text-2 leading-snug line-clamp-2">{{ $item['product']->name }}</span>
                                                     <x-star-rating :stars="$item['stars']" class="text-[9px]" />
                                                 </div>
                                             </div>
                                         </td>
-                                        <td class="py-4 px-4 text-sm text-2 whitespace-nowrap">{{ $item['price'] }} đ</td>
+                                        <td class="py-4 px-4 text-sm text-2 whitespace-nowrap">{{ number_format($item['price'], 0, ',', '.') }} đ</td>
                                         <td class="py-4 px-4 text-center">
-                                            <x-quantity-selector :qty="$item['quantity']" />
+                                            <form action="{{ route('cart.update') }}" method="POST" @change="$el.submit()">
+                                                @csrf
+                                                <input type="hidden" name="product_id" value="{{ $item['product']->id }}">
+                                                <x-quantity-selector :qty="$item['quantity']" :autoUpdate="true" />
+                                            </form>
                                         </td>
-                                        <td class="py-4 px-4 text-center text-sm text-[#EB7507] font-bold whitespace-nowrap">{{ $item['price'] }} đ</td>
+                                        <td class="py-4 px-4 text-center text-sm text-[#EB7507] font-bold whitespace-nowrap">{{ number_format($item['subtotal'], 0, ',', '.') }} đ</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    <x-pagination-client />
                 </div>
 
-                <div x-show="step === 2" x-cloak class="flex flex-col gap-4">
-                    <button @click="step = 1" class="text-xs text-6 hover:underline font-semibold flex items-center gap-1.5 cursor-pointer self-start">
-                        <i class="fa-solid fa-arrow-left text-[10px]"></i> Quay lại giỏ hàng
-                    </button>
-                    <div class="bg-white rounded-[10px] border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-6 flex flex-col gap-5">
-                        <h2 class="text-[22px] font-bold text-2 mb-2">Thông tin giao hàng</h2>
-                        <div class="space-y-3">
-                            <x-radio-button model="addressMethod" value="account" label="Lấy địa chỉ theo tài khoản" />
+                <form id="checkout-form" action="{{ route('checkout.placeOrder') }}" method="POST" class="flex flex-col gap-6">
+                    @csrf
+                    <input type="hidden" name="address_method" :value="addressMethod">
+                    <input type="hidden" name="payment_method" :value="paymentMethod">
+                    <input type="hidden" name="is_vat" :value="vatRequired ? 1 : 0">
 
-                            <div x-show="addressMethod === 'account'" x-collapse class="bg-[#EDF3FF] rounded-[10px] p-5 flex items-center justify-between border-none ml-7.5">
-                                <div class="space-y-1.5 text-sm text-3 leading-relaxed">
-                                    <p class="font-bold text-[#9090A7]">CHU TUẤN ANH</p>
-                                    <p class="font-bold text-[#9090A7]">Số điện thoại: 0988038291</p>
-                                    <p class="text-[#9090A7]">Số 28 ngõ 13, Đường Thuận Nghệ, Phường Đồng Tâm, Quận Hai Bà Trưng, Thành Phố Hà Nội...</p>
-                                </div>
-                                <button class="bg-6 hover:bg-blue-600 text-white w-10 h-10 rounded-[8px] flex items-center justify-center transition-colors shrink-0 cursor-pointer">
-                                    <i class="fa-solid fa-chevron-down text-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Option 2: Thêm địa chỉ mới -->
-                        <div class="space-y-3 pt-1">
-                            <x-radio-button model="addressMethod" value="new" label="Thêm địa chỉ mới" />
-
-                            <div x-show="addressMethod === 'new'" x-collapse class="ml-7.5 space-y-4">
-                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div>
-                                        <label class="text-sm text-3">Họ và tên <span class="text-[#FF7A00]">*</span></label>
-                                        <input type="text" placeholder="Chu Tuấn Anh" class="w-full border border-[#E5E7EB] rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
-                                    </div>
-                                    <div>
-                                        <label class="text-sm text-3">Số điện thoại <span class="text-[#FF7A00]">*</span></label>
-                                        <input type="text" placeholder="(+84) 988 038 291" class="w-full border border-[#E5E7EB] rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
-                                    </div>
-                                </div>
-
-                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    <div>
-                                        <label class="text-sm text-3 mb-2.5">Địa chỉ <span class="text-[#FF7A00]">*</span></label>
-                                        <div class="relative">
-                                            <select class="w-full appearance-none border border-[#E5E7EB] rounded-[10px] px-4 py-2.5 text-sm text-[#A1A7AA] focus:outline-none focus:border-6 bg-white pr-10 h-[46px] cursor-pointer">
-                                                <option>Thành phố</option>
-                                            </select>
-                                            <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
-                                        </div>
-                                    </div>
-                                    <div class="space-y-1.5">
-                                        <label class="text-sm text-3">&nbsp;</label>
-                                        <div class="relative">
-                                            <select class="w-full appearance-none border border-[#E5E7EB] rounded-[10px] px-4 py-2.5 text-sm text-[#A1A7AA] focus:outline-none focus:border-6 bg-white pr-10 h-[46px] cursor-pointer">
-                                                <option>Quận/ huyện</option>
-                                            </select>
-                                            <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
-                                        </div>
-                                    </div>
-                                    <div class="space-y-1.5">
-                                        <label class="text-sm text-3">&nbsp;</label>
-                                        <div class="relative">
-                                            <select class="w-full appearance-none border border-[#E5E7EB] rounded-[10px] px-4 py-2.5 text-sm text-[#A1A7AA] focus:outline-none focus:border-6 bg-white pr-10 h-[46px] cursor-pointer">
-                                                <option>Phường/ xã</option>
-                                            </select>
-                                            <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div class="space-y-1.5">
-                                    <div class="relative">
-                                        <select class="w-full appearance-none border border-[#E5E7EB] rounded-[10px] px-4 py-2.5 text-sm text-[#A1A7AA] focus:outline-none focus:border-6 bg-white pr-10 h-[46px] cursor-pointer">
-                                            <option>Địa chỉ chính xác</option>
-                                        </select>
-                                        <i class="fa-solid fa-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 text-xs pointer-events-none"></i>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <x-radio-button model="vatRequired" label="Yêu cầu xuất hóa đơn VAT" />
-
-                        <div x-show="vatRequired" x-collapse class="ml-7.5 space-y-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-1.5">
-                                    <label class="text-sm text-3">Tên công ty <span class="text-[#FF7A00]">*</span></label>
-                                    <div class="relative">
-                                        <input type="text" class="w-full border border-[#E5E7EB] rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
-                                        <!-- <button class="absolute right-3.5 top-0 bottom-0 flex items-center text-gray-400 hover:text-gray-600 cursor-pointer">
-                                                <i class="fa-solid fa-circle-xmark text-base text-gray-400"></i>
-                                            </button> -->
-                                    </div>
-                                </div>
-                                <div class="space-y-1.5">
-                                    <label class="text-sm text-3">Email nhận hóa đơn <span class="text-[#FF7A00]">*</span></label>
-                                    <div class="relative">
-                                        <input type="text" class="w-full border border-[#E5E7EB] rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-1.5">
-                                    <label class="text-sm text-3">Mã số thuế <span class="text-[#FF7A00]">*</span></label>
-                                    <div class="relative">
-                                        <input type="text" class="w-full border border-[#E5E7EB] rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
-                                    </div>
-                                </div>
-                                <div class="space-y-1.5">
-                                    <label class="text-sm text-3">Địa chỉ <span class="text-[#FF7A00]">*</span></label>
-                                    <div class="relative">
-                                        <input type="text" class="w-full border border-[#E5E7EB] rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div x-show="step === 3" x-cloak class="flex flex-col gap-4">
-                    <!-- Back Button Link -->
-                    <button @click="step = 2" class="text-xs text-6 hover:underline font-semibold flex items-center gap-1.5 cursor-pointer self-start">
-                        <i class="fa-solid fa-arrow-left text-[10px]"></i> Quay lại bước trước
-                    </button>
-
-                    <div class="bg-white rounded-[10px] border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-6 flex flex-col gap-6">
-                        <h2 class="text-[22px] font-bold text-gray-800">Thông tin thanh toán</h2>
-
-                        <div class="space-y-4">
-                            <h3 class="text-[22px] font-bold text-[#1F4388]">Thông tin liên hệ</h3>
-
+                    <div x-show="step === 2" x-cloak class="flex flex-col gap-4">
+                        <button type="button" @click="step = 1" class="text-xs text-6 hover:underline font-semibold flex items-center gap-1.5 cursor-pointer self-start">
+                            <i class="fa-solid fa-arrow-left text-[10px]"></i> Quay lại giỏ hàng
+                        </button>
+                        <div class="bg-white rounded-[10px] border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-6 flex flex-col gap-5">
+                            <h2 class="text-[22px] font-bold text-2 mb-2">Thông tin giao hàng</h2>
+                            @auth
                             <div class="space-y-3">
-                                <x-radio-button model="paymentMethod" value="bank" label="Chuyển khoản" />
-                                <div x-show="paymentMethod === 'bank'" x-collapse class="ml-7.5 space-y-2 text-sm text-3">
-                                    <p class="font-bold mb-1">Vietcombank - Ngân hàng ngoại thương Việt Nam</p>
-                                    <p>Chi nhánh Thành Công</p>
-                                    <p>Chủ tài khoản: CHU TUAN ANH</p>
-                                    <p class="flex items-center gap-1.5">
-                                        Số tài khoản: 0451000310732
-                                        <button class="text-6 hover:text-blue-700 cursor-pointer" title="Copy">
-                                            <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                <g clip-path="url(#clip0_276_25352)">
-                                                    <path d="M9.53 18H2.81C1.26 18 0 16.74 0 15.19V5.66C0 4.11 1.26 2.85 2.81 2.85H9.53C11.08 2.85 12.34 4.11 12.34 5.66V15.19C12.34 16.74 11.08 18 9.53 18ZM2.81 4.25C2.03 4.25 1.41 4.88 1.4 5.66V15.19C1.4 15.97 2.03 16.59 2.81 16.6H9.53C10.31 16.6 10.93 15.97 10.94 15.19V5.66C10.94 4.88 10.31 4.26 9.53 4.25H2.81ZM15.15 13.43V2.81C15.15 1.26 13.89 0 12.34 0H4.54C4.15 0 3.84 0.31 3.84 0.7C3.84 1.09 4.15 1.4 4.54 1.4H12.34C13.12 1.4 13.74 2.03 13.75 2.81V13.43C13.75 13.82 14.06 14.13 14.45 14.13C14.84 14.13 15.15 13.82 15.15 13.43Z" fill="#278AEC" />
-                                                </g>
-                                                <defs>
-                                                    <clipPath id="clip0_276_25352">
-                                                        <rect width="15.15" height="18" fill="white" />
-                                                    </clipPath>
-                                                </defs>
-                                            </svg>
-                                        </button>
-                                    </p>
+                                <x-radio-button model="addressMethod" value="account" label="Lấy địa chỉ theo tài khoản" />
 
-                                    <div class="bg-white border border-gray-200 rounded-[8px] p-3.5 space-y-1.5 mt-3">
-                                        <p class="text-3"><strong class="text-3 font-bold">Nội dung chuyển khoản:</strong> “Tên khách hàng” + Số điện thoại</p>
-                                        <p class="text-4 ">Ví dụ: “CHU TUAN ANH” + “0988038291”</p>
+                                <div x-show="addressMethod === 'account'" x-collapse class="bg-[#EDF3FF] rounded-[10px] p-5 flex items-center justify-between border-none ml-7.5">
+                                    <div class="space-y-1.5 text-sm text-3 leading-relaxed">
+                                        <p class="font-bold text-[#9090A7] uppercase">{{ auth()->user()->name }}</p>
+                                        <p class="font-bold text-[#9090A7]">Số điện thoại: {{ auth()->user()->phone ?? 'Chưa cập nhật' }}</p>
+                                        <p class="text-[#9090A7]">{{ auth()->user()->address ?? 'Chưa cập nhật' }}</p>
+                                    </div>
+                                    <button type="button" class="bg-6 hover:bg-blue-600 text-white w-10 h-10 rounded-[8px] flex items-center justify-center transition-colors shrink-0 cursor-pointer">
+                                        <i class="fa-solid fa-chevron-down text-sm"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            @endauth
+                            <!-- Option 2: Thêm địa chỉ mới -->
+                            <div class="space-y-3 pt-1">
+                                <x-radio-button model="addressMethod" value="new" label="Thêm địa chỉ mới" />
+
+                                <div x-show="addressMethod === 'new'" x-collapse class="ml-7.5 space-y-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        <div>
+                                            <label class="text-sm text-3">Họ và tên <span class="text-[#FF7A00]">*</span></label>
+                                            <input type="text" name="customer_name" value="{{ old('customer_name') }}" placeholder="Chu Tuấn Anh" class="w-full border @error('customer_name') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
+                                            @error('customer_name')
+                                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                        <div>
+                                            <label class="text-sm text-3">Số điện thoại <span class="text-[#FF7A00]">*</span></label>
+                                            <input type="text" name="customer_phone" value="{{ old('customer_phone') }}" placeholder="(+84) 988 038 291" class="w-full border @error('customer_phone') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
+                                            @error('customer_phone')
+                                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                                            @enderror
+                                        </div>
                                     </div>
 
-                                    <div class="bg-[#FFF4EC] rounded-[8px] text-3 text-sm p-3  mt-3">
-                                        <p>Lưu ý: Nên chọn dịch vụ chuyển tiền 24/7 để giao dịch được hoàn tất sớm nhất</p>
+                                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                        <div>
+                                            <label class="text-sm text-3 mb-2.5">Địa chỉ <span class="text-[#FF7A00]">*</span></label>
+                                            <div class="relative">
+                                                <input type="text" name="province" value="{{ old('province') }}" placeholder="Tỉnh/Thành phố" class="w-full border @error('province') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
+                                                @error('province')
+                                                <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="space-y-1.5">
+                                            <label class="text-sm text-3">&nbsp;</label>
+                                            <div class="relative">
+                                                <input type="text" name="district" value="{{ old('district') }}" placeholder="Quận/ huyện" class="w-full border @error('district') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
+                                                @error('district')
+                                                <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                        <div class="space-y-1.5">
+                                            <label class="text-sm text-3">&nbsp;</label>
+                                            <div class="relative">
+                                                <input type="text" name="ward" value="{{ old('ward') }}" placeholder="Phường/ xã" class="w-full border @error('ward') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
+                                                @error('ward')
+                                                <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                                                @enderror
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div class="space-y-1.5">
+                                        <div class="relative">
+                                            <input type="text" name="street" value="{{ old('street') }}" placeholder="Địa chỉ chính xác (Số nhà, tên đường)" class="w-full border @error('street') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
+                                            @error('street')
+                                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                                            @enderror
+                                        </div>
                                     </div>
                                 </div>
                             </div>
+                            <x-radio-button model="vatRequired" label="Yêu cầu xuất hóa đơn VAT" />
 
-                            <div class="space-y-2 pt-2">
-                                <x-radio-button model="paymentMethod" value="cod" label="Ship COD nhận hàng thanh toán tại nhà" />
-                                <p x-show="paymentMethod === 'cod'" x-collapse class="ml-7.5 text-sm text-4 font-semibold">Chúng tôi cung cấp dịch vụ Ship COD toàn quốc thuận tiện và đảm bảo</p>
-                            </div>
+                            <div x-show="vatRequired" x-collapse class="ml-7.5 space-y-4">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <label class="text-sm text-3">Tên công ty <span class="text-[#FF7A00]">*</span></label>
+                                        <div class="relative">
+                                            <input type="text" name="company_name" value="{{ old('company_name') }}" class="w-full border @error('company_name') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
+                                            @error('company_name')
+                                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="text-sm text-3">Email nhận hóa đơn <span class="text-[#FF7A00]">*</span></label>
+                                        <div class="relative">
+                                            <input type="text" name="company_email" value="{{ old('company_email') }}" class="w-full border @error('company_email') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
+                                            @error('company_email')
+                                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
 
-                            <div class="space-y-2 pt-2">
-                                <x-radio-button model="paymentMethod" value="momo" label="Thanh toán qua Momo" />
-                                <p x-show="paymentMethod === 'momo'" x-collapse class="ml-7.5 text-sm text-4 font-semibold">Chúng tôi cung cấp dịch vụ Ship COD toàn quốc thuận tiện và đảm bảo</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="space-y-1.5">
+                                        <label class="text-sm text-3">Mã số thuế <span class="text-[#FF7A00]">*</span></label>
+                                        <div class="relative">
+                                            <input type="text" name="tax_code" value="{{ old('tax_code') }}" class="w-full border @error('tax_code') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
+                                            @error('tax_code')
+                                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                    <div class="space-y-1.5">
+                                        <label class="text-sm text-3">Địa chỉ <span class="text-[#FF7A00]">*</span></label>
+                                        <div class="relative">
+                                            <input type="text" name="company_address" value="{{ old('company_address') }}" class="w-full border @error('company_address') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
+                                            @error('company_address')
+                                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
-                </div>
+
+                    <div x-show="step === 3" x-cloak class="flex flex-col gap-4">
+                        <!-- Back Button Link -->
+                        <button type="button" @click="step = 2" class="text-xs text-6 hover:underline font-semibold flex items-center gap-1.5 cursor-pointer self-start">
+                            <i class="fa-solid fa-arrow-left text-[10px]"></i> Quay lại bước trước
+                        </button>
+
+                        <div class="bg-white rounded-[10px] border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-6 flex flex-col gap-6">
+                            <h2 class="text-[22px] font-bold text-gray-800">Thông tin thanh toán</h2>
+
+                            <div class="space-y-4">
+                                <h3 class="text-[22px] font-bold text-[#1F4388]">Thông tin liên hệ</h3>
+
+                                <div class="space-y-3">
+                                    <x-radio-button model="paymentMethod" value="bank" label="Chuyển khoản" />
+                                    <div x-show="paymentMethod === 'bank'" x-collapse class="ml-7.5 space-y-2 text-sm text-3">
+                                        <p class="font-bold mb-1">Vietcombank - Ngân hàng ngoại thương Việt Nam</p>
+                                        <p>Chi nhánh Thành Công</p>
+                                        <p>Chủ tài khoản: CHU TUAN ANH</p>
+                                        <p class="flex items-center gap-1.5">
+                                            Số tài khoản: 0451000310732
+                                            <button type="button" class="text-6 hover:text-blue-700 cursor-pointer" title="Copy">
+                                                <svg width="16" height="18" viewBox="0 0 16 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <g clip-path="url(#clip0_276_25352)">
+                                                        <path d="M9.53 18H2.81C1.26 18 0 16.74 0 15.19V5.66C0 4.11 1.26 2.85 2.81 2.85H9.53C11.08 2.85 12.34 4.11 12.34 5.66V15.19C12.34 16.74 11.08 18 9.53 18ZM2.81 4.25C2.03 4.25 1.41 4.88 1.4 5.66V15.19C1.4 15.97 2.03 16.59 2.81 16.6H9.53C10.31 16.6 10.93 15.97 10.94 15.19V5.66C10.94 4.88 10.31 4.26 9.53 4.25H2.81ZM15.15 13.43V2.81C15.15 1.26 13.89 0 12.34 0H4.54C4.15 0 3.84 0.31 3.84 0.7C3.84 1.09 4.15 1.4 4.54 1.4H12.34C13.12 1.4 13.74 2.03 13.75 2.81V13.43C13.75 13.82 14.06 14.13 14.45 14.13C14.84 14.13 15.15 13.82 15.15 13.43Z" fill="#278AEC" />
+                                                    </g>
+                                                    <defs>
+                                                        <clipPath id="clip0_276_25352">
+                                                            <rect width="15.15" height="18" fill="white" />
+                                                        </clipPath>
+                                                    </defs>
+                                                </svg>
+                                            </button>
+                                        </p>
+
+                                        <div class="bg-white border border-gray-200 rounded-[8px] p-3.5 space-y-1.5 mt-3">
+                                            <p class="text-3"><strong class="text-3 font-bold">Nội dung chuyển khoản:</strong> “Tên khách hàng” + Số điện thoại</p>
+                                            <p class="text-4 ">Ví dụ: “CHU TUAN ANH” + “0988038291”</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2 pt-2">
+                                    <x-radio-button model="paymentMethod" value="cod" label="Ship COD nhận hàng thanh toán tại nhà" />
+                                    <p x-show="paymentMethod === 'cod'" x-collapse class="ml-7.5 text-sm text-4 font-semibold">Chúng tôi cung cấp dịch vụ Ship COD toàn quốc thuận tiện và đảm bảo</p>
+                                </div>
+
+                                <div class="space-y-2 pt-2">
+                                    <x-radio-button model="paymentMethod" value="momo" label="Thanh toán qua Momo" />
+                                    <p x-show="paymentMethod === 'momo'" x-collapse class="ml-7.5 text-sm text-4 font-semibold">Chúng tôi cung cấp dịch vụ Ship COD toàn quốc thuận tiện và đảm bảo</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
             </div>
             <div class="w-full lg:w-[27%] flex flex-col gap-6">
                 <div x-show="step < 3" x-cloak class="bg-white p-5 rounded-[10px] border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)]">
@@ -302,9 +336,9 @@
                     <div class="space-y-4 text-sm">
                         <div class="flex justify-between">
                             <span class="text-3 font-medium">Tổng</span>
-                            <span class="text-3 font-medium">5.450.000đ</span>
+                            <span class="text-3 font-medium">{{number_format($totalPrice, 0, ',', '.')}}</span>
                         </div>
-                        <div class="flex justify-between">
+                        <!-- <div class="flex justify-between">
                             <span class="text-3 font-medium">Thuế GTGT (VAT)</span>
                             <span class="text-3 font-medium">300.000đ</span>
                         </div>
@@ -315,7 +349,7 @@
                         <div class="flex justify-between">
                             <span class="text-3 font-medium">Áp dụng điểm thưởng</span>
                             <span class="text-3 font-medium">300.000đ</span>
-                        </div>
+                        </div> -->
                         <!-- Phí vận chuyển, visible in step 2 and 3 -->
                         <div x-show="step >= 2" x-cloak class="flex justify-between">
                             <span class="text-3 font-medium">Phí vận chuyển</span>
@@ -323,16 +357,16 @@
                         </div>
                         <div class="border-t border-dashed border-[#C8C8C8] pt-4 mt-2 flex justify-between items-center">
                             <span class="text-sm font-bold text-[#1F4388]">Tổng tiền cần thanh toán</span>
-                            <span class="text-[17px] font-extrabold text-[#EB7507]">5.150.000đ</span>
+                            <span class="text-[17px] font-extrabold text-[#EB7507]">{{number_format($totalPrice, 0, ',', '.')}}</span>
                         </div>
                         <!-- Số tiền cần đặt cọc trước, visible in step 3 -->
                         <div x-show="step === 3" x-cloak class="flex justify-between items-center font-bold mt-2">
                             <span class="text-sm text-[#1F4388]">Số tiền cần đặt cọc trước</span>
-                            <span class="text-[17px] text-[#EB7507]">5.150.000đ</span>
+                            <span class="text-[17px] text-[#EB7507]">{{number_format($totalPrice, 0, ',', '.')}}</span>
                         </div>
                     </div>
 
-                    <button @click="if (step === 1) { step = 2 } else if (step === 2) { step = 3 } else { alert('Đặt hàng thành công!') }" class="w-full bg-6 hover:bg-blue-600 text-white font-bold py-3.5 rounded-lg text-sm mt-5 transition-all shadow-md text-center cursor-pointer">
+                    <button @click="if (step === 1) { step = 2 } else if (step === 2) { step = 3 } else { document.getElementById('checkout-form').submit() }" class="w-full bg-6 hover:bg-blue-600 text-white font-bold py-3.5 rounded-lg text-sm mt-5 transition-all shadow-md text-center cursor-pointer">
                         <span x-text="step === 3 ? 'Thanh toán cọc' : 'Tiếp theo'">Tiếp theo</span>
                     </button>
                 </div>
