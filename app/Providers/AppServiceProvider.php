@@ -21,6 +21,10 @@ use App\Repositories\Interfaces\OrderRepositoryInterface;
 use App\Repositories\Eloquent\OrderRepository;
 use App\Services\Interfaces\OrderServiceInterface;
 use App\Services\OrderService;
+use App\Repositories\Interfaces\UserRepositoryInterface;
+use App\Repositories\Eloquent\UserRepository;
+use App\Services\Interfaces\UserServiceInterface;
+use App\Services\UserService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -64,6 +68,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             OrderServiceInterface::class,
             OrderService::class
+        );
+        $this->app->bind(
+            UserRepositoryInterface::class,
+            UserRepository::class
+        );
+        $this->app->bind(
+            UserServiceInterface::class,
+            UserService::class
         );
     }
 

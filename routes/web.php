@@ -10,13 +10,17 @@ use App\Http\Controllers\Client\ProductClientController;
 use App\Http\Controllers\Client\CartClientController;
 use App\Http\Controllers\Client\CheckoutController;
 
+use App\Http\Controllers\Client\ClientAuthController;
+
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [AuthController::class, 'login']);
-Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
+Route::get('/login', [ClientAuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [ClientAuthController::class, 'login'])->name('login.post');
+Route::get('/register', [ClientAuthController::class, 'showRegisterForm'])->name('register');
+Route::post('/register', [ClientAuthController::class, 'register'])->name('register.post');
+Route::post('/logout', [ClientAuthController::class, 'logout'])->name('logout');
 
 Route::get('categories', [CategoriesClientController::class, 'showClient'])->name('categories.showClient');
 Route::get('product', [ProductClientController::class, 'showClient'])->name('products.showClient');
@@ -34,6 +38,9 @@ Route::post('/checkout/validate', [CheckoutController::class, 'validateCheckout'
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+    Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
     Route::prefix('categories')->middleware('role')->group(function () {
         Route::get('/', [CategoriesController::class, 'index'])->name('categories.index');
         Route::get('/create', [CategoriesController::class, 'create'])->name('categories.create');
