@@ -9,14 +9,23 @@ use Illuminate\Http\Request;
 class CartService implements CartServiceInterface
 {
     protected ProductRepositoryInterface $productRepository;
-    protected string $cartKey = 'cart';
     public function __construct(ProductRepositoryInterface $productRepository)
     {
         $this->productRepository = $productRepository;
     }
-    public function getCart()
+    public function getCartKey()
     {
-        $cart = session()->get($this->cartKey, []);
+        if (request()->routeIs('cart.showClient', 'checkout.placeOrder', 'checkout.validate') &&
+            request()->get('mode') === 'buy_now'
+        ) {
+            return 'buy_now_cart';
+        }
+        return 'cart';
+    }
+    public function getCart(?string $key = null)
+    {
+        $cartKey = $key ?: $this->getCartKey();
+        $cart = session()->get($cartKey, []);
         if (empty($cart)) {
             return [];
         }
@@ -39,7 +48,7 @@ class CartService implements CartServiceInterface
     public function add(int $id, int $quantity)
     {
         $product = $this->productRepository->findOrFail($id);
-        $cart = session()->get($this->cartKey, []);
+        $cart = session()->get($this->getCartKey(), []);
         $price = $product->sale_price ?? $product->price;
         if (isset($cart[$id])) {
             $cart[$id]['quantity'] += $quantity;
@@ -54,12 +63,12 @@ class CartService implements CartServiceInterface
         if ($cart[$id]['quantity'] > $product->stock) {
             throw new \Exception('Số lượng vượt quá số lượng trong kho');
         }
-        session()->put($this->cartKey, $cart);
+        session()->put($this->getCartKey(), $cart);
     }
     public function update(int $id, int $quantity)
     {
         $product = $this->productRepository->findOrFail($id);
-        $cart = session()->get($this->cartKey, []);
+        $cart = session()->get($this->getCartKey(), []);
         if ($quantity <= 0) {
             $this->remove($id);
             return [];
@@ -73,45 +82,63 @@ class CartService implements CartServiceInterface
         $price = $product->sale_price ?? $product->price;
         $cart[$id]['quantity'] = $quantity;
         $cart[$id]['subtotal'] = $price * $quantity;
-        session()->put($this->cartKey, $cart);
+        session()->put($this->getCartKey(), $cart);
 
         return $cart[$id];
     }
     public function remove(?int $id = null, ?Request $request = null)
     {
-        $cart = session()->get($this->cartKey, []);
+        $cart = session()->get($this->getCartKey(), []);
         if ($request && $request->has('product_ids')) {
             $ids = explode(',', $request->product_ids);
             foreach ($ids as $id) {
                 unset($cart[$id]);
             }
-            session()->put($this->cartKey, $cart);
+            session()->put($this->getCartKey(), $cart);
             return back()->with('success', 'Xóa sản phẩm đã chọn thành công');
         } else {
             if (!isset($cart[$id])) {
                 throw new \Exception('Sản phẩm không có trong giỏ hàng');
             }
             unset($cart[$id]);
-            session()->put($this->cartKey, $cart);
+            session()->put($this->getCartKey(), $cart);
             return back()->with('success', 'Xóa giỏ hàng thành công');
         }
     }
     public function clear()
     {
-        session()->forget($this->cartKey);
+        session()->forget($this->getCartKey());
     }
     public function getCartCount()
     {
-        $cart = session()->get($this->cartKey, []);
+        $cart = session()->get('cart', []);
         return array_sum(array_column($cart, 'quantity'));
     }
     public function getTotalPrice()
     {
-        $cart = session()->get($this->cartKey, []);
+        $cart = session()->get($this->getCartKey(), []);
         $total = 0;
         foreach ($cart as $item) {
             $total += $item['quantity'] * $item['price'];
         }
         return $total;
+    }
+    public function buyNow(int $productId, int $quantity)
+    {
+        $product = $this->productRepository->findOrFail($productId);
+        
+        if ($quantity > $product->stock) {
+            throw new \Exception('Số lượng vượt quá số lượng trong kho');
+        }
+
+        $price = $product->sale_price ?? $product->price;
+
+        session()->put('buy_now_cart', [
+            $productId => [
+                'quantity' => $quantity,
+                'price' => $price,
+                'subtotal' => $price * $quantity,
+            ]
+        ]);
     }
 }

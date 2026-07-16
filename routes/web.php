@@ -28,6 +28,7 @@ Route::prefix('cart')->group(function () {
     Route::post('/remove', [CartClientController::class, 'remove'])->name('cart.remove');
 });
 
+Route::post('/buy-now', [CartClientController::class, 'buyNow'])->name('cart.buyNow');
 Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::post('/checkout/validate', [CheckoutController::class, 'validateCheckout'])->name('checkout.validate');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');

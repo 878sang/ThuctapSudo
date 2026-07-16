@@ -17,10 +17,11 @@ class CartClientController extends Controller
 
     public function cartClient()
     {
-        $cartItems = $this->cartService->getCart();
+        $cartItems = $this->cartService->getCart('cart');
+        $checkoutItems = $this->cartService->getCart();
         $totalPrice = $this->cartService->getTotalPrice();
 
-        return view('client.cart.show', compact('cartItems', 'totalPrice'));
+        return view('client.cart.show', compact('cartItems', 'checkoutItems', 'totalPrice'));
     }
     public function add(Request $request)
     {
@@ -93,6 +94,17 @@ class CartClientController extends Controller
                     'cart_count' => $this->cartService->getCartCount(),
                 ], 400);
             }
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function buyNow(Request $request)
+    {
+        try {
+            $this->cartService->buyNow($request->product_id, $request->quantity ?? 1);
+
+            return redirect()->route('cart.showClient', ['mode' => 'buy_now']);
+        } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
     }

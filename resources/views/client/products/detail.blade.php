@@ -96,7 +96,7 @@
                             @endforeach
                         </div>
                     </div>
-                    <div class="p-6 rounded-[10px] bg-white w-full md:w-[45%] flex flex-col justify-between">
+                    <div class="p-6 rounded-[10px] bg-white w-full md:w-[45%] flex flex-col justify-between" x-data="{qty:1}" @change="qty = $event.detail.qty">
                         <div>
                             <div class="flex items-center justify-between mb-3">
                                 <div class="flex items-center gap-2">
@@ -169,13 +169,11 @@
                                 </ul>
                             </div>
                         </div>
-                        <form action="{{ route('cart.add') }}" method="POST" class="space-y-4">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-
-                            <x-quantity-selector :qty="1" class="mb-4" :max="$product->stock" />
-
-                            <div class="flex flex-col gap-2.5">
+                        <div class="flex flex-col gap-2.5">
+                            <form action="{{ route('cart.add') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <x-quantity-selector :qty="1" class="mb-4" :max="$product->stock" :autoUpdate="true" />
                                 <button type="submit" class="w-full bg-[#EDF3FF] hover:bg-[#d8e8ff] text-2 py-3.5 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
                                     <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M23.0196 3.77326C22.4113 3.12444 21.5733 2.77299 20.6811 2.77299H4.29843L4.25788 2.44858C4.00106 1.00225 2.71693 -0.0520797 1.24357 0.00198863H1.01378C0.473098 -0.0250455 0.0270342 0.393984 0 0.934668C0.0270342 1.47535 0.473098 1.88086 1.01378 1.85383H1.24357C1.73019 1.84031 2.16273 2.17824 2.25735 2.66485L3.64961 13.492C4.06864 15.9251 6.21786 17.6688 8.69149 17.5742H19.2754C19.789 17.6283 20.2351 17.2498 20.2891 16.7361C20.3432 16.2225 19.9647 15.7764 19.4511 15.7224C19.397 15.7224 19.3294 15.7224 19.2754 15.7224H8.69149C7.44791 15.7494 6.31248 15.0195 5.82586 13.8705H17.9101C20.2621 13.9516 22.3437 12.3566 22.8979 10.0722L23.6955 6.04413C23.8577 5.21958 23.6143 4.38152 23.0331 3.77326H23.0196Z" fill="#0165FC" />
@@ -184,11 +182,16 @@
                                     </svg>
                                     <span>Thêm vào giỏ hàng</span>
                                 </button>
-                                <button type="submit" class="w-full bg-7 hover:bg-blue-600 text-white py-3.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer uppercase">
+                            </form>
+                            <form action="{{route('cart.buyNow')}}" method="post">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <input type="hidden" name="quantity" :value="qty">
+                                <button type="submit" @click="console.log(qty)" class="w-full bg-7 hover:bg-blue-600 text-white py-3.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer uppercase">
                                     <span>MUA NGAY</span>
                                 </button>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
@@ -240,21 +243,28 @@
                                     <td class="py-3.5 px-4 border border-[#E9E9E9]">
                                         <div class="flex items-center justify-center gap-2">
                                             @if($sp->stock > 0)
-                                            <form action="{{ route('cart.add') }}" method="POST" class="flex items-center justify-center gap-2">
-                                                @csrf
-                                                <input type="hidden" name="product_id" value="{{ $sp->id }}">
-                                                <input type="hidden" name="quantity" :value="qty" value="1">
-                                                <button class="w-[46px] h-[46px] bg-[#E8F1FF] hover:bg-[#d0e3ff] text-7 rounded flex items-center justify-center transition-colors cursor-pointer">
-                                                    <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M23.0196 3.77326C22.4113 3.12444 21.5733 2.77299 20.6811 2.77299H4.29843L4.25788 2.44858C4.00106 1.00225 2.71693 -0.0520797 1.24357 0.00198863H1.01378C0.473098 -0.0250455 0.0270342 0.393984 0 0.934668C0.0270342 1.47535 0.473098 1.88086 1.01378 1.85383H1.24357C1.73019 1.84031 2.16273 2.17824 2.25735 2.66485L3.64961 13.492C4.06864 15.9251 6.21786 17.6688 8.69149 17.5742H19.2754C19.789 17.6283 20.2351 17.2498 20.2891 16.7361C20.3432 16.2225 19.9647 15.7764 19.4511 15.7224C19.397 15.7224 19.3294 15.7224 19.2754 15.7224H8.69149C7.44791 15.7494 6.31248 15.0195 5.82586 13.8705H17.9101C20.2621 13.9516 22.3437 12.3566 22.8979 10.0722L23.6955 6.04413C23.8577 5.21958 23.6143 4.38152 23.0331 3.77326H23.0196Z" fill="#0165FC" />
-                                                        <path d="M7.42021 24.3327C8.91327 24.3327 10.1236 23.1224 10.1236 21.6293C10.1236 20.1363 8.91327 18.9259 7.42021 18.9259C5.92716 18.9259 4.7168 20.1363 4.7168 21.6293C4.7168 23.1224 5.92716 24.3327 7.42021 24.3327Z" fill="#0165FC" />
-                                                        <path d="M16.8694 24.3327C18.3625 24.3327 19.5728 23.1224 19.5728 21.6293C19.5728 20.1363 8.3625 18.9259 7.42021 18.9259C5.92716 18.9259 4.7168 20.1363 4.7168 21.6293C4.7168 23.1224 5.92716 24.3327 7.42021 24.3327Z" fill="#0165FC" />
-                                                    </svg>
-                                                </button>
-                                                <button class="bg-7 hover:bg-blue-600 text-white min-w-[140px] h-[46px] rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer uppercase">
-                                                    MUA NGAY
-                                                </button>
-                                            </form>
+                                            <div class=" flex items-center justify-center gap-2">
+                                                <form action="{{ route('cart.add') }}" @change="qty = $event.detail.qty" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="product_id" value="{{ $sp->id }}">
+                                                    <input type="hidden" name="quantity" :value="qty" value="1">
+                                                    <button class="w-[46px] h-[46px] bg-[#E8F1FF] hover:bg-[#d0e3ff] text-7 rounded flex items-center justify-center transition-colors cursor-pointer">
+                                                        <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M23.0196 3.77326C22.4113 3.12444 21.5733 2.77299 20.6811 2.77299H4.29843L4.25788 2.44858C4.00106 1.00225 2.71693 -0.0520797 1.24357 0.00198863H1.01378C0.473098 -0.0250455 0.0270342 0.393984 0 0.934668C0.0270342 1.47535 0.473098 1.88086 1.01378 1.85383H1.24357C1.73019 1.84031 2.16273 2.17824 2.25735 2.66485L3.64961 13.492C4.06864 15.9251 6.21786 17.6688 8.69149 17.5742H19.2754C19.789 17.6283 20.2351 17.2498 20.2891 16.7361C20.3432 16.2225 19.9647 15.7764 19.4511 15.7224C19.397 15.7224 19.3294 15.7224 19.2754 15.7224H8.69149C7.44791 15.7494 6.31248 15.0195 5.82586 13.8705H17.9101C20.2621 13.9516 22.3437 12.3566 22.8979 10.0722L23.6955 6.04413C23.8577 5.21958 23.6143 4.38152 23.0331 3.77326H23.0196Z" fill="#0165FC" />
+                                                            <path d="M7.42021 24.3327C8.91327 24.3327 10.1236 23.1224 10.1236 21.6293C10.1236 20.1363 8.91327 18.9259 7.42021 18.9259C5.92716 18.9259 4.7168 20.1363 4.7168 21.6293C4.7168 23.1224 5.92716 24.3327 7.42021 24.3327Z" fill="#0165FC" />
+                                                            <path d="M16.8694 24.3327C18.3625 24.3327 19.5728 23.1224 19.5728 21.6293C19.5728 20.1363 8.3625 18.9259 7.42021 18.9259C5.92716 18.9259 4.7168 20.1363 4.7168 21.6293C4.7168 23.1224 5.92716 24.3327 7.42021 24.3327Z" fill="#0165FC" />
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                                <form action="{{ route('cart.buyNow') }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="product_id" value="{{ $sp->id }}">
+                                                    <input type="hidden" name="quantity" :value="qty" value="1">
+                                                    <button class="bg-7 hover:bg-blue-600 text-white min-w-[140px] h-[46px] rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer uppercase">
+                                                        MUA NGAY
+                                                    </button>
+                                                </form>
+                                            </div>
                                             @else
                                             <button class="w-[46px] h-[46px] bg-[#F3F3F3] text-gray-500 rounded flex items-center justify-center cursor-not-allowed">
                                                 <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">

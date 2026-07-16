@@ -1,14 +1,14 @@
 @extends('client.layout.main')
 
 @section('content')
-<div class="bg-blue_bg min-h-screen pb-12" x-data="{ step: {{ old('address_method') ? 2 : 1 }}, addressMethod: '{{ old('address_method', 'new') }}', paymentMethod: '{{ old('payment_method', 'bank') }}', vatRequired: {{ old('is_vat') == '1' ? 'true' : 'false' }}, selectedItems: [] }">
+<div class="bg-blue_bg min-h-screen pb-12" x-data="{ step: {{ (old('address_method') || request('mode') === 'buy_now') ? 2 : 1 }}, addressMethod: '{{ old('address_method', 'new') }}', paymentMethod: '{{ old('payment_method', 'bank') }}', vatRequired: {{ old('is_vat') == '1' ? 'true' : 'false' }}, selectedItems: [], isValidating: false }">
     <div class="bg-blue_bg border-b border-gray-100 py-3 mb-6">
         <div class="max-w-[1440px] mx-auto px-4">
             <x-breadcrumb :items="[['label' => 'Giỏ hàng']]" />
         </div>
     </div>
     <div class="max-w-[1440px] mx-auto px-4">
-        @if(count($cartItems) > 0)
+        @if(count($checkoutItems) > 0)
         <div class="flex flex-col lg:flex-row gap-6">
             <div class="w-full lg:w-[73%] flex flex-col gap-6">
                 <div x-show="step === 1" class="flex flex-col gap-6">
@@ -86,16 +86,22 @@
                     </div>
                 </div>
 
-                <form id="checkout-form" action="{{ route('checkout.placeOrder') }}" method="POST" class="flex flex-col gap-6">
+                <form id="checkout-form" action="{{ route('checkout.placeOrder', ['mode' => request('mode')]) }}" method="POST" class="flex flex-col gap-6">
                     @csrf
                     <input type="hidden" name="address_method" :value="addressMethod">
                     <input type="hidden" name="payment_method" :value="paymentMethod">
                     <input type="hidden" name="is_vat" :value="vatRequired ? 1 : 0">
 
                     <div x-show="step === 2" x-cloak class="flex flex-col gap-4">
+                        @if(request('mode') === 'buy_now')
+                        <a href="{{ route('products.detailClient', array_key_first($checkoutItems)) }}" class="text-xs text-6 hover:underline font-semibold flex items-center gap-1.5 cursor-pointer self-start">
+                            <i class="fa-solid fa-arrow-left text-[10px]"></i> Quay lại sản phẩm
+                        </a>
+                        @else
                         <button type="button" @click="step = 1" class="text-xs text-6 hover:underline font-semibold flex items-center gap-1.5 cursor-pointer self-start">
                             <i class="fa-solid fa-arrow-left text-[10px]"></i> Quay lại giỏ hàng
                         </button>
+                        @endif
                         <div class="bg-white rounded-[10px] border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-6 flex flex-col gap-5">
                             <h2 class="text-[22px] font-bold text-2 mb-2">Thông tin giao hàng</h2>
                             @auth
@@ -351,10 +357,10 @@
                             <span class="text-3 font-medium">300.000đ</span>
                         </div> -->
                         <!-- Phí vận chuyển, visible in step 2 and 3 -->
-                        <div x-show="step >= 2" x-cloak class="flex justify-between">
+                        <!-- <div x-show="step >= 2" x-cloak class="flex justify-between">
                             <span class="text-3 font-medium">Phí vận chuyển</span>
                             <span class="text-3 font-medium">300.000đ</span>
-                        </div>
+                        </div> -->
                         <div class="border-t border-dashed border-[#C8C8C8] pt-4 mt-2 flex justify-between items-center">
                             <span class="text-sm font-bold text-[#1F4388]">Tổng tiền cần thanh toán</span>
                             <span class="text-[17px] font-extrabold text-[#EB7507] cart-total-payment">{{number_format($totalPrice, 0, ',', '.')}} đ</span>
@@ -366,7 +372,7 @@
                         </div>
                     </div>
 
-                    <button @click="if (step === 1) { step = 2 } else if (step === 2) { validateCheckoutStep2($data, '{{ route("checkout.validate") }}') } else { document.getElementById('checkout-form').submit() }" class="w-full bg-6 hover:bg-blue-600 text-white font-bold py-3.5 rounded-lg text-sm mt-5 transition-all shadow-md text-center cursor-pointer">
+                    <button @click="if (step === 1) { step = 2 } else if (step === 2) { validateCheckoutStep2($data, '{{ route("checkout.validate", ["mode" => request("mode")]) }}') } else { document.getElementById('checkout-form').submit() }" class="w-full bg-6 hover:bg-blue-600 text-white font-bold py-3.5 rounded-lg text-sm mt-5 transition-all shadow-md text-center cursor-pointer">
                         <span x-text="step === 3 ? 'Thanh toán cọc' : 'Tiếp theo'">Tiếp theo</span>
                     </button>
                 </div>

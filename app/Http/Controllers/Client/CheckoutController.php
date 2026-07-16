@@ -26,6 +26,8 @@ class CheckoutController extends Controller
         try {
             $order = $this->orderService->create($data, $request);
 
+            session()->forget('buy_now_cart');
+
             return redirect()->route('checkout.success')->with('success_order_id', $order->id);
         } catch (\Exception $e) {
             return back()->with('error', 'Đặt hàng không thành công: ' . $e->getMessage())->withInput();
