@@ -22,6 +22,7 @@
         @yield('content')
     </main>
     @include('client.layout.footer')
+    @include('client.auth.login_modal')
 </body>
 
 </html>

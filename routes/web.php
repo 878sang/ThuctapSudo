@@ -9,21 +9,22 @@ use App\Http\Controllers\Client\CategoriesClientController;
 use App\Http\Controllers\Client\ProductClientController;
 use App\Http\Controllers\Client\CartClientController;
 use App\Http\Controllers\Client\CheckoutController;
-
-use App\Http\Controllers\Client\ClientAuthController;
+use App\Http\Controllers\Client\ReviewClientController;
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Route::get('/login', [ClientAuthController::class, 'showLoginForm'])->name('login');
-Route::post('/login', [ClientAuthController::class, 'login'])->name('login.post');
-Route::get('/register', [ClientAuthController::class, 'showRegisterForm'])->name('register');
-Route::post('/register', [ClientAuthController::class, 'register'])->name('register.post');
-Route::post('/logout', [ClientAuthController::class, 'logout'])->name('logout');
+Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
+Route::post('/login', [AuthController::class, 'loginClient'])->name('login.post');
+Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
+Route::post('/register', [AuthController::class, 'registerClient'])->name('register.post');
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('categories', [CategoriesClientController::class, 'showClient'])->name('categories.showClient');
 Route::get('product', [ProductClientController::class, 'showClient'])->name('products.showClient');
+Route::post('products/reviews/{id}', [ReviewClientController::class, 'storeReview'])->name('products.storeReview');
+Route::put('products/reviews/{id}/update', [ReviewClientController::class, 'updateReview'])->name('products.updateReview');
 Route::get('products/{id}', [ProductClientController::class, 'productDetailClient'])->name('products.detailClient');
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartClientController::class, 'cartClient'])->name('cart.showClient');
@@ -37,9 +38,12 @@ Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('check
 Route::post('/checkout/validate', [CheckoutController::class, 'validateCheckout'])->name('checkout.validate');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 
+Route::prefix('admin')->name('admin.')->group(function () {
+    Route::get('/login', [AuthController::class, 'showAdminLoginForm'])->name('login');
+    Route::post('/login', [AuthController::class, 'loginAdmin']);
+});
+
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
-    Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
     Route::prefix('categories')->middleware('role')->group(function () {
         Route::get('/', [CategoriesController::class, 'index'])->name('categories.index');

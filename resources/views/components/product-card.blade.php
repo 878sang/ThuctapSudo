@@ -51,7 +51,7 @@
             </div>
             <div class="flex items-center gap-2 mb-4">
                 <x-star-rating :stars="$product->stars ?? 5" class="text-yellow-400 text-xs gap-0.5" />
-                <span class="text-xs text-gray-400 font-medium">{{ $product->reviews ?? 0 }}</span>
+                <span class="text-xs text-gray-400 font-medium">({{ $product->reviews_count ?? 0 }} đánh giá)</span>
             </div>
             <div class="flex flex-col gap-2">
                 <a href="{{ route('products.detailClient', $product->id) }}" class="w-full bg-[#006DF0] text-white text-center py-2.5 rounded-[5px] text-sm no-underline hover:bg-[#005ecf] transition-colors">

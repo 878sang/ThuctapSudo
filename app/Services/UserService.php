@@ -17,7 +17,7 @@ class UserService extends BaseService implements UserServiceInterface
         $this->userRepository = $userRepository;
     }
 
-    public function login(array $data, bool $remember = false): bool
+    public function loginClient(array $data, bool $remember = false): bool
     {
         $login = $data['login'];
         $field = filter_var($login, FILTER_VALIDATE_EMAIL) ? 'email' : 'phone';
@@ -25,18 +25,36 @@ class UserService extends BaseService implements UserServiceInterface
         $credentials = [
             $field => $login,
             'password' => $data['password'],
-            'role' => 'customer', // Chỉ cho phép khách hàng đăng nhập ở phía client
+            'role' => 'customer',
         ];
 
         return Auth::attempt($credentials, $remember);
     }
 
-    public function register(array $data)
+    public function loginAdmin(array $data, bool $remember = false): bool
     {
+        $credentials = [
+            'email' => $data['email'],
+            'password' => $data['password'],
+        ];
+        $user = $this->userRepository->where('email', $data['email'])->first();
+        if ($user && in_array($user->role, ['super_admin', 'staff'])) {
+            return Auth::attempt($credentials, $remember);
+        }
+
+        return false;
+    }
+
+    public function registerClient(array $data)
+    {
+        $dob = $data['year'] . '-' . sprintf('%02d', $data['month']) . '-' . sprintf('%02d', $data['day']);
+
         return $this->userRepository->create([
             'name' => $data['name'],
             'email' => $data['email'],
             'phone' => $data['phone'],
+            'dob' => $dob,
+            'gender' => $data['gender'],
             'password' => Hash::make($data['password']),
             'role' => 'customer',
         ]);

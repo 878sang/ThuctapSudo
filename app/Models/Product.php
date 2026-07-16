@@ -53,7 +53,10 @@ class Product extends Model
         return $this->belongsTo(Brand::class, 'brand_id');
     }
 
-
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'product_id');
+    }
     public function scopeActive($query)
     {
         return $query->where('status', self::STATUS_ACTIVE);
@@ -122,6 +125,10 @@ class Product extends Model
             return [];
         }
         return array_map(fn($img) => asset('storage/products/' . $img), $this->gallery);
+    }
+    public function getStarsAttribute()
+    {
+        return isset($this->reviews_avg_rating) ? (float) $this->reviews_avg_rating : 0.0;
     }
 
     public function scopeOrderByPrice($query, $direction = 'asc')

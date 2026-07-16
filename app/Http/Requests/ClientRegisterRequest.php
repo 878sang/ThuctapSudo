@@ -21,9 +21,13 @@ class ClientRegisterRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users',
-            'phone' => 'required|string|max:20|unique:users',
+            'email' => 'required|string|email|max:255|unique:users,email',
+            'phone' => 'required|string|max:20|unique:users,phone',
             'password' => 'required|string|min:6|confirmed',
+            'day' => 'required|integer|between:1,31',
+            'month' => 'required|integer|between:1,12',
+            'year' => 'required|integer|min:1900|max:' . date('Y'),
+            'gender' => 'required|string|in:Nam,Nữ,Khác',
         ];
     }
 
@@ -42,6 +46,10 @@ class ClientRegisterRequest extends FormRequest
             'password.required' => 'Mật khẩu là bắt buộc',
             'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự',
             'password.confirmed' => 'Xác nhận mật khẩu không khớp',
+            'day.required' => 'Ngày sinh là bắt buộc',
+            'month.required' => 'Tháng sinh là bắt buộc',
+            'year.required' => 'Năm sinh là bắt buộc',
+            'gender.required' => 'Giới tính là bắt buộc',
         ];
     }
 }

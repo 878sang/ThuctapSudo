@@ -25,6 +25,10 @@ use App\Repositories\Interfaces\UserRepositoryInterface;
 use App\Repositories\Eloquent\UserRepository;
 use App\Services\Interfaces\UserServiceInterface;
 use App\Services\UserService;
+use App\Repositories\Eloquent\ReviewRepository;
+use App\Repositories\Interfaces\ReviewRepositoryInterface;
+use App\Services\Interfaces\ReviewServiceInterface;
+use App\Services\ReviewService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -76,6 +80,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             UserServiceInterface::class,
             UserService::class
+        );
+        $this->app->bind(
+            ReviewRepositoryInterface::class,
+            ReviewRepository::class
+        );
+        $this->app->bind(
+            ReviewServiceInterface::class,
+            ReviewService::class
         );
     }
 

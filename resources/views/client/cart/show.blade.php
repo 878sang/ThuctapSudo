@@ -104,6 +104,14 @@
                         @endif
                         <div class="bg-white rounded-[10px] border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-6 flex flex-col gap-5">
                             <h2 class="text-[22px] font-bold text-2 mb-2">Thông tin giao hàng</h2>
+                            @guest
+                            <div class="bg-[#EDF3FF] border border-[#DAE6FF] rounded-[10px] p-4.5 flex items-center justify-between text-xs text-6 mb-2">
+                                <span class="font-medium">Bạn đã có tài khoản thành viên? Đăng nhập để tự động điền địa chỉ và nhận ưu đãi.</span>
+                                <button type="button" @click="$dispatch('open-login-modal')" class="bg-6 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded-lg transition-all cursor-pointer shadow-sm">
+                                    Đăng nhập
+                                </button>
+                            </div>
+                            @endguest
                             @auth
                             <div class="space-y-3">
                                 <x-radio-button model="addressMethod" value="account" label="Lấy địa chỉ theo tài khoản" />
