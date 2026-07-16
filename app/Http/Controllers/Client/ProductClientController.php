@@ -22,9 +22,9 @@ class ProductClientController extends Controller
     public function showClient(Request $request)
     {
         $products = $this->productService->getFilteredProducts($request);
-        $categories = $this->categoryService->getActive();
+        $categories = $this->categoryService->getActiveWithChildren();
         $brands = $this->brandService->getActive();
-        $selectedCategory = $categories->find($request->category);
+        $selectedCategory = $request->category ? $this->categoryService->with(['parent'])->find((int)$request->category) : null;
         $selectedBrand = $brands->find($request->brand);
         return view('client.products.show', compact('products', 'categories', 'brands', 'selectedCategory', 'selectedBrand'));
     }

@@ -62,7 +62,7 @@ class CartService implements CartServiceInterface
         $cart = session()->get($this->cartKey, []);
         if ($quantity <= 0) {
             $this->remove($id);
-            return;
+            return [];
         }
         if (!isset($cart[$id])) {
             throw new \Exception('Sản phẩm không có trong giỏ hàng');
@@ -74,6 +74,8 @@ class CartService implements CartServiceInterface
         $cart[$id]['quantity'] = $quantity;
         $cart[$id]['subtotal'] = $price * $quantity;
         session()->put($this->cartKey, $cart);
+
+        return $cart[$id];
     }
     public function remove(?int $id = null, ?Request $request = null)
     {
@@ -100,7 +102,8 @@ class CartService implements CartServiceInterface
     }
     public function getCartCount()
     {
-        return count(session()->get($this->cartKey, []));
+        $cart = session()->get($this->cartKey, []);
+        return array_sum(array_column($cart, 'quantity'));
     }
     public function getTotalPrice()
     {

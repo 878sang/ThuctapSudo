@@ -130,4 +130,3 @@ class Product extends Model
         return $query->orderByRaw("COALESCE(sale_price, price) {$dir}");
     }
 }
-

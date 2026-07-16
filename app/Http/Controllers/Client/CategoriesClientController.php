@@ -14,7 +14,7 @@ class CategoriesClientController extends Controller
     }
     public function showClient()
     {
-        $categories = $this->categoryService->getAll();
+        $categories = $this->categoryService->getActiveWithChildren();
         return view('client.categogies.show', compact('categories'));
     }
 }

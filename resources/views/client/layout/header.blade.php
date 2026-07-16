@@ -57,7 +57,7 @@
                     <a href="{{ route('cart.showClient') }}" class="w-10.5 h-10.5 text-base rounded-full bg-8 text-7 flex items-center justify-center cursor-pointer hover:bg-blue-100 hover:scale-105 transition-all duration-200">
                         <div class="relative">
                             <i class="fa-solid fa-cart-shopping"></i>
-                            <span class="absolute -top-2 -right-2 bg-orange-500 text-white text-[8px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center border border-white shadow-sm animate-pulse">{{ $cartService->getCartCount() }}</span>
+                            <span class="absolute -top-2 -right-2 bg-orange-500 text-white text-[8px] font-bold rounded-full w-3.5 h-3.5 flex items-center justify-center border border-white shadow-sm animate-pulse" id="cart-count">{{ $cartService->getCartCount() }}</span>
                         </div>
                     </a>
                     <div class="w-10.5 h-10.5 text-base rounded-full bg-8 text-7 flex items-center justify-center cursor-pointer hover:bg-blue-100 hover:scale-105 transition-all duration-200">

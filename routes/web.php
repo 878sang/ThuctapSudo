@@ -29,6 +29,7 @@ Route::prefix('cart')->group(function () {
 });
 
 Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
+Route::post('/checkout/validate', [CheckoutController::class, 'validateCheckout'])->name('checkout.validate');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {

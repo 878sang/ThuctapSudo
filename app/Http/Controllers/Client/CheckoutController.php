@@ -14,7 +14,12 @@ class CheckoutController extends Controller
     {
         $this->orderService = $orderService;
     }
-
+    public function validateCheckout(StoreOrderRequest $request)
+    {
+        return response()->json([
+            'success' => true
+        ]);
+    }
     public function placeOrder(StoreOrderRequest $request)
     {
         $data = $request->validated();

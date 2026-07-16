@@ -22,11 +22,13 @@
     @foreach ($products as $product)
     <div class="w-full px-2.5 mb-5">
         <div class="bg-white rounded-[10px] p-4.5 flex flex-col relative transition-shadow duration-200 hover:shadow-md border border-gray-50">
-            <div class="flex flex-col items-center mb-3">
+            <a href="{{ route('products.detailClient', $product->id) }}" class="flex flex-col items-center mb-3">
                 <img src="{{ $product->thumbnail ? $product->thumbnail_url : asset('storage/images/cambien.png') }}" class="h-40 object-contain mb-2" alt="Product Image">
-            </div>
+            </a>
             <h3 class="text-sm font-bold text-5 line-clamp-2 mb-3 min-h-[40px] leading-snug">
-                {{ $product->name }}
+                <a href="{{ route('products.detailClient', $product->id) }}" class="no-underline text-5 hover:text-[#006DF0]">
+                    {{ $product->name }}
+                </a>
             </h3>
             <div class="flex justify-between items-end mb-3">
                 <div class="flex flex-col">

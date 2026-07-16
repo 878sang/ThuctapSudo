@@ -22,6 +22,7 @@ class UpdateCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'parent_id' => 'nullable|exists:categories,id|not_in:' . $this->route('id'),
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'avatar' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -37,6 +38,8 @@ class UpdateCategoryRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'parent_id.exists' => 'Danh mục cha không tồn tại',
+            'parent_id.not_in' => 'Danh mục cha không được là chính nó',
             'name.required' => 'Tên danh mục là bắt buộc',
             'description.required' => 'Mô tả danh mục là bắt buộc',
             'avatar.max' => 'Ảnh danh mục không được vượt quá 2MB',
@@ -45,4 +48,3 @@ class UpdateCategoryRequest extends FormRequest
         ];
     }
 }
-

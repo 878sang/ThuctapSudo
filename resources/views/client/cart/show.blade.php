@@ -8,13 +8,13 @@
         </div>
     </div>
     <div class="max-w-[1440px] mx-auto px-4">
-
+        @if(count($cartItems) > 0)
         <div class="flex flex-col lg:flex-row gap-6">
             <div class="w-full lg:w-[73%] flex flex-col gap-6">
                 <div x-show="step === 1" class="flex flex-col gap-6">
                     <div class="bg-white rounded-[10px] border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-4 sm:p-5 flex items-center justify-between gap-4">
                         <h1 class="text-[22px] font-bold text-6 flex items-center gap-1">
-                            Giỏ hàng <span class="text-[#F86614] font-bold">(6)</span>
+                            Giỏ hàng <span class="text-[#F86614] font-bold">(<span id="cart-title-count">{{ count($cartItems) }}</span>)</span>
                         </h1>
                         <div class="relative w-48 sm:w-80">
                             <input type="text" placeholder="Nhập tên sản phẩm" class="w-full bg-[#F6F6F6] border-none rounded-[10px] px-4 py-2.5 text-xs sm:text-sm text-gray-700 placeholder-gray-400 focus:outline-none focus:ring-1 focus:ring-blue-400 pr-10">
@@ -71,13 +71,13 @@
                                         </td>
                                         <td class="py-4 px-4 text-sm text-2 whitespace-nowrap">{{ number_format($item['price'], 0, ',', '.') }} đ</td>
                                         <td class="py-4 px-4 text-center">
-                                            <form action="{{ route('cart.update') }}" method="POST" @change="$el.submit()">
+                                            <form action="{{ route('cart.update') }}" method="POST" @change="$el.requestSubmit()">
                                                 @csrf
                                                 <input type="hidden" name="product_id" value="{{ $item['product']->id }}">
-                                                <x-quantity-selector :qty="$item['quantity']" :autoUpdate="true" />
+                                                <x-quantity-selector :qty="$item['quantity']" :autoUpdate="true" :max="$item['product']->stock" />
                                             </form>
                                         </td>
-                                        <td class="py-4 px-4 text-center text-sm text-[#EB7507] font-bold whitespace-nowrap">{{ number_format($item['subtotal'], 0, ',', '.') }} đ</td>
+                                        <td class="py-4 px-4 text-center text-sm text-[#EB7507] font-bold whitespace-nowrap cart-subtotal">{{ number_format($item['subtotal'], 0, ',', '.') }} đ</td>
                                     </tr>
                                     @endforeach
                                 </tbody>
@@ -122,17 +122,17 @@
                                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div>
                                             <label class="text-sm text-3">Họ và tên <span class="text-[#FF7A00]">*</span></label>
-                                            <input type="text" name="customer_name" value="{{ old('customer_name') }}" placeholder="Chu Tuấn Anh" class="w-full border @error('customer_name') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
-                                            @error('customer_name')
-                                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
-                                            @enderror
+                                            <input type="text" name="customer_name" data-error-field="customer_name" value="{{ old('customer_name') }}" placeholder="Chu Tuấn Anh" class="w-full border @error('customer_name') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
+                                            <span class="text-xs text-red-500 mt-1 block error-message-span" data-error-for="customer_name">
+                                                @error('customer_name'){{ $message }}@enderror
+                                            </span>
                                         </div>
                                         <div>
                                             <label class="text-sm text-3">Số điện thoại <span class="text-[#FF7A00]">*</span></label>
-                                            <input type="text" name="customer_phone" value="{{ old('customer_phone') }}" placeholder="(+84) 988 038 291" class="w-full border @error('customer_phone') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
-                                            @error('customer_phone')
-                                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
-                                            @enderror
+                                            <input type="text" name="customer_phone" data-error-field="customer_phone" value="{{ old('customer_phone') }}" placeholder="(+84) 988 038 291" class="w-full border @error('customer_phone') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
+                                            <span class="text-xs text-red-500 mt-1 block error-message-span" data-error-for="customer_phone">
+                                                @error('customer_phone'){{ $message }}@enderror
+                                            </span>
                                         </div>
                                     </div>
 
@@ -140,38 +140,38 @@
                                         <div>
                                             <label class="text-sm text-3 mb-2.5">Địa chỉ <span class="text-[#FF7A00]">*</span></label>
                                             <div class="relative">
-                                                <input type="text" name="province" value="{{ old('province') }}" placeholder="Tỉnh/Thành phố" class="w-full border @error('province') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
-                                                @error('province')
-                                                <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
-                                                @enderror
+                                                <input type="text" name="province" data-error-field="province" value="{{ old('province') }}" placeholder="Tỉnh/Thành phố" class="w-full border @error('province') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
+                                                <span class="text-xs text-red-500 mt-1 block error-message-span" data-error-for="province">
+                                                    @error('province'){{ $message }}@enderror
+                                                </span>
                                             </div>
                                         </div>
                                         <div class="space-y-1.5">
                                             <label class="text-sm text-3">&nbsp;</label>
                                             <div class="relative">
-                                                <input type="text" name="district" value="{{ old('district') }}" placeholder="Quận/ huyện" class="w-full border @error('district') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
-                                                @error('district')
-                                                <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
-                                                @enderror
+                                                <input type="text" name="district" data-error-field="district" value="{{ old('district') }}" placeholder="Quận/ huyện" class="w-full border @error('district') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
+                                                <span class="text-xs text-red-500 mt-1 block error-message-span" data-error-for="district">
+                                                    @error('district'){{ $message }}@enderror
+                                                </span>
                                             </div>
                                         </div>
                                         <div class="space-y-1.5">
                                             <label class="text-sm text-3">&nbsp;</label>
                                             <div class="relative">
-                                                <input type="text" name="ward" value="{{ old('ward') }}" placeholder="Phường/ xã" class="w-full border @error('ward') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
-                                                @error('ward')
-                                                <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
-                                                @enderror
+                                                <input type="text" name="ward" data-error-field="ward" value="{{ old('ward') }}" placeholder="Phường/ xã" class="w-full border @error('ward') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
+                                                <span class="text-xs text-red-500 mt-1 block error-message-span" data-error-for="ward">
+                                                    @error('ward'){{ $message }}@enderror
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
 
                                     <div class="space-y-1.5">
                                         <div class="relative">
-                                            <input type="text" name="street" value="{{ old('street') }}" placeholder="Địa chỉ chính xác (Số nhà, tên đường)" class="w-full border @error('street') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
-                                            @error('street')
-                                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
-                                            @enderror
+                                            <input type="text" name="street" data-error-field="street" value="{{ old('street') }}" placeholder="Địa chỉ chính xác (Số nhà, tên đường)" class="w-full border @error('street') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] mt-2.5 px-4 py-2.5 text-sm text-2 placeholder-[#A1A7AA] focus:outline-none focus:border-6 focus:ring-0 bg-white h-[46px]">
+                                            <span class="text-xs text-red-500 mt-1 block error-message-span" data-error-for="street">
+                                                @error('street'){{ $message }}@enderror
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -183,19 +183,19 @@
                                     <div class="space-y-1.5">
                                         <label class="text-sm text-3">Tên công ty <span class="text-[#FF7A00]">*</span></label>
                                         <div class="relative">
-                                            <input type="text" name="company_name" value="{{ old('company_name') }}" class="w-full border @error('company_name') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
-                                            @error('company_name')
-                                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
-                                            @enderror
+                                            <input type="text" name="company_name" data-error-field="company_name" value="{{ old('company_name') }}" class="w-full border @error('company_name') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
+                                            <span class="text-xs text-red-500 mt-1 block error-message-span" data-error-for="company_name">
+                                                @error('company_name'){{ $message }}@enderror
+                                            </span>
                                         </div>
                                     </div>
                                     <div class="space-y-1.5">
                                         <label class="text-sm text-3">Email nhận hóa đơn <span class="text-[#FF7A00]">*</span></label>
                                         <div class="relative">
-                                            <input type="text" name="company_email" value="{{ old('company_email') }}" class="w-full border @error('company_email') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
-                                            @error('company_email')
-                                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
-                                            @enderror
+                                            <input type="text" name="company_email" data-error-field="company_email" value="{{ old('company_email') }}" class="w-full border @error('company_email') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
+                                            <span class="text-xs text-red-500 mt-1 block error-message-span" data-error-for="company_email">
+                                                @error('company_email'){{ $message }}@enderror
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -204,19 +204,19 @@
                                     <div class="space-y-1.5">
                                         <label class="text-sm text-3">Mã số thuế <span class="text-[#FF7A00]">*</span></label>
                                         <div class="relative">
-                                            <input type="text" name="tax_code" value="{{ old('tax_code') }}" class="w-full border @error('tax_code') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
-                                            @error('tax_code')
-                                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
-                                            @enderror
+                                            <input type="text" name="tax_code" data-error-field="tax_code" value="{{ old('tax_code') }}" class="w-full border @error('tax_code') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
+                                            <span class="text-xs text-red-500 mt-1 block error-message-span" data-error-for="tax_code">
+                                                @error('tax_code'){{ $message }}@enderror
+                                            </span>
                                         </div>
                                     </div>
                                     <div class="space-y-1.5">
                                         <label class="text-sm text-3">Địa chỉ <span class="text-[#FF7A00]">*</span></label>
                                         <div class="relative">
-                                            <input type="text" name="company_address" value="{{ old('company_address') }}" class="w-full border @error('company_address') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
-                                            @error('company_address')
-                                            <span class="text-xs text-red-500 mt-1 block">{{ $message }}</span>
-                                            @enderror
+                                            <input type="text" name="company_address" data-error-field="company_address" value="{{ old('company_address') }}" class="w-full border @error('company_address') border-red-500 @else border-[#E5E7EB] @enderror rounded-[10px] px-4 py-2.5 text-sm text-2 font-bold focus:outline-none focus:border-6 pr-10 bg-white h-[46px]">
+                                            <span class="text-xs text-red-500 mt-1 block error-message-span" data-error-for="company_address">
+                                                @error('company_address'){{ $message }}@enderror
+                                            </span>
                                         </div>
                                     </div>
                                 </div>
@@ -336,7 +336,7 @@
                     <div class="space-y-4 text-sm">
                         <div class="flex justify-between">
                             <span class="text-3 font-medium">Tổng</span>
-                            <span class="text-3 font-medium">{{number_format($totalPrice, 0, ',', '.')}}</span>
+                            <span class="text-3 font-medium cart-total-price">{{number_format($totalPrice, 0, ',', '.')}} đ</span>
                         </div>
                         <!-- <div class="flex justify-between">
                             <span class="text-3 font-medium">Thuế GTGT (VAT)</span>
@@ -357,16 +357,16 @@
                         </div>
                         <div class="border-t border-dashed border-[#C8C8C8] pt-4 mt-2 flex justify-between items-center">
                             <span class="text-sm font-bold text-[#1F4388]">Tổng tiền cần thanh toán</span>
-                            <span class="text-[17px] font-extrabold text-[#EB7507]">{{number_format($totalPrice, 0, ',', '.')}}</span>
+                            <span class="text-[17px] font-extrabold text-[#EB7507] cart-total-payment">{{number_format($totalPrice, 0, ',', '.')}} đ</span>
                         </div>
                         <!-- Số tiền cần đặt cọc trước, visible in step 3 -->
                         <div x-show="step === 3" x-cloak class="flex justify-between items-center font-bold mt-2">
                             <span class="text-sm text-[#1F4388]">Số tiền cần đặt cọc trước</span>
-                            <span class="text-[17px] text-[#EB7507]">{{number_format($totalPrice, 0, ',', '.')}}</span>
+                            <span class="text-[17px] text-[#EB7507] cart-total-deposit">{{number_format($totalPrice, 0, ',', '.')}} đ</span>
                         </div>
                     </div>
 
-                    <button @click="if (step === 1) { step = 2 } else if (step === 2) { step = 3 } else { document.getElementById('checkout-form').submit() }" class="w-full bg-6 hover:bg-blue-600 text-white font-bold py-3.5 rounded-lg text-sm mt-5 transition-all shadow-md text-center cursor-pointer">
+                    <button @click="if (step === 1) { step = 2 } else if (step === 2) { validateCheckoutStep2($data, '{{ route("checkout.validate") }}') } else { document.getElementById('checkout-form').submit() }" class="w-full bg-6 hover:bg-blue-600 text-white font-bold py-3.5 rounded-lg text-sm mt-5 transition-all shadow-md text-center cursor-pointer">
                         <span x-text="step === 3 ? 'Thanh toán cọc' : 'Tiếp theo'">Tiếp theo</span>
                     </button>
                 </div>
@@ -386,10 +386,18 @@
                 </div>
             </div>
         </div>
-
-
-
+        @else
+        <div class="bg-white rounded-[10px] border border-gray-100 shadow-[0_2px_10px_rgba(0,0,0,0.02)] p-12 text-center flex flex-col items-center justify-center gap-4">
+            <div class="w-24 h-24 rounded-full bg-blue_bg flex items-center justify-center text-7 mb-2">
+                <i class="fa-solid fa-cart-shopping text-3xl text-6"></i>
+            </div>
+            <h2 class="text-xl font-bold text-2">Giỏ hàng của bạn đang trống</h2>
+            <p class="text-sm text-4 max-w-md">Hãy chọn những sản phẩm chất lượng của chúng tôi để thêm vào giỏ hàng nhé.</p>
+            <a href="{{ route('products.showClient') }}" class="bg-6 hover:bg-blue-600 text-white font-bold px-6 py-3 rounded-lg text-sm transition-colors mt-2">
+                Tiếp tục mua sắm
+            </a>
+        </div>
+        @endif
     </div>
-</div>
 </div>
 @endsection

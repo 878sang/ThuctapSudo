@@ -17,6 +17,15 @@
                             {{ $category->name }}
                         </a>
                     </div>
+                    <div class="text-2 text-sm">
+                        @foreach ($category->activeChildren as $subCategory)
+                        <div class="px-5 py-2.5">
+                            <a href="{{ route('products.showClient', ['category' => $subCategory->id]) }}" class="no-underline">
+                                {{ $subCategory->name }}
+                            </a>
+                        </div>
+                        @endforeach
+                    </div>
                 </div>
             </div>
             @endforeach

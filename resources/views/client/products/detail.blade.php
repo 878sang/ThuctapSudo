@@ -173,7 +173,7 @@
                             @csrf
                             <input type="hidden" name="product_id" value="{{ $product->id }}">
 
-                            <x-quantity-selector :qty="1" class="mb-4" />
+                            <x-quantity-selector :qty="1" class="mb-4" :max="$product->stock" />
 
                             <div class="flex flex-col gap-2.5">
                                 <button type="submit" class="w-full bg-[#EDF3FF] hover:bg-[#d8e8ff] text-2 py-3.5 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
@@ -235,7 +235,7 @@
                                         </span>
                                     </td>
                                     <td class="py-3.5 px-4 border border-[#E9E9E9] text-center" @change="qty = $event.detail.qty">
-                                        <x-quantity-selector :qty="1" :autoUpdate="true" />
+                                        <x-quantity-selector :qty="1" :max="$sp->stock" :autoUpdate="true" />
                                     </td>
                                     <td class="py-3.5 px-4 border border-[#E9E9E9]">
                                         <div class="flex items-center justify-center gap-2">

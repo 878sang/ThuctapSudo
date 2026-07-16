@@ -46,6 +46,11 @@
                     <div @click="selectedId = '{{ $item->id }}'; selectedName = '{{ $item->name }}'; open = false"
                         :class="selectedId === '{{ $item->id }}' ? 'bg-blue-50/60' : ''"
                         class="px-6 py-[10px] text-sm font-semibold text-7 uppercase cursor-pointer hover:bg-blue-50/60 transition-colors">{{ $item->name }}</div>
+                    @foreach ($item->activeChildren as $child)
+                    <div @click="selectedId = '{{ $child->id }}'; selectedName = '{{ $child->name }}'; open = false"
+                        :class="selectedId === '{{ $child->id }}' ? 'bg-blue-50/60' : ''"
+                        class="pl-12 pr-6 py-[8px] text-sm text-7 cursor-pointer hover:bg-blue-50/60 transition-colors"> {{ $child->name }}</div>
+                    @endforeach
                     @endforeach
                 </div>
                 <input type="hidden" name="category" :value="selectedId">
@@ -53,7 +58,7 @@
         </div>
         <div class="space-y-4">
             <div x-data="{ open: false, selectedId: '{{ $selectedBrand->id ?? '' }}', selectedName: '{{ $selectedBrand->name ?? '' }}' }" x-init="let form = $el.closest('form'); $watch('selectedId', () => form.submit())" @click.outside="open = false" class="relative">
-                <label class="block text-sm font-bold text-2 mb-2.5">Thương hiệu</label>
+                <label class="block text-sm font-bold text-2 my-2.5">Thương hiệu</label>
                 <div @click="open = !open"
                     :class="selectedId ? 'border-[#D9D9D9] bg-white' : 'border-[#D9D9D9] bg-white hover:border-gray-300'"
                     class="w-full min-h-[44px] border rounded-[5px] text-sm cursor-pointer flex items-center gap-2 flex-wrap">
