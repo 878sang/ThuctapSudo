@@ -94,9 +94,15 @@
 
                     <div x-show="step === 2" x-cloak class="flex flex-col gap-4">
                         @if(request('mode') === 'buy_now')
-                        <a href="{{ route('products.detailClient', array_key_first($checkoutItems)) }}" class="text-xs text-6 hover:underline font-semibold flex items-center gap-1.5 cursor-pointer self-start">
-                            <i class="fa-solid fa-arrow-left text-[10px]"></i> Quay lại sản phẩm
-                        </a>
+                            @php
+                                $firstItem = reset($checkoutItems);
+                                $firstProduct = $firstItem['product'] ?? null;
+                            @endphp
+                            @if($firstProduct)
+                                <a href="{{ route('products.detailClient', [$firstProduct->slug, $firstProduct->id]) }}" class="text-xs text-6 hover:underline font-semibold flex items-center gap-1.5 cursor-pointer self-start">
+                                    <i class="fa-solid fa-arrow-left text-[10px]"></i> Quay lại sản phẩm
+                                </a>
+                            @endif
                         @else
                         <button type="button" @click="step = 1" class="text-xs text-6 hover:underline font-semibold flex items-center gap-1.5 cursor-pointer self-start">
                             <i class="fa-solid fa-arrow-left text-[10px]"></i> Quay lại giỏ hàng

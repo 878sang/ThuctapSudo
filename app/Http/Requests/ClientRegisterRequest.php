@@ -21,8 +21,9 @@ class ClientRegisterRequest extends FormRequest
     {
         return [
             'name' => 'required|string|max:255',
+            'display_name' => 'nullable|string|max:255',
             'email' => 'required|string|email|max:255|unique:users,email',
-            'phone' => 'required|string|max:20|unique:users,phone',
+            'phone' => 'required|string|max:20|unique:users,phone|regex:/^0[0-9]{9}$/',
             'password' => 'required|string|min:6|confirmed',
             'day' => 'required|integer|between:1,31',
             'month' => 'required|integer|between:1,12',
@@ -43,6 +44,7 @@ class ClientRegisterRequest extends FormRequest
             'email.unique' => 'Email này đã được sử dụng',
             'phone.required' => 'Số điện thoại là bắt buộc',
             'phone.unique' => 'Số điện thoại này đã được sử dụng',
+            'phone.regex' => 'Số điện thoại không hợp lệ',
             'password.required' => 'Mật khẩu là bắt buộc',
             'password.min' => 'Mật khẩu phải có ít nhất 6 ký tự',
             'password.confirmed' => 'Xác nhận mật khẩu không khớp',

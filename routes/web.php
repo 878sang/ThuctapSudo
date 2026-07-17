@@ -19,13 +19,15 @@ Route::get('/login', [AuthController::class, 'showLoginForm'])->name('login');
 Route::post('/login', [AuthController::class, 'loginClient'])->name('login.post');
 Route::get('/register', [AuthController::class, 'showRegisterForm'])->name('register');
 Route::post('/register', [AuthController::class, 'registerClient'])->name('register.post');
+Route::get('/register/success', [AuthController::class, 'registerSuccess'])->name('register.success');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::get('categories', [CategoriesClientController::class, 'showClient'])->name('categories.showClient');
 Route::get('product', [ProductClientController::class, 'showClient'])->name('products.showClient');
 Route::post('products/reviews/{id}', [ReviewClientController::class, 'storeReview'])->name('products.storeReview');
 Route::put('products/reviews/{id}/update', [ReviewClientController::class, 'updateReview'])->name('products.updateReview');
-Route::get('products/{id}', [ProductClientController::class, 'productDetailClient'])->name('products.detailClient');
+Route::post('products/reviews/{id}/like', [ReviewClientController::class, 'likeReview'])->name('products.likeReview');
+Route::get('products/{slug}/{id}', [ProductClientController::class, 'productDetailClient'])->name('products.detailClient');
 Route::prefix('cart')->group(function () {
     Route::get('/', [CartClientController::class, 'cartClient'])->name('cart.showClient');
     Route::post('/add', [CartClientController::class, 'add'])->name('cart.add');

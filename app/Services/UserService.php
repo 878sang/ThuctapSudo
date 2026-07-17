@@ -51,6 +51,7 @@ class UserService extends BaseService implements UserServiceInterface
 
         return $this->userRepository->create([
             'name' => $data['name'],
+            'display_name' => $data['display_name'] ?? null,
             'email' => $data['email'],
             'phone' => $data['phone'],
             'dob' => $dob,

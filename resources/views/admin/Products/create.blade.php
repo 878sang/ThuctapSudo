@@ -166,6 +166,48 @@
             <x-form-error name="detail" />
         </div>
 
+        <!-- Thông số kỹ thuật -->
+        <div class="border p-4 rounded-md bg-gray-50">
+            <label class="block text-sm font-medium text-gray-700 mb-2">Thông số kỹ thuật</label>
+            <div id="specs-container" class="space-y-2">
+                <!-- Dynamic rows will be inserted here -->
+            </div>
+            <button type="button" id="add-spec-btn" class="mt-3 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-md text-xs font-semibold cursor-pointer">
+                + Thêm hàng thông số
+            </button>
+        </div>
+
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const container = document.getElementById('specs-container');
+                const addBtn = document.getElementById('add-spec-btn');
+
+                addBtn.addEventListener('click', function() {
+                    const index = container.querySelectorAll('.spec-row').length;
+                    const row = document.createElement('div');
+                    row.className = 'flex gap-2 spec-row items-center';
+                    row.innerHTML = `
+                        <input type="text" name="specs[${index}][name]" placeholder="Tên thông số (VD: Điện áp)" class="w-1/2 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white" required>
+                        <input type="text" name="specs[${index}][value]" placeholder="Giá trị (VD: 690 VAC)" class="w-1/2 px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 bg-white" required>
+                        <button type="button" class="remove-spec-btn px-3 py-2 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm transition-colors cursor-pointer">Xóa</button>
+                    `;
+                    container.appendChild(row);
+
+                    row.querySelector('.remove-spec-btn').addEventListener('click', function() {
+                        row.remove();
+                        reindexSpecs();
+                    });
+                });
+
+                function reindexSpecs() {
+                    container.querySelectorAll('.spec-row').forEach((row, index) => {
+                        row.querySelector('input[name*="[name]"]').name = `specs[${index}][name]`;
+                        row.querySelector('input[name*="[value]"]').name = `specs[${index}][value]`;
+                    });
+                }
+            });
+        </script>
+
         <div>
             <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Trạng thái <span class="text-red-500">*</span></label>
             <select name="status"

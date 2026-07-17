@@ -57,6 +57,12 @@ class Product extends Model
     {
         return $this->hasMany(Review::class, 'product_id');
     }
+    public function specifications()
+    {
+        return $this->belongsToMany(Specification::class, 'product_specification')
+                    ->withPivot('value')
+                    ->withTimestamps();
+    }
     public function scopeActive($query)
     {
         return $query->where('status', self::STATUS_ACTIVE);

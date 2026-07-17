@@ -74,7 +74,9 @@ class ProductService extends BaseService implements ProductServiceInterface
         $this->validatePublish($data, $request);
         $data['thumbnail'] = $this->uploadFile($request, 'thumbnail', 'images');
         $data['gallery'] = $this->uploadMultipleFiles($request, 'gallery', 'products', $product->gallery ?? []);
-        return parent::create($data, $request);
+        $product = parent::create($data, $request);
+        $this->syncSpecifications($product, $request->input('specs', []));
+        return $product;
     }
     #[Override]
     public function update(array $data, Request $request, int $id)
@@ -84,7 +86,23 @@ class ProductService extends BaseService implements ProductServiceInterface
         $data['thumbnail'] = $this->uploadFile($request, 'thumbnail', 'images', $product->thumbnail);
         $data['gallery'] = $this->uploadMultipleFiles($request, 'gallery', 'products', $product->gallery ?? []);
         $data['slug'] = $this->generateSlug($request->name);
-        return parent::update($data, $request, $id);
+        $result = parent::update($data, $request, $id);
+        $this->syncSpecifications($product, $request->input('specs', []));
+        return $result;
+    }
+
+    protected function syncSpecifications(Product $product, array $specsData)
+    {
+        $syncData = [];
+        foreach ($specsData as $spec) {
+            if (!empty($spec['name']) && !empty($spec['value'])) {
+                $specification = \App\Models\Specification::firstOrCreate([
+                    'name' => trim($spec['name'])
+                ]);
+                $syncData[$specification->id] = ['value' => trim($spec['value'])];
+            }
+        }
+        $product->specifications()->sync($syncData);
     }
     #[Override]
     public function delete(int $id, ?Request $request = null)

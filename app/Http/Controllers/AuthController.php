@@ -87,6 +87,11 @@ class AuthController extends Controller
         return view('client.auth.register');
     }
 
+    public function registerSuccess()
+    {
+        return view('client.auth.register_success');
+    }
+
     /**
      * Xử lý đăng ký cho Khách hàng
      */
@@ -97,7 +102,7 @@ class AuthController extends Controller
         $user = $this->userService->registerClient($data);
         Auth::login($user);
 
-        return redirect('/')->with('success', 'Đăng ký tài khoản thành công!');
+        return redirect()->route('register.success');
     }
 
     /**

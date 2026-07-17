@@ -45,6 +45,9 @@ class StoreProductRequest extends FormRequest
             'seo_title' => 'nullable|string|max:255',
             'seo_description' => 'nullable|string|max:255',
             'seo_keyword' => 'nullable|string|max:255',
+            'specs' => 'nullable|array',
+            'specs.*.name' => 'required_with:specs|string|max:255',
+            'specs.*.value' => 'required_with:specs|string|max:255',
         ];
     }
 

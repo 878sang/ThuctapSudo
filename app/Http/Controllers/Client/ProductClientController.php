@@ -36,9 +36,9 @@ class ProductClientController extends Controller
         $selectedBrand = $brands->find($request->brand);
         return view('client.products.show', compact('products', 'categories', 'brands', 'selectedCategory', 'selectedBrand'));
     }
-    public function productDetailClient($id)
+    public function productDetailClient($slug, $id)
     {
-        $product = $this->productService->with(['category'])->findOrFail($id);
+        $product = $this->productService->with(['category', 'specifications'])->findOrFail($id);
         $seriesProducts = $this->productService->getProductsByCategory($product->category_id);
         $relatedProducts = $this->productService->getProductsByBrand($product->brand_id, $product->id, 6);
 

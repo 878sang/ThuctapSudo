@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'email', 'password', 'phone', 'dob', 'gender', 'role'])]
+#[Fillable(['name', 'display_name', 'email', 'password', 'phone', 'dob', 'gender', 'role'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -26,7 +26,10 @@ class User extends Authenticatable
     {
         return $this->role === self::ROLE_SUPER_ADMIN;
     }
-
+    public function likedReviews()
+    {
+        return $this->belongsToMany(Review::class, 'review_likes', 'user_id', 'review_id')->withTimestamps();
+    }
     /**
      * Get the attributes that should be cast.
      *

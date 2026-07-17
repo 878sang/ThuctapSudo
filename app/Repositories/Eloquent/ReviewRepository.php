@@ -42,4 +42,14 @@ class ReviewRepository extends BaseRepository implements ReviewRepositoryInterfa
             ->pluck('total', 'rating')
             ->toArray();
     }
+    public function toggleLike(int $id, bool $increment)
+    {
+        $review = $this->findOrFail($id);
+        if ($increment) {
+            $review->increment('likes');
+        } else {
+            $review->decrement('likes');
+        }
+        return $review->fresh()->likes;
+    }
 }

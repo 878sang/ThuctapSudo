@@ -139,7 +139,7 @@
                             @if($product->description)
                             <div class="bg-blue_button rounded-[10px] mb-6 py-4 px-5">
                                 @foreach (explode("\n", $product->description) as $desc)
-                                <div class="flex items-center gap-3 mb-3 text-sm text-3">
+                                <div class="flex items-start gap-3 mb-3 text-sm text-3">
                                     <div class="w-6 h-6 rounded-full bg-7 flex items-center justify-center shrink-0">
                                         <i class="fa-solid fa-bolt text-white text-[10px]"></i>
                                     </div>
@@ -211,14 +211,16 @@
                                 @foreach($seriesProducts as $sp)
                                 <tr x-data="{ qty: 1 }">
                                     <td class="py-2 px-4 border border-[#E9E9E9]">
-                                        <div class=" flex items-center gap-3">
-                                            <img src="{{ $sp->thumbnail ? $sp->thumbnail_url : asset('storage/images/chitiet1.jpg') }}" class="w-18 h-18 object-contain shrink-0 rounded" alt="Product thumbnail">
-                                            <div class="flex flex-col gap-1">
-                                                <span class="text-sm text-2 leading-tight">{{ $sp->sku }}</span>
-                                                <x-star-rating :stars="$sp->stars ?? 5" class="text-[14px]" />
-                                                <span class="text-sm text-[#929B9E] font-medium leading-none">{{ $sp->weight ? $sp->weight . 'kg' : '0.75kW' }}</span>
+                                        <a href="{{ route('products.detailClient', [$sp->slug, $sp->id]) }}">
+                                            <div class=" flex items-center gap-3">
+                                                <img src="{{ $sp->thumbnail ? $sp->thumbnail_url : asset('storage/images/chitiet1.jpg') }}" class="w-18 h-18 object-contain shrink-0 rounded" alt="Product thumbnail">
+                                                <div class="flex flex-col gap-1">
+                                                    <span class="text-sm text-2 leading-tight">{{ $sp->sku }}</span>
+                                                    <x-star-rating :stars="$sp->stars ?? 5" class="text-[14px]" />
+                                                    <span class="text-sm text-[#929B9E] font-medium leading-none">{{ $sp->weight ? $sp->weight . 'kg' : '0.75kW' }}</span>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </a>
                                     </td>
                                     <td class="py-3.5 px-4 text-sm border border-[#E9E9E9] text-2 text-center">
                                         @if($sp->price)
@@ -329,79 +331,20 @@
                     <template x-if="tab === 'specs'">
                         <div class="mt-5 p-6 bg-white space-y-4 animate-fade-in">
                             <h3 class="text-[20px] font-bold text-2">
-                                Thông số kỹ thuật <span class="text-7 font-bold">“ATV212 Series”</span>
+                                Thông số kỹ thuật <span class="text-7 font-bold">“{{ $product->name }}”</span>
                             </h3>
+                            @if($product->specifications && $product->specifications->count() > 0)
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-0">
-                                    <div class="py-4 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Tên sản phẩm</div>
-                                        <div class="text-7 font-semibold mt-1">Cầu dao LV429541 Schneider</div>
-                                    </div>
-                                    <div class="py-4 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Dòng</div>
-                                        <div class="text-7 font-semibold mt-1">NSX</div>
-                                    </div>
-                                    <div class="py-4 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Loại</div>
-                                        <div class="text-7 font-semibold mt-1">NSX100B</div>
-                                    </div>
-                                    <div class="py-4 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Điện áp hoạt động</div>
-                                        <div class="text-7 font-semibold mt-1">690 VAC</div>
-                                    </div>
-                                    <div class="py-4 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Điện áp định mức</div>
-                                        <div class="text-7 font-semibold mt-1">800 VAC</div>
-                                    </div>
-                                    <div class="py-4 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Điện áp định mức</div>
-                                        <div class="text-7 font-semibold mt-1">800 VAC</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Tần số</div>
-                                        <div class="text-7 font-semibold mt-1">50/60 Hz</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Cấp độ bảo vệ</div>
-                                        <div class="text-7 font-semibold mt-1">IP40</div>
-                                    </div>
+                                @foreach($product->specifications as $spec)
+                                <div class="py-4 border-b border-gray-100 text-sm">
+                                    <div class="text-2 font-bold">{{ $spec->name }}</div>
+                                    <div class="text-7 mt-1">{{ $spec->pivot->value }}</div>
                                 </div>
-
-                                <div class="space-y-0">
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Hiệu điện thế</div>
-                                        <div class="text-7 font-semibold mt-1">8kV</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Dòng định mức</div>
-                                        <div class="text-7 font-semibold mt-1">80A</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Số cực</div>
-                                        <div class="text-7 font-semibold mt-1">3P</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Khả năng ngắt mạch</div>
-                                        <div class="text-7 font-semibold mt-1">25 kA 415 VAC</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Độ bền cơ học</div>
-                                        <div class="text-7 font-semibold mt-1">50.000 chu kỳ</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Kích thước</div>
-                                        <div class="text-7 font-semibold mt-1">105 x 161 x 86mm</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Nhiệt độ môi trường</div>
-                                        <div class="text-7 font-semibold mt-1">-35-70°C</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Trọng lượng</div>
-                                        <div class="text-7 font-semibold mt-1">2.05 kg</div>
-                                    </div>
-                                </div>
+                                @endforeach
                             </div>
+                            @else
+                            <p class="text-gray-500 text-sm">Sản phẩm này chưa có thông số kỹ thuật.</p>
+                            @endif
                         </div>
                     </template>
                 </div>
@@ -455,16 +398,16 @@
                                     </div>
                                 </div>
                                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                                    <div>
-                                        <textarea name="comment" x-model="comment" class="w-full border border-[#CCCCCC] rounded-[5px] p-3 text-sm focus:outline-none focus:border-7 h-[104px] resize-none @error('comment') border-rose-500 @enderror" placeholder="Nhập nội dung"></textarea>
+                                    <div class="flex flex-col h-full">
+                                        <textarea name="comment" x-model="comment" class="w-full min-h-[105px] border border-[#CCCCCC] rounded-[5px] p-3 text-sm focus:outline-none focus:border-7 resize-none @error('comment') border-rose-500 @enderror" placeholder="Nhập nội dung"></textarea>
                                         @error('comment')
                                         <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span>
                                         @enderror
                                     </div>
-                                    <div class="flex flex-col gap-3">
-                                        <input type="text" name="title" x-model="title" class="w-full border border-[#CCCCCC] rounded-[5px] px-3 py-2.5 text-sm focus:outline-none focus:border-7" placeholder="Nhập tiêu đề">
+                                    <div class="flex flex-col justify-between h-full">
+                                        <input type="text" name="title" x-model="title" class="w-full min-h-[46px] border border-[#CCCCCC] rounded-[5px] px-3 py-2.5 text-sm focus:outline-none focus:border-7" placeholder="Nhập tiêu đề">
                                         <div>
-                                            <input type="text" name="user_name" x-model="userName" class="w-full border border-[#CCCCCC] rounded-[5px] px-3 py-2.5 text-sm focus:outline-none focus:border-7 @error('user_name') border-rose-500 @enderror" placeholder="Nhập tên">
+                                            <input type="text" name="user_name" x-model="userName" class="w-full min-h-[46px] border border-[#CCCCCC] rounded-[5px] px-3 py-2.5 text-sm focus:outline-none focus:border-7 @error('user_name') border-rose-500 @enderror" placeholder="Nhập tên">
                                             @error('user_name')
                                             <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span>
                                             @enderror
@@ -540,13 +483,35 @@
                                 </p>
                                 @endforeach
                             </div>
-                            <div x-data="{ showReplyForm: false, replyName: '{{ auth()->check() ? auth()->user()->name : '' }}', replyComment: '' }" class="w-full mt-2.5">
-                                <div class="flex items-center justify-end gap-5 text-sm text-4">
-                                    <button type="button" class="flex items-center gap-1.5 hover:text-7 transition-colors cursor-pointer">
-                                        <i class="fa-regular fa-thumbs-up"></i>
-                                        <span>Hữu ích</span>
+                            <div x-data="{ showReplyForm: false, replyName: '{{ auth()->check() ? auth()->user()->name : '' }}', replyComment: '', liked: {{ in_array($rev->id, $reviewData['likedReviewIds'] ?? []) ? 'true' : 'false' }}, likesCount: {{ $rev->likes ?? 0 }} }" class="w-full mt-2.5">
+                                <div class="flex items-center justify-end gap-5 text-sm">
+                                    <button type="button"
+                                        @click="
+                                            fetch('{{ route('products.likeReview', $rev->id) }}', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                    'Content-Type': 'application/json',
+                                                    'Accept': 'application/json'
+                                                }
+                                            })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    liked = data.liked;
+                                                    likesCount = data.likes;
+                                                } else {
+                                                    alert(data.message || 'Đã có lỗi xảy ra');
+                                                }
+                                            })
+                                            .catch(error => console.error('Error:', error))
+                                        "
+                                        :class="liked ? 'text-7 font-bold' : 'text-4 hover:text-7'"
+                                        class="flex items-center gap-1.5 transition-colors cursor-pointer">
+                                        <i :class="liked ? 'fa-solid fa-thumbs-up' : 'fa-regular fa-thumbs-up'"></i>
+                                        <span>Hữu ích (<span x-text="likesCount"></span>)</span>
                                     </button>
-                                    <button type="button" @click="showReplyForm = !showReplyForm" class="flex items-center gap-1.5 hover:text-7 transition-colors cursor-pointer">
+                                    <button type="button" @click="showReplyForm = !showReplyForm" class="flex items-center gap-1.5 text-4 hover:text-7 transition-colors cursor-pointer">
                                         <i class="fa-solid fa-reply text-[10px]"></i>
                                         <span>Phản hồi</span>
                                     </button>
@@ -718,7 +683,7 @@
                     </h3>
                     <div class="flex flex-col gap-4">
                         @foreach($relatedProducts as $rp)
-                        <a href="{{ route('products.detailClient', $rp->id ) }}" class="flex items-center gap-3.5 no-underline group">
+                        <a href="{{ route('products.detailClient', ['slug' => $rp->slug, 'id' => $rp->id] ) }}" class="flex items-center gap-3.5 no-underline group">
                             <div class="w-25 h-25 rounded shrink-0 flex items-center justify-center bg-white group-hover:border-gray-300 transition-colors">
                                 <img src="{{ $rp->thumbnail ? $rp->thumbnail_url : asset('storage/images/chitiet1.jpg') }}" alt="Related Product" class="max-h-full object-contain">
                             </div>
