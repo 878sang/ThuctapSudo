@@ -22,6 +22,7 @@ class StoreCategoryRequest extends FormRequest
     public function rules(): array
     {
         return [
+            'parent_id' => 'nullable|exists:categories,id',
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
@@ -37,6 +38,7 @@ class StoreCategoryRequest extends FormRequest
     public function messages(): array
     {
         return [
+            'parent_id.exists' => 'Danh mục cha không tồn tại',
             'name.required' => 'Tên danh mục là bắt buộc',
             'description.required' => 'Mô tả danh mục là bắt buộc',
             'avatar.required' => 'Ảnh danh mục là bắt buộc',
@@ -46,4 +48,3 @@ class StoreCategoryRequest extends FormRequest
         ];
     }
 }
-

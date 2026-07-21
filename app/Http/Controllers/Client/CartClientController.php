@@ -17,26 +17,59 @@ class CartClientController extends Controller
 
     public function cartClient()
     {
-        $cartItems = $this->cartService->getCart();
+        $cartItems = $this->cartService->getCart('cart');
+        $checkoutItems = $this->cartService->getCart();
         $totalPrice = $this->cartService->getTotalPrice();
 
-        return view('client.cart.show', compact('cartItems', 'totalPrice'));
+        return view('client.cart.show', compact('cartItems', 'checkoutItems', 'totalPrice'));
     }
     public function add(Request $request)
     {
         try {
             $this->cartService->add($request->product_id, $request->quantity);
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Thêm vào giỏ hàng thành công',
+                    'cart_count' => $this->cartService->getCartCount()
+                ]);
+            }
             return back()->with('success', 'Thêm vào giỏ hàng thành công');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'cart_count' => $this->cartService->getCartCount(),
+                ], 400);
+            }
             return back()->with('error', $e->getMessage());
         }
     }
     public function update(Request $request)
     {
         try {
-            $this->cartService->update($request->product_id, $request->quantity);
+            $updatedItem = $this->cartService->update($request->product_id, $request->quantity);
+            if ($request->ajax() || $request->wantsJson()) {
+                $itemSubtotal = $updatedItem['subtotal'] ?? 0;
+                $totalPrice = $this->cartService->getTotalPrice();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Cập nhật giỏ hàng thành công',
+                    'cart_count' => $this->cartService->getCartCount(),
+                    'item_subtotal' => number_format($itemSubtotal, 0, ',', '.') . ' đ',
+                    'total_price' => number_format($totalPrice, 0, ',', '.') . ' đ'
+                ]);
+            }
             return back()->with('success', 'Cập nhật giỏ hàng thành công');
         } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage()
+                ], 400);
+            }
             return back()->with('error', $e->getMessage());
         }
     }
@@ -44,7 +77,33 @@ class CartClientController extends Controller
     {
         try {
             $this->cartService->remove(null, $request);
-            return back()->with('success', 'Xóa giỏ hàng thành công');
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => true,
+                    'message' => 'Xóa sản phẩm thành công',
+                    'cart_count' => $this->cartService->getCartCount(),
+                    'total_price' => number_format($this->cartService->getTotalPrice(), 0, ',', '.') . ' đ'
+                ]);
+            }
+            return back()->with('success', 'Xóa sản phẩm thành công');
+        } catch (\Exception $e) {
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                    'cart_count' => $this->cartService->getCartCount(),
+                ], 400);
+            }
+            return back()->with('error', $e->getMessage());
+        }
+    }
+
+    public function buyNow(Request $request)
+    {
+        try {
+            $this->cartService->buyNow($request->product_id, $request->quantity ?? 1);
+
+            return redirect()->route('cart.showClient', ['mode' => 'buy_now']);
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }

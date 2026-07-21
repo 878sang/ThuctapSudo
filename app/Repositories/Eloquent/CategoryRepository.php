@@ -28,5 +28,10 @@ class CategoryRepository extends BaseRepository implements CategoryRepositoryInt
     {
         return $this->model->where('id', '!=', $id)->get();
     }
+    public function getActiveWithChildren()
+    {
+        return $this->model::active()->whereNull('parent_id')
+            ->with(['activeChildren'])
+            ->get();
+    }
 }
-

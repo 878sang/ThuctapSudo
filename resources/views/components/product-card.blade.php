@@ -18,15 +18,17 @@
     </div>
 </div>
 
-<div class="grid grid-cols-3">
+<div class="grid grid-cols-4">
     @foreach ($products as $product)
     <div class="w-full px-2.5 mb-5">
         <div class="bg-white rounded-[10px] p-4.5 flex flex-col relative transition-shadow duration-200 hover:shadow-md border border-gray-50">
-            <div class="flex flex-col items-center mb-3">
+            <a href="{{ route('products.detailClient', [$product->slug, $product->id]) }}" class="flex flex-col items-center mb-3">
                 <img src="{{ $product->thumbnail ? $product->thumbnail_url : asset('storage/images/cambien.png') }}" class="h-40 object-contain mb-2" alt="Product Image">
-            </div>
+            </a>
             <h3 class="text-sm font-bold text-5 line-clamp-2 mb-3 min-h-[40px] leading-snug">
-                {{ $product->name }}
+                <a href="{{ route('products.detailClient', [$product->slug, $product->id]) }}" class="no-underline text-5 hover:text-[#006DF0]">
+                    {{ $product->name }}
+                </a>
             </h3>
             <div class="flex justify-between items-end mb-3">
                 <div class="flex flex-col">
@@ -49,10 +51,10 @@
             </div>
             <div class="flex items-center gap-2 mb-4">
                 <x-star-rating :stars="$product->stars ?? 5" class="text-yellow-400 text-xs gap-0.5" />
-                <span class="text-xs text-gray-400 font-medium">{{ $product->reviews ?? 0 }}</span>
+                <span class="text-xs text-gray-400 font-medium">({{ $product->reviews_count ?? 0 }} đánh giá)</span>
             </div>
             <div class="flex flex-col gap-2">
-                <a href="{{ route('products.detailClient', $product->id) }}" class="w-full bg-[#006DF0] text-white text-center py-2.5 rounded-[5px] text-sm no-underline hover:bg-[#005ecf] transition-colors">
+                <a href="{{ route('products.detailClient', [$product->slug, $product->id]) }}" class="w-full bg-[#006DF0] text-white text-center py-2.5 rounded-[5px] text-sm no-underline hover:bg-[#005ecf] transition-colors">
                     Xem thêm
                 </a>
                 <a href="#" class="w-full bg-[#F0F6FF] text-[#006DF0] text-center py-2.5 rounded-[5px] text-sm no-underline flex items-center justify-center gap-2 hover:bg-[#e1eeff] transition-colors">

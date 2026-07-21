@@ -14,12 +14,19 @@ class CheckoutController extends Controller
     {
         $this->orderService = $orderService;
     }
-
+    public function validateCheckout(StoreOrderRequest $request)
+    {
+        return response()->json([
+            'success' => true
+        ]);
+    }
     public function placeOrder(StoreOrderRequest $request)
     {
         $data = $request->validated();
         try {
             $order = $this->orderService->create($data, $request);
+
+            session()->forget('buy_now_cart');
 
             return redirect()->route('checkout.success')->with('success_order_id', $order->id);
         } catch (\Exception $e) {

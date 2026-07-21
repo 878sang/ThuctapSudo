@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreOrderRequest extends FormRequest
 {
@@ -14,22 +15,27 @@ class StoreOrderRequest extends FormRequest
     public function rules()
     {
         return [
-            'address_method' => 'required|string|in:account,new',
-            'customer_name' => 'required_if:address_method,new|nullable|string|max:255',
-            'customer_phone' => ['required_if:address_method,new', 'nullable', 'string'],
-            'province' => 'required_if:address_method,new|nullable|string|max:100',
-            'district' => 'required_if:address_method,new|nullable|string|max:100',
-            'ward' => 'required_if:address_method,new|nullable|string|max:100',
-            'street' => 'required_if:address_method,new|nullable|string|max:255',
+            'address_method' => ['required', 'string', Rule::in(['account', 'new'])],
+            'customer_name' => ['required_if:address_method,new', 'nullable', 'string', 'max:255'],
+            'customer_phone' => [
+                'required_if:address_method,new',
+                'nullable',
+                'string',
+                'regex:/^0[0-9]{9}$/'
+            ],
+            'province' => ['required_if:address_method,new', 'nullable', 'string', 'max:100'],
+            'district' => ['required_if:address_method,new', 'nullable', 'string', 'max:100'],
+            'ward' => ['required_if:address_method,new', 'nullable', 'string', 'max:100'],
+            'street' => ['required_if:address_method,new', 'nullable', 'string', 'max:255'],
 
-            'payment_method' => 'required|string|in:cod,bank,momo',
+            'payment_method' => ['required', 'string', Rule::in(['cod', 'bank', 'momo'])],
 
             // Các trường VAT: Chỉ bắt buộc khi is_vat bằng 1 (được tích chọn)
-            'is_vat' => 'nullable|in:0,1',
-            'company_name' => 'required_if:is_vat,1|nullable|string|max:255',
-            'company_email' => 'required_if:is_vat,1|nullable|email|max:255',
-            'tax_code' => 'required_if:is_vat,1|nullable|string|max:50',
-            'company_address' => 'required_if:is_vat,1|nullable|string|max:255',
+            'is_vat' => ['nullable', Rule::in([0, 1])],
+            'company_name' => ['required_if:is_vat,1', 'nullable', 'string', 'max:255'],
+            'company_email' => ['required_if:is_vat,1', 'nullable', 'email', 'max:255'],
+            'tax_code' => ['required_if:is_vat,1', 'nullable', 'string', 'max:50'],
+            'company_address' => ['required_if:is_vat,1', 'nullable', 'string', 'max:255'],
         ];
     }
 

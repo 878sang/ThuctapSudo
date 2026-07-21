@@ -4,13 +4,34 @@
 
 <div class="pt-6 bg-blue_bg min-h-screen rounded-[5px] pb-10">
     <div class="max-w-[1440px] mx-auto mb-4">
-        <x-breadcrumb :items="[['label' => 'Cảm biến']]" />
+        <x-breadcrumb :items="array_merge(
+            $selectedCategory ?[]: [['label' => 'Tất cả sản phẩm', 'url' => route('products.showClient')]]  ,
+            $selectedCategory && $selectedCategory->parent ? [['label' => $selectedCategory->parent->name, 'url' => route('products.showClient', ['category' => $selectedCategory->parent->id])]] : [],
+            $selectedCategory ? [['label' => $selectedCategory->name]] : []
+        )" />
     </div>
 
     <div class="max-w-[1440px] mx-auto">
         <div class=" flex flex-col lg:flex-row gap-5 items-start">
             @include('client.layout.filters')
             <div class="w-full lg:w-3/4">
+                @if($selectedCategory && $selectedCategory->hasChildren())
+                <div class="mb-4">
+                    <div class="text-[22px] font-bold mb-5 text-2">{{ $selectedCategory->name }}</div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-2.5">
+                        @foreach ($selectedCategory->activeChildren as $subCategory)
+                        <a href="{{ route('products.showClient', ['category' => $subCategory->id]) }}" class="bg-white rounded-md p-4 flex items-center gap-3 no-underline">
+                            <img src="{{asset('storage/images/cambien.png')}}" alt="{{ $subCategory->name }}" class="w-16 h-16 object-contain flex-shrink-0 rounded">
+                            <div class="min-w-0">
+                                <p class="text-sm font-medium text-gray-800 hover:text-7 transition-colors leading-snug">
+                                    {{ $subCategory->name }}
+                                </p>
+                            </div>
+                        </a>
+                        @endforeach
+                    </div>
+                </div>
+                @endif
                 <div>
                     <x-product-card title="Sản phẩm nổi bật" :products="$products" />
                 </div>

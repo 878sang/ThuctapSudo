@@ -29,6 +29,10 @@ class CategoryService extends BaseService implements CategoryServiceInterface
     {
         return $this->repository->getOtherCategories($id);
     }
+    public function getActiveWithChildren()
+    {
+        return $this->repository->getActiveWithChildren();
+    }
     #[Override]
     public function create(array $data, Request $request)
     {
@@ -61,4 +65,3 @@ class CategoryService extends BaseService implements CategoryServiceInterface
         return parent::delete($id, $request);
     }
 }
-

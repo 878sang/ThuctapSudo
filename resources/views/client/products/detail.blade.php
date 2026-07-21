@@ -96,18 +96,14 @@
                             @endforeach
                         </div>
                     </div>
-                    <div class="p-6 rounded-[10px] bg-white w-full md:w-[45%] flex flex-col justify-between">
+                    <div class="p-6 rounded-[10px] bg-white w-full md:w-[45%] flex flex-col justify-between" x-data="{qty:1}" @change="qty = $event.detail.qty">
                         <div>
                             <div class="flex items-center justify-between mb-3">
                                 <div class="flex items-center gap-2">
-                                    <div class="flex text-[#FF7A00] text-sm gap-0.5">
-                                        <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                        <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                        <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                        <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                        <i class="fa-solid fa-star text-[#F29F05] opacity-50"></i>
+                                    <div class="flex items-center gap-2">
+                                        <x-star-rating :stars="$reviewData['avgRating']" class="text-sm gap-0.5" />
+                                        <span class="text-xs text-gray-400 font-semibold">({{ $reviewData['totalReviews'] }} đánh giá)</span>
                                     </div>
-                                    <span class="text-xs text-gray-400 font-semibold">{{ $product->reviews ?? 0 }} đánh giá</span>
                                 </div>
                                 <button class="text-[#FF7A00] hover:opacity-90 transition-opacity">
                                     <i class="fa-solid fa-bookmark text-2xl animate-fade-in"></i>
@@ -143,7 +139,7 @@
                             @if($product->description)
                             <div class="bg-blue_button rounded-[10px] mb-6 py-4 px-5">
                                 @foreach (explode("\n", $product->description) as $desc)
-                                <div class="flex items-center gap-3 mb-3 text-sm text-3">
+                                <div class="flex items-start gap-3 mb-3 text-sm text-3">
                                     <div class="w-6 h-6 rounded-full bg-7 flex items-center justify-center shrink-0">
                                         <i class="fa-solid fa-bolt text-white text-[10px]"></i>
                                     </div>
@@ -169,13 +165,11 @@
                                 </ul>
                             </div>
                         </div>
-                        <form action="{{ route('cart.add') }}" method="POST" class="space-y-4">
-                            @csrf
-                            <input type="hidden" name="product_id" value="{{ $product->id }}">
-
-                            <x-quantity-selector :qty="1" class="mb-4" />
-
-                            <div class="flex flex-col gap-2.5">
+                        <div class="flex flex-col gap-2.5">
+                            <form action="{{ route('cart.add') }}" method="POST">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <x-quantity-selector :qty="1" class="mb-4" :max="$product->stock" :autoUpdate="true" />
                                 <button type="submit" class="w-full bg-[#EDF3FF] hover:bg-[#d8e8ff] text-2 py-3.5 px-4 rounded-lg text-sm transition-colors flex items-center justify-center gap-2 cursor-pointer">
                                     <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
                                         <path d="M23.0196 3.77326C22.4113 3.12444 21.5733 2.77299 20.6811 2.77299H4.29843L4.25788 2.44858C4.00106 1.00225 2.71693 -0.0520797 1.24357 0.00198863H1.01378C0.473098 -0.0250455 0.0270342 0.393984 0 0.934668C0.0270342 1.47535 0.473098 1.88086 1.01378 1.85383H1.24357C1.73019 1.84031 2.16273 2.17824 2.25735 2.66485L3.64961 13.492C4.06864 15.9251 6.21786 17.6688 8.69149 17.5742H19.2754C19.789 17.6283 20.2351 17.2498 20.2891 16.7361C20.3432 16.2225 19.9647 15.7764 19.4511 15.7224C19.397 15.7224 19.3294 15.7224 19.2754 15.7224H8.69149C7.44791 15.7494 6.31248 15.0195 5.82586 13.8705H17.9101C20.2621 13.9516 22.3437 12.3566 22.8979 10.0722L23.6955 6.04413C23.8577 5.21958 23.6143 4.38152 23.0331 3.77326H23.0196Z" fill="#0165FC" />
@@ -184,11 +178,16 @@
                                     </svg>
                                     <span>Thêm vào giỏ hàng</span>
                                 </button>
-                                <button type="submit" class="w-full bg-7 hover:bg-blue-600 text-white py-3.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer uppercase">
+                            </form>
+                            <form action="{{route('cart.buyNow')}}" method="post">
+                                @csrf
+                                <input type="hidden" name="product_id" value="{{ $product->id }}">
+                                <input type="hidden" name="quantity" :value="qty">
+                                <button type="submit" @click="console.log(qty)" class="w-full bg-7 hover:bg-blue-600 text-white py-3.5 px-4 rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer uppercase">
                                     <span>MUA NGAY</span>
                                 </button>
-                            </div>
-                        </form>
+                            </form>
+                        </div>
                     </div>
                 </div>
 
@@ -212,14 +211,16 @@
                                 @foreach($seriesProducts as $sp)
                                 <tr x-data="{ qty: 1 }">
                                     <td class="py-2 px-4 border border-[#E9E9E9]">
-                                        <div class=" flex items-center gap-3">
-                                            <img src="{{ $sp->thumbnail ? $sp->thumbnail_url : asset('storage/images/chitiet1.jpg') }}" class="w-18 h-18 object-contain shrink-0 rounded" alt="Product thumbnail">
-                                            <div class="flex flex-col gap-0.5">
-                                                <span class="text-sm text-2 leading-tight">{{ $sp->sku }}</span>
-                                                <x-star-rating :stars="$sp->stars ?? 5" class="text-[16px]" />
-                                                <span class="text-sm text-[#929B9E] font-medium leading-none">{{ $sp->weight ? $sp->weight . 'kg' : '0.75kW' }}</span>
+                                        <a href="{{ route('products.detailClient', [$sp->slug, $sp->id]) }}">
+                                            <div class=" flex items-center gap-3">
+                                                <img src="{{ $sp->thumbnail ? $sp->thumbnail_url : asset('storage/images/chitiet1.jpg') }}" class="w-18 h-18 object-contain shrink-0 rounded" alt="Product thumbnail">
+                                                <div class="flex flex-col gap-1">
+                                                    <span class="text-sm text-2 leading-tight">{{ $sp->sku }}</span>
+                                                    <x-star-rating :stars="$sp->stars ?? 5" class="text-[14px]" />
+                                                    <span class="text-sm text-[#929B9E] font-medium leading-none">{{ $sp->weight ? $sp->weight . 'kg' : '0.75kW' }}</span>
+                                                </div>
                                             </div>
-                                        </div>
+                                        </a>
                                     </td>
                                     <td class="py-3.5 px-4 text-sm border border-[#E9E9E9] text-2 text-center">
                                         @if($sp->price)
@@ -235,26 +236,33 @@
                                         </span>
                                     </td>
                                     <td class="py-3.5 px-4 border border-[#E9E9E9] text-center" @change="qty = $event.detail.qty">
-                                        <x-quantity-selector :qty="1" :autoUpdate="true" />
+                                        <x-quantity-selector :qty="1" :max="$sp->stock" :autoUpdate="true" />
                                     </td>
                                     <td class="py-3.5 px-4 border border-[#E9E9E9]">
                                         <div class="flex items-center justify-center gap-2">
                                             @if($sp->stock > 0)
-                                            <form action="{{ route('cart.add') }}" method="POST" class="flex items-center justify-center gap-2">
-                                                @csrf
-                                                <input type="hidden" name="product_id" value="{{ $sp->id }}">
-                                                <input type="hidden" name="quantity" :value="qty" value="1">
-                                                <button class="w-[46px] h-[46px] bg-[#E8F1FF] hover:bg-[#d0e3ff] text-7 rounded flex items-center justify-center transition-colors cursor-pointer">
-                                                    <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                                        <path d="M23.0196 3.77326C22.4113 3.12444 21.5733 2.77299 20.6811 2.77299H4.29843L4.25788 2.44858C4.00106 1.00225 2.71693 -0.0520797 1.24357 0.00198863H1.01378C0.473098 -0.0250455 0.0270342 0.393984 0 0.934668C0.0270342 1.47535 0.473098 1.88086 1.01378 1.85383H1.24357C1.73019 1.84031 2.16273 2.17824 2.25735 2.66485L3.64961 13.492C4.06864 15.9251 6.21786 17.6688 8.69149 17.5742H19.2754C19.789 17.6283 20.2351 17.2498 20.2891 16.7361C20.3432 16.2225 19.9647 15.7764 19.4511 15.7224C19.397 15.7224 19.3294 15.7224 19.2754 15.7224H8.69149C7.44791 15.7494 6.31248 15.0195 5.82586 13.8705H17.9101C20.2621 13.9516 22.3437 12.3566 22.8979 10.0722L23.6955 6.04413C23.8577 5.21958 23.6143 4.38152 23.0331 3.77326H23.0196Z" fill="#0165FC" />
-                                                        <path d="M7.42021 24.3327C8.91327 24.3327 10.1236 23.1224 10.1236 21.6293C10.1236 20.1363 8.91327 18.9259 7.42021 18.9259C5.92716 18.9259 4.7168 20.1363 4.7168 21.6293C4.7168 23.1224 5.92716 24.3327 7.42021 24.3327Z" fill="#0165FC" />
-                                                        <path d="M16.8694 24.3327C18.3625 24.3327 19.5728 23.1224 19.5728 21.6293C19.5728 20.1363 8.3625 18.9259 7.42021 18.9259C5.92716 18.9259 4.7168 20.1363 4.7168 21.6293C4.7168 23.1224 5.92716 24.3327 7.42021 24.3327Z" fill="#0165FC" />
-                                                    </svg>
-                                                </button>
-                                                <button class="bg-7 hover:bg-blue-600 text-white min-w-[140px] h-[46px] rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer uppercase">
-                                                    MUA NGAY
-                                                </button>
-                                            </form>
+                                            <div class=" flex items-center justify-center gap-2">
+                                                <form action="{{ route('cart.add') }}" @change="qty = $event.detail.qty" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="product_id" value="{{ $sp->id }}">
+                                                    <input type="hidden" name="quantity" :value="qty" value="1">
+                                                    <button class="w-[46px] h-[46px] bg-[#E8F1FF] hover:bg-[#d0e3ff] text-7 rounded flex items-center justify-center transition-colors cursor-pointer">
+                                                        <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                            <path d="M23.0196 3.77326C22.4113 3.12444 21.5733 2.77299 20.6811 2.77299H4.29843L4.25788 2.44858C4.00106 1.00225 2.71693 -0.0520797 1.24357 0.00198863H1.01378C0.473098 -0.0250455 0.0270342 0.393984 0 0.934668C0.0270342 1.47535 0.473098 1.88086 1.01378 1.85383H1.24357C1.73019 1.84031 2.16273 2.17824 2.25735 2.66485L3.64961 13.492C4.06864 15.9251 6.21786 17.6688 8.69149 17.5742H19.2754C19.789 17.6283 20.2351 17.2498 20.2891 16.7361C20.3432 16.2225 19.9647 15.7764 19.4511 15.7224C19.397 15.7224 19.3294 15.7224 19.2754 15.7224H8.69149C7.44791 15.7494 6.31248 15.0195 5.82586 13.8705H17.9101C20.2621 13.9516 22.3437 12.3566 22.8979 10.0722L23.6955 6.04413C23.8577 5.21958 23.6143 4.38152 23.0331 3.77326H23.0196Z" fill="#0165FC" />
+                                                            <path d="M7.42021 24.3327C8.91327 24.3327 10.1236 23.1224 10.1236 21.6293C10.1236 20.1363 8.91327 18.9259 7.42021 18.9259C5.92716 18.9259 4.7168 20.1363 4.7168 21.6293C4.7168 23.1224 5.92716 24.3327 7.42021 24.3327Z" fill="#0165FC" />
+                                                            <path d="M16.8694 24.3327C18.3625 24.3327 19.5728 23.1224 19.5728 21.6293C19.5728 20.1363 8.3625 18.9259 7.42021 18.9259C5.92716 18.9259 4.7168 20.1363 4.7168 21.6293C4.7168 23.1224 5.92716 24.3327 7.42021 24.3327Z" fill="#0165FC" />
+                                                        </svg>
+                                                    </button>
+                                                </form>
+                                                <form action="{{ route('cart.buyNow') }}" method="POST">
+                                                    @csrf
+                                                    <input type="hidden" name="product_id" value="{{ $sp->id }}">
+                                                    <input type="hidden" name="quantity" :value="qty" value="1">
+                                                    <button class="bg-7 hover:bg-blue-600 text-white min-w-[140px] h-[46px] rounded-lg text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-2 cursor-pointer uppercase">
+                                                        MUA NGAY
+                                                    </button>
+                                                </form>
+                                            </div>
                                             @else
                                             <button class="w-[46px] h-[46px] bg-[#F3F3F3] text-gray-500 rounded flex items-center justify-center cursor-not-allowed">
                                                 <svg width="24" height="25" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -323,221 +331,236 @@
                     <template x-if="tab === 'specs'">
                         <div class="mt-5 p-6 bg-white space-y-4 animate-fade-in">
                             <h3 class="text-[20px] font-bold text-2">
-                                Thông số kỹ thuật <span class="text-7 font-bold">“ATV212 Series”</span>
+                                Thông số kỹ thuật <span class="text-7 font-bold">“{{ $product->name }}”</span>
                             </h3>
+                            @if($product->specifications && $product->specifications->count() > 0)
                             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <div class="space-y-0">
-                                    <div class="py-4 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Tên sản phẩm</div>
-                                        <div class="text-7 font-semibold mt-1">Cầu dao LV429541 Schneider</div>
-                                    </div>
-                                    <div class="py-4 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Dòng</div>
-                                        <div class="text-7 font-semibold mt-1">NSX</div>
-                                    </div>
-                                    <div class="py-4 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Loại</div>
-                                        <div class="text-7 font-semibold mt-1">NSX100B</div>
-                                    </div>
-                                    <div class="py-4 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Điện áp hoạt động</div>
-                                        <div class="text-7 font-semibold mt-1">690 VAC</div>
-                                    </div>
-                                    <div class="py-4 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Điện áp định mức</div>
-                                        <div class="text-7 font-semibold mt-1">800 VAC</div>
-                                    </div>
-                                    <div class="py-4 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Điện áp định mức</div>
-                                        <div class="text-7 font-semibold mt-1">800 VAC</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Tần số</div>
-                                        <div class="text-7 font-semibold mt-1">50/60 Hz</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Cấp độ bảo vệ</div>
-                                        <div class="text-7 font-semibold mt-1">IP40</div>
-                                    </div>
+                                @foreach($product->specifications as $spec)
+                                <div class="py-4 border-b border-gray-100 text-sm">
+                                    <div class="text-2 font-bold">{{ $spec->name }}</div>
+                                    <div class="text-7 mt-1">{{ $spec->pivot->value }}</div>
                                 </div>
-
-                                <div class="space-y-0">
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Hiệu điện thế</div>
-                                        <div class="text-7 font-semibold mt-1">8kV</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Dòng định mức</div>
-                                        <div class="text-7 font-semibold mt-1">80A</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Số cực</div>
-                                        <div class="text-7 font-semibold mt-1">3P</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Khả năng ngắt mạch</div>
-                                        <div class="text-7 font-semibold mt-1">25 kA 415 VAC</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Độ bền cơ học</div>
-                                        <div class="text-7 font-semibold mt-1">50.000 chu kỳ</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Kích thước</div>
-                                        <div class="text-7 font-semibold mt-1">105 x 161 x 86mm</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Nhiệt độ môi trường</div>
-                                        <div class="text-7 font-semibold mt-1">-35-70°C</div>
-                                    </div>
-                                    <div class="py-3.5 border-b border-gray-100 text-sm">
-                                        <div class="text-2 font-bold">Trọng lượng</div>
-                                        <div class="text-7 font-semibold mt-1">2.05 kg</div>
-                                    </div>
-                                </div>
+                                @endforeach
                             </div>
+                            @else
+                            <p class="text-gray-500 text-sm">Sản phẩm này chưa có thông số kỹ thuật.</p>
+                            @endif
                         </div>
                     </template>
                 </div>
 
-                <div class="bg-white p-6 rounded-[10px] border border-gray-50">
-                    <h2 class="text-[20px] font-bold text-2 mb-6">Đánh giá & Nhận xét</h2>
+                <div class="bg-white p-6 rounded-[10px] border border-gray-50"
+                    x-data="{
+                         isEdit: false,
+                         rating: 5,
+                         title: '{{ old('title', '') }}',
+                         comment: '{{ old('comment', '') }}',
+                         userName: '{{ old('user_name', auth()->check() ? auth()->user()->name : '') }}',
+                         actionUrl: '{{ route('products.storeReview', $product->id) }}',
+                         editReview(id, rating, title, comment) {
+                             this.isEdit = true;
+                             this.rating = rating;
+                             this.title = title;
+                             this.comment = comment;
+                             this.actionUrl = '/products/reviews/' + id + '/update';
+                             document.getElementById('review-form-container').scrollIntoView({ behavior: 'smooth' });
+                         },
+                         cancelEdit() {
+                             this.isEdit = false;
+                             this.rating = 5;
+                             this.title = '';
+                             this.comment = '';
+                             this.actionUrl = '{{ route('products.storeReview', $product->id) }}';
+                         }
+                     }">
+                    <h2 class="text-[20px] font-bold text-2 mb-6" x-text="isEdit ? 'Chỉnh sửa đánh giá của bạn' : 'Đánh giá & Nhận xét'">Đánh giá & Nhận xét</h2>
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8 pb-6 border-b border-gray-100">
-                        <div class="flex flex-col gap-4">
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                        <form :action="actionUrl" method="post" id="review-form-container">
+                            @csrf
+                            <template x-if="isEdit">
+                                <input type="hidden" name="_method" value="PUT">
+                            </template>
+                            <div class="flex flex-col gap-4">
                                 <div>
-                                    <textarea class="w-full border border-[#CCCCCC] rounded-[5px] p-3 text-sm focus:outline-none focus:border-7 h-[104px] resize-none" placeholder="Nhập nội dung"></textarea>
+                                    <input type="hidden" name="rating" :value="rating">
+                                    <div class="flex gap-1 mb-4">
+                                        <template x-for="star in 5">
+                                            <button
+                                                type="button"
+                                                @click="rating = star"
+                                                class="focus:outline-none cursor-pointer">
+                                                <svg class="w-5 h-5 transition-colors" viewBox="0 0 18 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                    <path d="M7.62115 0.64975C7.9451 -0.216597 9.17052 -0.216597 9.49447 0.64975L10.9922 4.65519C11.1327 5.03104 11.4843 5.28648 11.8852 5.304L16.1574 5.49068C17.0815 5.53105 17.4602 6.6965 16.7363 7.27231L13.3897 9.93449C13.0757 10.1843 12.9414 10.5976 13.0487 10.9843L14.1913 15.1051C14.4384 15.9964 13.4471 16.7167 12.6758 16.2062L9.10972 13.8461C8.77511 13.6246 8.34052 13.6246 8.00591 13.8461L4.43987 16.2062C3.66857 16.7167 2.67718 15.9964 2.92433 15.1051L4.06697 10.9843C4.17419 10.5976 4.0399 10.1843 3.72588 9.93449L0.379302 7.27231C-0.344538 6.6965 0.0341392 5.53105 0.958189 5.49068L5.23041 5.304C5.63129 5.28648 5.98288 5.03104 6.12342 4.65519L7.62115 0.64975Z"
+                                                        :fill="star <= rating ? '#F29F05' : '#E4E4E4'" />
+                                                </svg>
+                                            </button>
+                                        </template>
+                                    </div>
                                 </div>
-                                <div class="flex flex-col gap-3">
-                                    <input type="text" class="w-full border border-[#CCCCCC] rounded-[5px] px-3 py-2.5 text-sm focus:outline-none focus:border-7" placeholder="Nhập tiêu đề">
-                                    <input type="text" class="w-full border border-[#CCCCCC] rounded-[5px] px-3 py-2.5 text-sm focus:outline-none focus:border-7" placeholder="Nhập tên">
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+                                    <div class="flex flex-col h-full">
+                                        <textarea name="comment" x-model="comment" class="w-full min-h-[105px] border border-[#CCCCCC] rounded-[5px] p-3 text-sm focus:outline-none focus:border-7 resize-none @error('comment') border-rose-500 @enderror" placeholder="Nhập nội dung"></textarea>
+                                        @error('comment')
+                                        <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span>
+                                        @enderror
+                                    </div>
+                                    <div class="flex flex-col justify-between h-full">
+                                        <input type="text" name="title" x-model="title" class="w-full min-h-[46px] border border-[#CCCCCC] rounded-[5px] px-3 py-2.5 text-sm focus:outline-none focus:border-7" placeholder="Nhập tiêu đề">
+                                        <div>
+                                            <input type="text" name="user_name" x-model="userName" class="w-full min-h-[46px] border border-[#CCCCCC] rounded-[5px] px-3 py-2.5 text-sm focus:outline-none focus:border-7 @error('user_name') border-rose-500 @enderror" placeholder="Nhập tên">
+                                            @error('user_name')
+                                            <span class="text-rose-500 text-xs mt-1 block">{{ $message }}</span>
+                                            @enderror
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="flex gap-3">
+                                    <button type="submit" class="flex-grow bg-6 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-[5px] text-sm transition-colors cursor-pointer" x-text="isEdit ? 'Cập nhật' : 'Đánh giá ngay'">
+                                        Đánh giá ngay
+                                    </button>
+                                    <button type="button" x-show="isEdit" @click="cancelEdit()" class="bg-gray-400 hover:bg-gray-500 text-white font-bold py-3 px-4 rounded-[5px] text-sm transition-colors cursor-pointer">
+                                        Hủy
+                                    </button>
                                 </div>
                             </div>
-                            <button class="w-full bg-6 hover:bg-blue-600 text-white font-bold py-3 px-4 rounded-[5px] text-sm transition-colors cursor-pointer">
-                                Đánh giá ngay
-                            </button>
-                        </div>
+                        </form>
                         <div class="flex-1 w-full space-y-2">
                             <span class="text-xs text-gray-500 block font-semibold mb-3">
-                                <span class="text-7 font-bold">(1)</span> Đánh giá
+                                <span class="text-7 font-bold">({{ $reviewData['totalReviews'] }})</span> Đánh giá
                             </span>
+                            @for($i = 5; $i >= 1; $i--)
                             <div class="flex items-center gap-3 text-xs">
                                 <div class="flex text-[#FF7A00] text-xs gap-0.5 shrink-0 w-24">
-                                    <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                    <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                    <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                    <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                    <i class="fa-solid fa-star text-[#E4E4E4]"></i>
+                                    @for($j = 1; $j <= 5; $j++)
+                                        @if($j <=$i)
+                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M5.05397 0.64972C5.37791 -0.216626 6.60334 -0.216627 6.92729 0.649719L7.75847 2.87258C7.89901 3.24843 8.2506 3.50387 8.65147 3.52139L11.0224 3.62499C11.9464 3.66537 12.3251 4.83082 11.6013 5.40662L9.74406 6.88403C9.43004 7.13383 9.29575 7.54715 9.40297 7.93382L10.0371 10.2207C10.2842 11.112 9.29285 11.8323 8.52154 11.3218L6.54253 10.012C6.20792 9.79059 5.77333 9.79059 5.43872 10.012L3.45971 11.3218C2.6884 11.8323 1.69701 11.112 1.94416 10.2207L2.57829 7.93382C2.6855 7.54715 2.55121 7.13383 2.23719 6.88403L0.379967 5.40663C-0.343872 4.83082 0.0348036 3.66537 0.958853 3.62499L3.32978 3.52139C3.73066 3.50387 4.08224 3.24843 4.22278 2.87259L5.05397 0.64972Z" fill="#FF932E" />
+                                        </svg>
+                                        @else
+                                        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path opacity="0.5" d="M5.05397 0.64972C5.37791 -0.216626 6.60334 -0.216627 6.92729 0.649719L7.75847 2.87258C7.89901 3.24843 8.2506 3.50387 8.65147 3.52139L11.0224 3.62499C11.9464 3.66537 12.3251 4.83082 11.6013 5.40662L9.74406 6.88403C9.43004 7.13383 9.29575 7.54715 9.40297 7.93382L10.0371 10.2207C10.2842 11.112 9.29285 11.8323 8.52154 11.3218L6.54253 10.012C6.20792 9.79059 5.77333 9.79059 5.43872 10.012L3.45971 11.3218C2.6884 11.8323 1.69701 11.112 1.94416 10.2207L2.57829 7.93382C2.6855 7.54715 2.55121 7.13383 2.23719 6.88403L0.379967 5.40663C-0.343872 4.83082 0.0348036 3.66537 0.958853 3.62499L3.32978 3.52139C3.73066 3.50387 4.08224 3.24843 4.22278 2.87259L5.05397 0.64972Z" fill="#CBCBCB" />
+                                        </svg>
+                                        @endif
+                                        @endfor
                                 </div>
                                 <div class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full bg-[#F29F05] rounded-full w-full"></div>
+                                    <div class="h-full bg-[#F29F05] rounded-full" :style="'width: ' + '{{ $reviewData['starPercentages'][$i] ?? 0 }}%'"></div>
                                 </div>
-                                <span class="w-8 text-3">100%</span>
+                                <span class="w-8 text-3 text-right">{{ $reviewData['starPercentages'][$i] ?? 0 }}%</span>
                             </div>
-                            <div class="flex items-center gap-3 text-xs">
-                                <div class="flex text-[#FF7A00] text-xs gap-0.5 shrink-0 w-24">
-                                    <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                    <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                    <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                    <i class="fa-solid fa-star text-[#E4E4E4]"></i>
-                                    <i class="fa-solid fa-star text-[#E4E4E4]"></i>
-                                </div>
-                                <div class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full bg-[#F29F05] rounded-full w-0"></div>
-                                </div>
-                                <span class="w-8 text-3 text-right">0%</span>
-                            </div>
-                            <!-- 3 Star Row -->
-                            <div class="flex items-center gap-3 text-xs">
-                                <div class="flex text-[#FF7A00] text-xs gap-0.5 shrink-0 w-24">
-                                    <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                    <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                    <i class="fa-solid fa-star text-[#E4E4E4]"></i>
-                                    <i class="fa-solid fa-star text-[#E4E4E4]"></i>
-                                    <i class="fa-solid fa-star text-[#E4E4E4]"></i>
-                                </div>
-                                <div class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full bg-[#F29F05] rounded-full w-0"></div>
-                                </div>
-                                <span class="w-8 text-3 text-right">0%</span>
-                            </div>
-                            <!-- 2 Star Row -->
-                            <div class="flex items-center gap-3 text-xs">
-                                <div class="flex text-[#FF7A00] text-xs gap-0.5 shrink-0 w-24">
-                                    <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                    <i class="fa-solid fa-star text-[#E4E4E4]"></i>
-                                    <i class="fa-solid fa-star text-[#E4E4E4]"></i>
-                                    <i class="fa-solid fa-star text-[#E4E4E4]"></i>
-                                    <i class="fa-solid fa-star text-[#E4E4E4]"></i>
-                                </div>
-                                <div class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full bg-[#F29F05] rounded-full w-0"></div>
-                                </div>
-                                <span class="w-8 text-3 text-right">0%</span>
-                            </div>
-                            <!-- 1 Star Row -->
-                            <div class="flex items-center gap-3 text-xs">
-                                <div class="flex text-[#FF7A00] text-xs gap-0.5 shrink-0 w-24">
-                                    <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                    <i class="fa-solid fa-star text-[#E4E4E4]"></i>
-                                    <i class="fa-solid fa-star text-[#E4E4E4]"></i>
-                                    <i class="fa-solid fa-star text-[#E4E4E4]"></i>
-                                    <i class="fa-solid fa-star text-[#E4E4E4]"></i>
-                                </div>
-                                <div class="flex-1 h-1 bg-gray-200 rounded-full overflow-hidden">
-                                    <div class="h-full bg-[#F29F05] rounded-full w-0"></div>
-                                </div>
-                                <span class="w-8 text-3 text-right">0%</span>
-                            </div>
+                            @endfor
                         </div>
                     </div>
 
                     <h3 class="text-[20px] font-bold text-2 mb-6">Nhận xét</h3>
 
                     <div class="space-y-6 ml-10">
-                        @foreach($reviews as $rev)
+                        @foreach($reviewData['reviews'] as $rev)
                         <div class="flex flex-col pb-6 mb-6 last:border-b-0 last:pb-0 last:mb-0">
                             <div class="flex items-center gap-2.5 text-xs mb-3">
-                                <span class="font-bold text-base text-2">{{ $rev['user'] }}</span>
+                                <span class="font-bold text-base text-2">{{ $rev->user_name }}</span>
                                 <span class="text-4 font-semibold">&bull;</span>
-                                <span class="text-4 text-xs">{{ $rev['time'] }}</span>
-                                <x-star-rating :stars="$rev['stars']" class="text-[10px] ml-1" />
-                                <a href="#" class="text-6 ml-2 hover:underline">Sửa đánh giá</a>
+                                <span class="text-4 text-xs">{{ $rev->created_at->format('d/m/Y') }}</span>
+                                <x-star-rating :stars="$rev->rating" class="text-[10px] ml-1" />
+                                @if(auth()->check() && auth()->id() == $rev->user_id)
+                                <button type="button"
+                                    @click="editReview({{ $rev->id }}, {{ $rev->rating }}, '{{ addslashes($rev->title) }}', '{{ addslashes(str_replace(["\r", "\n"], ' ', $rev->comment)) }}')"
+                                    class="text-6 ml-2 hover:underline cursor-pointer">
+                                    Sửa đánh giá
+                                </button>
+                                @endif
                             </div>
-                            @if(!empty($rev['title']))
+                            @if(!empty($rev->title))
                             <h4 class="text-base font-bold text-2 mb-1.5 leading-snug">
-                                {{ $rev['title'] }}
+                                {{ $rev->title }}
                             </h4>
                             @endif
 
                             <div>
-                                @foreach(explode("\n", $rev['comment']) as $p)
+                                @foreach(explode("\n", $rev->comment) as $p)
                                 <p class="text-sm text-4">
                                     {{ $p }}
                                 </p>
                                 @endforeach
                             </div>
-                            <div class="flex items-center justify-end gap-5 text-sm text-4 mt-2.5">
-                                <button class="flex items-center gap-1.5 hover:text-7 transition-colors cursor-pointer">
-                                    <i class="fa-regular fa-thumbs-up"></i>
-                                    <span>Hữu ích</span>
-                                </button>
-                                <button class="flex items-center gap-1.5 hover:text-7 transition-colors cursor-pointer">
-                                    <i class="fa-solid fa-reply text-[10px]"></i>
-                                    <span>Phản hồi</span>
-                                </button>
+                            <div x-data="{ showReplyForm: false, replyName: '{{ auth()->check() ? auth()->user()->name : '' }}', replyComment: '', liked: {{ in_array($rev->id, $reviewData['likedReviewIds'] ?? []) ? 'true' : 'false' }}, likesCount: {{ $rev->likes ?? 0 }} }" class="w-full mt-2.5">
+                                <div class="flex items-center justify-end gap-5 text-sm">
+                                    <button type="button"
+                                        @click="
+                                            fetch('{{ route('products.likeReview', $rev->id) }}', {
+                                                method: 'POST',
+                                                headers: {
+                                                    'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                                                    'Content-Type': 'application/json',
+                                                    'Accept': 'application/json'
+                                                }
+                                            })
+                                            .then(response => response.json())
+                                            .then(data => {
+                                                if (data.success) {
+                                                    liked = data.liked;
+                                                    likesCount = data.likes;
+                                                } else {
+                                                    alert(data.message || 'Đã có lỗi xảy ra');
+                                                }
+                                            })
+                                            .catch(error => console.error('Error:', error))
+                                        "
+                                        :class="liked ? 'text-7 font-bold' : 'text-4 hover:text-7'"
+                                        class="flex items-center gap-1.5 transition-colors cursor-pointer">
+                                        <i :class="liked ? 'fa-solid fa-thumbs-up' : 'fa-regular fa-thumbs-up'"></i>
+                                        <span>Hữu ích (<span x-text="likesCount"></span>)</span>
+                                    </button>
+                                    <button type="button" @click="showReplyForm = !showReplyForm" class="flex items-center gap-1.5 text-4 hover:text-7 transition-colors cursor-pointer">
+                                        <i class="fa-solid fa-reply text-[10px]"></i>
+                                        <span>Phản hồi</span>
+                                    </button>
+                                </div>
+
+                                <form x-show="showReplyForm" x-transition action="{{ route('products.storeReview', $product->id) }}" method="POST" class="mt-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
+                                    @csrf
+                                    <input type="hidden" name="parent_id" value="{{ $rev->id }}">
+                                    <input type="hidden" name="rating" value="5">
+
+                                    <div class="space-y-3">
+                                        <h5 class="text-xs font-semibold text-2">Phản hồi nhận xét của <span class="text-6">{{ $rev->user_name }}</span></h5>
+
+                                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            <div>
+                                                <input type="text" name="user_name" x-model="replyName" required class="w-full border border-gray-300 rounded px-3 py-1.5 text-xs focus:outline-none focus:border-7" placeholder="Tên của bạn">
+                                            </div>
+                                            <div>
+                                                <input type="text" name="title" class="w-full border border-gray-300 rounded px-3 py-1.5 text-xs focus:outline-none focus:border-7" placeholder="Tiêu đề (không bắt buộc)">
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <textarea name="comment" x-model="replyComment" required class="w-full border border-gray-300 rounded p-2.5 text-xs focus:outline-none focus:border-7 h-20 resize-none" placeholder="Viết phản hồi của bạn..."></textarea>
+                                        </div>
+
+                                        <div class="flex justify-end gap-2 text-xs">
+                                            <button type="button" @click="showReplyForm = false" class="px-3 py-1.5 bg-gray-300 hover:bg-gray-400 text-gray-700 font-semibold rounded cursor-pointer">Hủy</button>
+                                            <button type="submit" class="px-3 py-1.5 bg-6 hover:bg-blue-600 text-white font-semibold rounded cursor-pointer">Gửi phản hồi</button>
+                                        </div>
+                                    </div>
+                                </form>
                             </div>
-                            @if(count($rev['replies']) > 0)
-                            <div class="mt-4 border-l-[6px] border-solid border-l-[#C8C8C8] pl-4 space-y-4">
-                                @foreach($rev['replies'] as $reply)
+                            @if(count($rev->replies) > 0)
+                            <div class="mt-4 border-l-[6px] border-solid border-l-[#C8C8C8] ml-10 pl-4 space-y-4">
+                                @foreach($rev->replies as $reply)
                                 <div class="flex flex-col">
                                     <div class="flex items-center gap-2.5 text-xs mb-2">
-                                        <span class="font-bold text-base text-2">{{ $reply['user'] }}</span>
+                                        <span class="font-bold text-base text-2">{{ $reply->user_name }}</span>
                                         <span class="text-4 font-semibold">&bull;</span>
-                                        <span class="text-4 text-xs">{{ $reply['time'] }}</span>
+                                        <span class="text-4 text-xs">{{ $reply->created_at->format('d/m/Y') }}</span>
                                     </div>
+                                    @if(!empty($reply->title))
+                                    <h4 class="text-sm font-bold text-2 mb-1.5 leading-snug">
+                                        {{ $reply->title }}
+                                    </h4>
+                                    @endif
                                     <div>
-                                        @foreach(explode("\n", $reply['comment']) as $rp_para)
+                                        @foreach(explode("\n", $reply->comment) as $rp_para)
                                         <p class="text-sm text-4">
                                             {{ $rp_para }}
                                         </p>
@@ -660,7 +683,7 @@
                     </h3>
                     <div class="flex flex-col gap-4">
                         @foreach($relatedProducts as $rp)
-                        <a href="{{ route('products.detailClient', $rp->id ) }}" class="flex items-center gap-3.5 no-underline group">
+                        <a href="{{ route('products.detailClient', ['slug' => $rp->slug, 'id' => $rp->id] ) }}" class="flex items-center gap-3.5 no-underline group">
                             <div class="w-25 h-25 rounded shrink-0 flex items-center justify-center bg-white group-hover:border-gray-300 transition-colors">
                                 <img src="{{ $rp->thumbnail ? $rp->thumbnail_url : asset('storage/images/chitiet1.jpg') }}" alt="Related Product" class="max-h-full object-contain">
                             </div>
@@ -668,13 +691,7 @@
                                 <h4 class="text-sm font-bold text-[#202F36] group-hover:text-7 transition-colors line-clamp-1 leading-snug">
                                     {{ $rp->sku }}
                                 </h4>
-                                <div class="flex text-[#FF7A00] text-xs gap-0.5 mt-1">
-                                    <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                    <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                    <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                    <i class="fa-solid fa-star text-[#F29F05]"></i>
-                                    <i class="fa-solid fa-star-half-stroke text-[#F29F05]"></i>
-                                </div>
+                                <x-star-rating :stars="$rp->stars ?? 5" class="text-[10px] mt-1" />
                                 <span class="text-sm text-[#929B9E] font-semibold block mt-1.5 leading-none">
                                     {{ $rp->weight ? $rp->weight . 'kg' : '0.75kW' }}
                                 </span>

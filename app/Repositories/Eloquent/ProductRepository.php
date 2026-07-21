@@ -13,7 +13,7 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     }
     public function getFilteredProducts(array $filters, int $perPage = 10)
     {
-        $query = $this->model->query()->with('category', 'brand');
+        $query = $this->model->query()->with('category', 'brand')->withAvg('reviews', 'rating')->withCount('reviews');
         if (isset($filters['category']) && $filters['category'] !== 'all') {
             $query->ofCategory($filters['category']);
         }
@@ -49,12 +49,14 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     }
     public function getProductsByCategory(int $categoryId)
     {
-        return $this->model->where('category_id', $categoryId)->get();
+        return $this->model->where('category_id', $categoryId)->withAvg('reviews', 'rating')->withCount('reviews')->get();
     }
     public function getProductsByBrand(int $brandId, int $id, int $limit = 6)
     {
         return $this->model->where('brand_id', $brandId)
             ->where('id', '!=', $id)
+            ->withAvg('reviews', 'rating')
+            ->withCount('reviews')
             ->take($limit)
             ->get();
     }
