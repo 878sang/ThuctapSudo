@@ -30,6 +30,14 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Review::class, 'review_likes', 'user_id', 'review_id')->withTimestamps();
     }
+    public function orders()
+    {
+        return $this->hasMany(Order::class, 'user_id');
+    }
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class, 'user_id');
+    }
     /**
      * Get the attributes that should be cast.
      *

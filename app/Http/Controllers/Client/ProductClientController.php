@@ -8,6 +8,8 @@ use App\Services\Interfaces\ProductServiceInterface;
 use App\Services\Interfaces\BrandServiceInterface;
 use App\Services\Interfaces\ReviewServiceInterface;
 use Illuminate\Http\Request;
+use App\Services\Interfaces\UserAddressServiceInterface;
+use Illuminate\Support\Facades\Auth;
 
 class ProductClientController extends Controller
 {
@@ -15,17 +17,20 @@ class ProductClientController extends Controller
     protected CategoryServiceInterface $categoryService;
     protected BrandServiceInterface $brandService;
     protected ReviewServiceInterface $reviewService;
+    protected UserAddressServiceInterface $userAddressService;
 
     public function __construct(
         ProductServiceInterface $productService,
         CategoryServiceInterface $categoryService,
         BrandServiceInterface $brandService,
-        ReviewServiceInterface $reviewService
+        ReviewServiceInterface $reviewService,
+        UserAddressServiceInterface $userAddressService
     ) {
         $this->productService = $productService;
         $this->categoryService = $categoryService;
         $this->brandService = $brandService;
         $this->reviewService = $reviewService;
+        $this->userAddressService = $userAddressService;
     }
     public function showClient(Request $request)
     {
@@ -41,9 +46,9 @@ class ProductClientController extends Controller
         $product = $this->productService->with(['category', 'specifications'])->findOrFail($id);
         $seriesProducts = $this->productService->getProductsByCategory($product->category_id);
         $relatedProducts = $this->productService->getProductsByBrand($product->brand_id, $product->id, 6);
-
+        $defaultAddress = $this->userAddressService->getDefaultAddressForUser(Auth::id());
         $reviewData = $this->reviewService->getReviewDetailsByProductId($id);
 
-        return view('client.products.detail', compact('product', 'seriesProducts', 'relatedProducts', 'reviewData'));
+        return view('client.products.detail', compact('product', 'seriesProducts', 'relatedProducts', 'reviewData', 'defaultAddress'));
     }
 }

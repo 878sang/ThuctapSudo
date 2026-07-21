@@ -1,7 +1,7 @@
 @extends('client.layout.main')
 
 @section('content')
-<div class="bg-blue_bg min-h-screen pb-12" x-data="{ step: {{ (old('address_method') || request('mode') === 'buy_now') ? 2 : 1 }}, addressMethod: '{{ old('address_method', 'new') }}', paymentMethod: '{{ old('payment_method', 'bank') }}', vatRequired: {{ old('is_vat') == '1' ? 'true' : 'false' }}, selectedItems: [], isValidating: false }">
+<div class="bg-blue_bg min-h-screen pb-12" x-data="{ step: {{ (old('address_method') || request('mode') === 'buy_now') ? 2 : 1 }}, addressMethod: '{{ old('address_method', $defaultAddress ? 'account' : 'new') }}', paymentMethod: '{{ old('payment_method', 'bank') }}', vatRequired: {{ old('is_vat') == '1' ? 'true' : 'false' }}, selectedItems: [], isValidating: false }">
     <div class="bg-blue_bg border-b border-gray-100 py-3 mb-6">
         <div class="max-w-[1440px] mx-auto px-4">
             <x-breadcrumb :items="[['label' => 'Giỏ hàng']]" />
@@ -94,15 +94,15 @@
 
                     <div x-show="step === 2" x-cloak class="flex flex-col gap-4">
                         @if(request('mode') === 'buy_now')
-                            @php
-                                $firstItem = reset($checkoutItems);
-                                $firstProduct = $firstItem['product'] ?? null;
-                            @endphp
-                            @if($firstProduct)
-                                <a href="{{ route('products.detailClient', [$firstProduct->slug, $firstProduct->id]) }}" class="text-xs text-6 hover:underline font-semibold flex items-center gap-1.5 cursor-pointer self-start">
-                                    <i class="fa-solid fa-arrow-left text-[10px]"></i> Quay lại sản phẩm
-                                </a>
-                            @endif
+                        @php
+                        $firstItem = reset($checkoutItems);
+                        $firstProduct = $firstItem['product'] ?? null;
+                        @endphp
+                        @if($firstProduct)
+                        <a href="{{ route('products.detailClient', [$firstProduct->slug, $firstProduct->id]) }}" class="text-xs text-6 hover:underline font-semibold flex items-center gap-1.5 cursor-pointer self-start">
+                            <i class="fa-solid fa-arrow-left text-[10px]"></i> Quay lại sản phẩm
+                        </a>
+                        @endif
                         @else
                         <button type="button" @click="step = 1" class="text-xs text-6 hover:underline font-semibold flex items-center gap-1.5 cursor-pointer self-start">
                             <i class="fa-solid fa-arrow-left text-[10px]"></i> Quay lại giỏ hàng
@@ -118,22 +118,22 @@
                                 </button>
                             </div>
                             @endguest
-                            @auth
+                            @if($defaultAddress)
                             <div class="space-y-3">
                                 <x-radio-button model="addressMethod" value="account" label="Lấy địa chỉ theo tài khoản" />
 
                                 <div x-show="addressMethod === 'account'" x-collapse class="bg-[#EDF3FF] rounded-[10px] p-5 flex items-center justify-between border-none ml-7.5">
                                     <div class="space-y-1.5 text-sm text-3 leading-relaxed">
-                                        <p class="font-bold text-[#9090A7] uppercase">{{ auth()->user()->name }}</p>
-                                        <p class="font-bold text-[#9090A7]">Số điện thoại: {{ auth()->user()->phone ?? 'Chưa cập nhật' }}</p>
-                                        <p class="text-[#9090A7]">{{ auth()->user()->address ?? 'Chưa cập nhật' }}</p>
+                                        <p class="font-bold text-[#9090A7] uppercase">{{ $defaultAddress->name }}</p>
+                                        <p class="font-bold text-[#9090A7]">Số điện thoại: {{ $defaultAddress->phone }}</p>
+                                        <p class="text-[#9090A7]">{{ $defaultAddress->address_detail }}, {{ $defaultAddress->ward }}, {{ $defaultAddress->district }}, {{ $defaultAddress->city_province }}</p>
                                     </div>
                                     <button type="button" class="bg-6 hover:bg-blue-600 text-white w-10 h-10 rounded-[8px] flex items-center justify-center transition-colors shrink-0 cursor-pointer">
                                         <i class="fa-solid fa-chevron-down text-sm"></i>
                                     </button>
                                 </div>
                             </div>
-                            @endauth
+                            @endif
                             <!-- Option 2: Thêm địa chỉ mới -->
                             <div class="space-y-3 pt-1">
                                 <x-radio-button model="addressMethod" value="new" label="Thêm địa chỉ mới" />

@@ -5,13 +5,17 @@ namespace App\Http\Controllers\Client;
 use App\Http\Controllers\Controller;
 use App\Services\Interfaces\CartServiceInterface;
 use Illuminate\Http\Request;
+use App\Services\Interfaces\UserAddressServiceInterface;
+use Illuminate\Support\Facades\Auth;
 
 class CartClientController extends Controller
 {
     protected CartServiceInterface $cartService;
+    protected UserAddressServiceInterface $userAddressService;
 
-    public function __construct(CartServiceInterface $cartService)
+    public function __construct(CartServiceInterface $cartService, UserAddressServiceInterface $userAddressService)
     {
+        $this->userAddressService = $userAddressService;
         $this->cartService = $cartService;
     }
 
@@ -20,8 +24,9 @@ class CartClientController extends Controller
         $cartItems = $this->cartService->getCart('cart');
         $checkoutItems = $this->cartService->getCart();
         $totalPrice = $this->cartService->getTotalPrice();
+        $defaultAddress = $this->userAddressService->getDefaultAddressForUser(Auth::id());
 
-        return view('client.cart.show', compact('cartItems', 'checkoutItems', 'totalPrice'));
+        return view('client.cart.show', compact('cartItems', 'checkoutItems', 'totalPrice', 'defaultAddress'));
     }
     public function add(Request $request)
     {

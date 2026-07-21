@@ -8,6 +8,7 @@ use App\Repositories\Interfaces\OrderRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use App\Services\Interfaces\UserAddressServiceInterface;
 use Override;
 
 /**
@@ -16,11 +17,13 @@ use Override;
 class OrderService extends BaseService implements OrderServiceInterface
 {
     protected CartServiceInterface $cartService;
+    protected UserAddressServiceInterface $userAddressService;
 
-    public function __construct(OrderRepositoryInterface $repository, CartServiceInterface $cartService)
+    public function __construct(OrderRepositoryInterface $repository, CartServiceInterface $cartService, UserAddressServiceInterface $userAddressService)
     {
         parent::__construct($repository);
         $this->cartService = $cartService;
+        $this->userAddressService = $userAddressService;
     }
     #[Override]
     public function create(array $data, Request $request)
@@ -37,17 +40,18 @@ class OrderService extends BaseService implements OrderServiceInterface
                     throw new \Exception('Vui lòng đăng nhập để sử dụng địa chỉ từ tài khoản.');
                 }
 
-                if (empty($user->phone) || empty($user->address)) {
-                    throw new \Exception('Tài khoản của bạn chưa cập nhật đầy đủ số điện thoại hoặc địa chỉ nhận hàng.');
-                }
-
-                $customerName = $user->name;
-                $customerPhone = $user->phone;
-                $customerAddress = $user->address;
+                $address = $this->userAddressService->getDefaultAddressForUser(Auth::id());
+                $customerName = $address->name;
+                $customerPhone = $address->phone;
+                $customerAddress = implode(', ', array_filter([
+                    $address->address_detail,
+                    $address->ward,
+                    $address->district,
+                    $address->city_province
+                ]));
             } else {
                 $customerName = $data['customer_name'];
                 $customerPhone = $data['customer_phone'];
-
                 $customerAddress = implode(', ', array_filter([
                     $data['street'] ?? null,
                     $data['ward'] ?? null,
@@ -55,6 +59,7 @@ class OrderService extends BaseService implements OrderServiceInterface
                     $data['province'] ?? null
                 ]));
             }
+
             $dataOrder = [
                 'user_id' => Auth::id(),
                 'customer_name' => $customerName,
@@ -84,5 +89,18 @@ class OrderService extends BaseService implements OrderServiceInterface
             $this->cartService->clear();
             return $order;
         });
+    }
+    public function cancelOrder(int $userId, int $orderId): bool
+    {
+        $order = $this->repository
+            ->where('user_id', $userId)
+            ->where('id', $orderId)
+            ->firstOrFail();
+
+        if ($order->status !== 'pending') {
+            throw new \Exception('Chỉ có thể hủy đơn hàng đang chờ xử lý.');
+        }
+
+        return $order->update(['status' => 'cancelled']);
     }
 }

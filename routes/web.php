@@ -10,6 +10,7 @@ use App\Http\Controllers\Client\ProductClientController;
 use App\Http\Controllers\Client\CartClientController;
 use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\ReviewClientController;
+use App\Http\Controllers\Client\ProfileController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -39,6 +40,18 @@ Route::post('/buy-now', [CartClientController::class, 'buyNow'])->name('cart.buy
 Route::post('/checkout', [CheckoutController::class, 'placeOrder'])->name('checkout.placeOrder');
 Route::post('/checkout/validate', [CheckoutController::class, 'validateCheckout'])->name('checkout.validate');
 Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('checkout.success');
+
+Route::middleware('auth')->group(function () {
+    Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::post('/profile/orders/{id}/cancel', [ProfileController::class, 'cancelOrder'])->name('profile.orders.cancel');
+    
+    // Shipping Address routes
+    Route::get('/profile/addresses', [ProfileController::class, 'addresses'])->name('profile.addresses');
+    Route::post('/profile/addresses', [ProfileController::class, 'storeAddress'])->name('profile.addresses.store');
+    Route::put('/profile/addresses/{id}', [ProfileController::class, 'updateAddress'])->name('profile.addresses.update');
+    Route::delete('/profile/addresses/{id}', [ProfileController::class, 'deleteAddress'])->name('profile.addresses.destroy');
+    Route::post('/profile/addresses/{id}/default', [ProfileController::class, 'setDefaultAddress'])->name('profile.addresses.default');
+});
 
 Route::prefix('admin')->name('admin.')->group(function () {
     Route::get('/login', [AuthController::class, 'showAdminLoginForm'])->name('login');

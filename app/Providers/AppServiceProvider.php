@@ -29,6 +29,10 @@ use App\Repositories\Eloquent\ReviewRepository;
 use App\Repositories\Interfaces\ReviewRepositoryInterface;
 use App\Services\Interfaces\ReviewServiceInterface;
 use App\Services\ReviewService;
+use App\Repositories\Eloquent\UserAddressRepository;
+use App\Repositories\Interfaces\UserAddressRepositoryInterface;
+use App\Services\Interfaces\UserAddressServiceInterface;
+use App\Services\UserAddressService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -88,6 +92,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             ReviewServiceInterface::class,
             ReviewService::class
+        );
+        $this->app->bind(
+            UserAddressRepositoryInterface::class,
+            UserAddressRepository::class
+        );
+        $this->app->bind(
+            UserAddressServiceInterface::class,
+            UserAddressService::class
         );
     }
 
