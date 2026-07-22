@@ -9,26 +9,40 @@
     <!-- Main Content -->
     <div class="max-w-[1200px] mx-auto flex justify-center">
         <!-- Form Đăng ký -->
-        <form action="{{ route('register.post') }}" method="POST" class="w-full rounded-2xl border border-gray-100 shadow-[0_4px_25px_rgba(0,0,0,0.02)] flex flex-col gap-6">
+        <form action="{{ route('register.post') }}" method="POST" enctype="multipart/form-data" class="w-full rounded-2xl border border-gray-100 shadow-[0_4px_25px_rgba(0,0,0,0.02)] flex flex-col gap-6">
             @csrf
 
             <!-- Layout 2 cột chia nhỏ thông tin -->
             <div class="flex flex-col lg:flex-row gap-4">
 
                 <div class="w-full lg:w-[42%] space-y-5 bg-white p-5 rounded-[5px]">
-                    <div class="relative w-36 h-36 mx-auto mb-8">
+                    <div class="relative w-36 h-36 mx-auto mb-8" x-data="{
+                        avatarPreview: null,
+                        previewAvatar(event) {
+                            const file = event.target.files[0];
+                            if (file) {
+                                this.avatarPreview = URL.createObjectURL(file);
+                            }
+                        }
+                    }">
                         <div class="w-full h-full rounded-full bg-[#EDEDED] flex items-center justify-center overflow-hidden border border-gray-100">
-                            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#D4D4D4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                                <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                <circle cx="12" cy="7" r="4" />
-                            </svg>
+                            <template x-if="avatarPreview">
+                                <img :src="avatarPreview" class="w-full h-full object-cover" alt="Avatar Preview">
+                            </template>
+                            <template x-if="!avatarPreview">
+                                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="#D4D4D4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                    <circle cx="12" cy="7" r="4" />
+                                </svg>
+                            </template>
                         </div>
-                        <button type="button" class="absolute top-2 right-2 bg-white rounded-full p-2.5 border border-gray-200 shadow-sm cursor-pointer hover:bg-gray-50 flex items-center justify-center transition-transform hover:scale-110">
+                        <label for="avatar-input" class="absolute top-2 right-2 bg-white rounded-full p-2.5 border border-gray-200 shadow-sm cursor-pointer hover:bg-gray-50 flex items-center justify-center transition-transform hover:scale-110">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#202F36" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                                 <path d="M12 20h9" />
                                 <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
                             </svg>
-                        </button>
+                            <input type="file" id="avatar-input" name="avatar" class="hidden" accept="image/*" @change="previewAvatar($event)">
+                        </label>
                     </div>
                     <div>
                         <label class="block text-sm text-2 mb-2">Tên hiển thị</label>

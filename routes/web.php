@@ -43,8 +43,19 @@ Route::get('/checkout/success', [CheckoutController::class, 'success'])->name('c
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'index'])->name('profile');
+    Route::get('/profile/overview', [ProfileController::class, 'index'])->name('profile.overview');
     Route::post('/profile/orders/{id}/cancel', [ProfileController::class, 'cancelOrder'])->name('profile.orders.cancel');
-    
+    Route::get('/profile/orders', [ProfileController::class, 'orders'])->name('profile.orders');
+    Route::get('/profile/quotes', [ProfileController::class, 'quotes'])->name('profile.quotes');
+    Route::get('/profile/info', [ProfileController::class, 'editInfo'])->name('profile.info');
+    Route::post('/profile/info', [ProfileController::class, 'updateInfo'])->name('profile.info.update');
+    Route::get('/profile/change-password', [ProfileController::class, 'changePassword'])->name('profile.password');
+    Route::post('/profile/change-password', [ProfileController::class, 'updatePassword'])->name('profile.password.update');
+    Route::get('/profile/points', [ProfileController::class, 'points'])->name('profile.points');
+    Route::get('/profile/vouchers', [ProfileController::class, 'vouchers'])->name('profile.vouchers');
+    Route::get('/profile/notifications', [ProfileController::class, 'notifications'])->name('profile.notifications');
+
+
     // Shipping Address routes
     Route::get('/profile/addresses', [ProfileController::class, 'addresses'])->name('profile.addresses');
     Route::post('/profile/addresses', [ProfileController::class, 'storeAddress'])->name('profile.addresses.store');

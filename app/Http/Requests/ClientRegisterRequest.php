@@ -29,6 +29,7 @@ class ClientRegisterRequest extends FormRequest
             'month' => 'required|integer|between:1,12',
             'year' => 'required|integer|min:1900|max:' . date('Y'),
             'gender' => 'required|string|in:Nam,Nữ,Khác',
+            'avatar' => 'nullable|image|max:2048',
         ];
     }
 
@@ -52,6 +53,8 @@ class ClientRegisterRequest extends FormRequest
             'month.required' => 'Tháng sinh là bắt buộc',
             'year.required' => 'Năm sinh là bắt buộc',
             'gender.required' => 'Giới tính là bắt buộc',
+            'avatar.image' => 'Ảnh đại diện phải là định dạng hình ảnh',
+            'avatar.max' => 'Ảnh đại diện không được vượt quá 2MB',
         ];
     }
 }

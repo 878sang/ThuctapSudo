@@ -8,7 +8,9 @@ use App\Repositories\Interfaces\OrderRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
+use Illuminate\Support\Collection;
 use App\Services\Interfaces\UserAddressServiceInterface;
+use Carbon\Carbon;
 use Override;
 
 /**
@@ -76,31 +78,66 @@ class OrderService extends BaseService implements OrderServiceInterface
                 'company_address' => $data['company_address'] ?? null,
             ];
 
-            $order = $this->repository->create($dataOrder);
-
-            foreach ($cartItems as $item) {
-                $order->items()->create([
-                    'product_id' => $item['product']->id,
-                    'quantity' => $item['quantity'],
-                    'price' => $item['price'],
-                ]);
-                $item['product']->decrement('stock', $item['quantity']);
-            }
+            $order = $this->repository->createOrderWithItems($dataOrder, $cartItems);
             $this->cartService->clear();
             return $order;
         });
     }
+
     public function cancelOrder(int $userId, int $orderId): bool
     {
-        $order = $this->repository
-            ->where('user_id', $userId)
-            ->where('id', $orderId)
-            ->firstOrFail();
+        $order = $this->repository->findUserOrder($userId, $orderId);
+
+        if (!$order) {
+            throw new \Illuminate\Database\Eloquent\ModelNotFoundException('Không tìm thấy đơn hàng của bạn.');
+        }
 
         if ($order->status !== 'pending') {
             throw new \Exception('Chỉ có thể hủy đơn hàng đang chờ xử lý.');
         }
 
-        return $order->update(['status' => 'cancelled']);
+        return $this->repository->updateStatus($orderId, 'cancelled');
+    }
+
+    /**
+     * Lấy danh sách đơn hàng của user.
+     */
+    public function getOrdersByUser(int $userId, ?string $status = null)
+    {
+        return $this->repository->getOrdersByUserId($userId, $status);
+    }
+
+    /**
+     * Lấy danh sách đơn hàng đã phân trang và lọc từ Backend.
+     */
+    public function getPaginatedOrdersByUser(int $userId, array $filters = [], int $perPage = 10)
+    {
+        return $this->repository->getPaginatedOrdersByUserId($userId, $filters, $perPage);
+    }
+
+    /**
+     * Tính toán các số liệu thống kê tổng quan cho trang dashboard.
+     */
+    public function getOverviewStats(int $userId): array
+    {
+        $now       = Carbon::now();
+        $allOrders = $this->repository->getOrdersByUserId($userId);
+
+        $delivered = $allOrders->where('status', 'delivered');
+
+        return [
+            'totalRevenue'   => $delivered->sum('total_price'),
+            'monthRevenue'   => $delivered
+                ->filter(fn ($o) => Carbon::parse($o->created_at)->isSameMonth($now))
+                ->sum('total_price'),
+            'totalDelivered' => $delivered->count(),
+            'monthDelivered' => $delivered
+                ->filter(fn ($o) => Carbon::parse($o->created_at)->isSameMonth($now))
+                ->count(),
+            'totalOrders'    => $allOrders->count(),
+            'monthOrders'    => $allOrders
+                ->filter(fn ($o) => Carbon::parse($o->created_at)->isSameMonth($now))
+                ->count(),
+        ];
     }
 }

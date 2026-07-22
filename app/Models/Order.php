@@ -22,6 +22,33 @@ class Order extends Model
         'company_address'
     ];
 
+    protected $appends = [
+        'code',
+        'thumbnail',
+        'items_count',
+        'cancel_url',
+    ];
+
+    public function getCodeAttribute(): string
+    {
+        return '#' . str_pad($this->id, 8, '0', STR_PAD_LEFT);
+    }
+
+    public function getThumbnailAttribute(): ?string
+    {
+        return $this->items->first()?->product?->thumbnail_url;
+    }
+
+    public function getItemsCountAttribute(): int
+    {
+        return $this->items->count();
+    }
+
+    public function getCancelUrlAttribute(): string
+    {
+        return route('profile.orders.cancel', $this->id);
+    }
+
     public function items()
     {
         return $this->hasMany(OrderItem::class);

@@ -74,7 +74,7 @@
                         {{-- Avatar trigger button --}}
                         <div @click="open = !open"
                             class="w-10.5 h-10.5 text-base rounded-full bg-8 text-7 flex items-center justify-center cursor-pointer hover:bg-blue-100 hover:scale-105 transition-all duration-200">
-                            <img src="{{ asset('storage/images/avatar_placeholder.png') }}"
+                            <img src="{{ auth()->user()->avatar_url }}"
                                 onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=DDECFF&color=006DF0&size=128'"
                                 class="w-full h-full object-cover rounded-full"
                                 alt="Avatar">
@@ -96,7 +96,7 @@
                             <div class="px-5 pt-5 pb-4 flex items-center gap-3">
                                 <div class="relative shrink-0">
                                     <div class="w-14 h-14 rounded-full overflow-hidden border-2 border-blue-100">
-                                        <img src="{{ asset('storage/images/avatar_placeholder.png') }}"
+                                        <img src="{{ auth()->user()->avatar_url }}"
                                             onerror="this.src='https://ui-avatars.com/api/?name={{ urlencode(auth()->user()->name) }}&background=DDECFF&color=006DF0&size=128'"
                                             class="w-full h-full object-cover"
                                             alt="Avatar">

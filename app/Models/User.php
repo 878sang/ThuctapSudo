@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
-#[Fillable(['name', 'display_name', 'email', 'password', 'phone', 'dob', 'gender', 'role'])]
+#[Fillable(['name', 'display_name', 'email', 'password', 'phone', 'dob', 'gender', 'role', 'avatar', 'type'])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
 {
@@ -37,6 +37,14 @@ class User extends Authenticatable
     public function addresses()
     {
         return $this->hasMany(UserAddress::class, 'user_id');
+    }
+    public function getAvatarUrlAttribute(): string
+    {
+        return $this->avatar ? asset('storage/avatars/' . $this->avatar) : (file_exists(public_path('storage/images/avatar_placeholder.png')) ? asset('storage/images/avatar_placeholder.png') : 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=DDECFF&color=006DF0&size=128');
+    }
+    public function getPointsAttribute(): int
+    {
+        return 1560;
     }
     /**
      * Get the attributes that should be cast.
