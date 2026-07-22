@@ -612,9 +612,16 @@
                         <div class="flex items-start gap-3 py-3.5 first:pt-0">
                             <i class="fa-solid fa-location-dot text-7 text-base shrink-0 mt-0.5"></i>
                             <div class="flex-1 pr-2">
+                                @if($defaultAddress)
                                 <p class="text-5 leading-relaxed">
-                                    Tầng 3, HHO1 A, 87 Lĩnh Nam, Hoàng Mai, Hà Nội
+                                    {{ $defaultAddress->address_detail }},
+                                    {{ $defaultAddress->ward }},
+                                    {{ $defaultAddress->district }},
+                                    {{ $defaultAddress->city_province }}
                                 </p>
+                                @else
+                                <p class="text-5 leading-relaxed text-gray-500">Chưa có địa chỉ mặc định</p>
+                                @endif
                             </div>
                             <a href="#" class="text-7 text-xs font-semibold hover:underline shrink-0">Thay đổi</a>
                         </div>
