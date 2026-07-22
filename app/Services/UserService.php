@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Http\UploadedFile;
 
 class UserService extends BaseService implements UserServiceInterface
 {
@@ -83,12 +82,7 @@ class UserService extends BaseService implements UserServiceInterface
             'gender' => $data['gender'],
         ];
 
-        // Safe check for schema column existence
         $columns = Schema::getColumnListing('users');
-        if (in_array('type', $columns) && isset($data['type'])) {
-            $updateData['type'] = $data['type'];
-        }
-
         if (in_array('avatar', $columns)) {
             $user = $this->userRepository->findOrFail($userId);
             if (request()->hasFile('avatar') && !empty($user->avatar)) {

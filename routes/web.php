@@ -46,6 +46,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/overview', [ProfileController::class, 'index'])->name('profile.overview');
     Route::post('/profile/orders/{id}/cancel', [ProfileController::class, 'cancelOrder'])->name('profile.orders.cancel');
     Route::get('/profile/orders', [ProfileController::class, 'orders'])->name('profile.orders');
+    Route::get('/profile/orders/{id}', [ProfileController::class, 'showOrder'])->name('profile.orders.show');
     Route::get('/profile/quotes', [ProfileController::class, 'quotes'])->name('profile.quotes');
     Route::get('/profile/info', [ProfileController::class, 'editInfo'])->name('profile.info');
     Route::post('/profile/info', [ProfileController::class, 'updateInfo'])->name('profile.info.update');

@@ -154,7 +154,7 @@
                                             <div class="flex flex-col gap-0.5">
                                                 <span class="font-bold text-base text-2">{{ $orderCode }}</span>
                                                 <span class="text-sm text-7">{{ $itemsCount }} sản phẩm</span>
-                                                <a href="#" class="text-sm rounded-[5px] text-[#0165FC] underline underline-offset-2 hover:text-blue-700 p-2.5 bg-[#DDECFF]">Xem chi tiết</a>
+                                                <a href="{{ route('profile.orders.show', $order->id) }}" class="text-sm rounded-[5px] text-[#0165FC] underline underline-offset-2 hover:text-blue-700 p-2.5 bg-[#DDECFF]">Xem chi tiết</a>
                                             </div>
                                         </div>
                                     </td>

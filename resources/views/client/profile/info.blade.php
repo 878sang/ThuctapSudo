@@ -20,7 +20,6 @@
             {{-- Right Content --}}
             <main class="w-full lg:w-[73%] flex flex-col gap-6">
                 <div class="bg-white rounded-[10px] shadow-sm p-6" x-data="{
-                    type: '{{ old('type', $user->type ?? 'personal') }}',
                     displayName: '{{ old('display_name', $user->display_name ?? '') }}',
                     fullName: '{{ old('name', $user->name ?? '') }}',
                     email: '{{ old('email', $user->email ?? '') }}',
@@ -39,14 +38,6 @@
 
                     <form action="{{ route('profile.info.update') }}" method="POST" enctype="multipart/form-data">
                         @csrf
-
-                        {{-- Account Type Selection --}}
-                        <div class="flex items-center gap-6 mb-6">
-                            <input type="hidden" name="type" :value="type">
-
-                            <x-radio-button model="type" value="personal" label="Tài khoản cá nhân" />
-                            <x-radio-button model="type" value="business" label="Tài khoản doanh nghiệp" />
-                        </div>
 
                         {{-- Avatar Upload Section --}}
                         <div class="relative w-28 h-28 mb-8">

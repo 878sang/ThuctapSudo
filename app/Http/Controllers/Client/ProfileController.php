@@ -141,6 +141,17 @@ class ProfileController extends Controller
     }
 
     /**
+     * Show the order detail page.
+     */
+    public function showOrder($id)
+    {
+        $user = Auth::user();
+
+        $order = \App\Models\Order::with(['items.product'])->where('user_id', $user->id)->find($id);
+        return view('client.profile.order_detail', compact('user', 'order'));
+    }
+
+    /**
      * Show the quotes management page.
      */
     public function quotes(Request $request)
@@ -265,17 +276,13 @@ class ProfileController extends Controller
 
         return redirect()->back()->with('success', 'Đổi mật khẩu thành công.');
     }
-
-    /**
-     * Show the reward points page.
-     */
     public function points()
     {
         $user = Auth::user();
-        
+
         $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
         $perPage = 9;
-        
+
         // Generate mock points transactions
         $items = [];
         for ($i = 0; $i < 90; $i++) {
@@ -287,9 +294,9 @@ class ProfileController extends Controller
                 'from' => 'Admin'
             ];
         }
-        
+
         $currentPageItems = array_slice($items, ($currentPage - 1) * $perPage, $perPage);
-        
+
         $points = new \Illuminate\Pagination\LengthAwarePaginator(
             $currentPageItems,
             count($items),
@@ -297,7 +304,7 @@ class ProfileController extends Controller
             $currentPage,
             ['path' => \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPath()]
         );
-        
+
         return view('client.profile.points', compact('user', 'points'));
     }
 
@@ -307,21 +314,21 @@ class ProfileController extends Controller
     public function vouchers()
     {
         $user = Auth::user();
-        
+
         $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
         $perPage = 9;
-        
+
         $activeTab = request()->get('tab', 'all');
-        
+
         // Generate mock vouchers
         $items = [];
         for ($i = 0; $i < 155; $i++) {
             $isUnread = ($i === 9); // First item on page 2 (index 9) is unread
-            
+
             if ($activeTab === 'unread' && !$isUnread) {
                 continue;
             }
-            
+
             $items[] = (object)[
                 'is_unread' => $isUnread,
                 'code' => 'HL0254583',
@@ -329,9 +336,9 @@ class ProfileController extends Controller
                 'from' => 'Admin'
             ];
         }
-        
+
         $currentPageItems = array_slice($items, ($currentPage - 1) * $perPage, $perPage);
-        
+
         $vouchers = new \Illuminate\Pagination\LengthAwarePaginator(
             $currentPageItems,
             $activeTab === 'unread' ? 1 : 155,
@@ -339,9 +346,9 @@ class ProfileController extends Controller
             $currentPage,
             ['path' => \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPath()]
         );
-        
+
         $vouchers->appends(['tab' => $activeTab]);
-        
+
         return view('client.profile.vouchers', compact('user', 'vouchers', 'activeTab'));
     }
 
@@ -351,21 +358,21 @@ class ProfileController extends Controller
     public function notifications()
     {
         $user = Auth::user();
-        
+
         $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
         $perPage = 9;
-        
+
         $activeTab = request()->get('tab', 'all');
-        
+
         // Generate mock notifications
         $items = [];
         for ($i = 0; $i < 155; $i++) {
             $isUnread = ($i === 9); // First item on page 2 (index 9) is unread
-            
+
             if ($activeTab === 'unread' && !$isUnread) {
                 continue;
             }
-            
+
             $localIdx = $i % 9;
             $htmlText = '';
             if ($localIdx === 0) {
@@ -375,7 +382,7 @@ class ProfileController extends Controller
             } else {
                 $htmlText = 'Đơn hàng <span class="font-bold text-[#FF9500] font-sans">HP01253</span> đã được mua thành công, xin chúc mừng bạn';
             }
-            
+
             $items[] = (object)[
                 'is_unread' => $isUnread,
                 'html' => $htmlText,
@@ -383,9 +390,9 @@ class ProfileController extends Controller
                 'from' => 'Admin'
             ];
         }
-        
+
         $currentPageItems = array_slice($items, ($currentPage - 1) * $perPage, $perPage);
-        
+
         $notifications = new \Illuminate\Pagination\LengthAwarePaginator(
             $currentPageItems,
             $activeTab === 'unread' ? 1 : 155,
@@ -393,9 +400,9 @@ class ProfileController extends Controller
             $currentPage,
             ['path' => \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPath()]
         );
-        
+
         $notifications->appends(['tab' => $activeTab]);
-        
+
         return view('client.profile.notifications', compact('user', 'notifications', 'activeTab'));
     }
 }
