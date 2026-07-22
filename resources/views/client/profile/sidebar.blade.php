@@ -25,7 +25,7 @@ $active = $active ?? 'overview';
     </div>
 
     <!-- Navigation Menu -->
-    <nav class="flex flex-col text-sm font-medium text-gray-600">
+    <nav class="flex flex-col text-sm font-medium text-2">
         <a href="{{ route('profile.notifications') }}" class="flex items-center gap-3 px-4 py-3 rounded-lg {{ $active === 'notifications' ? 'bg-[#EBF3FF] text-[#006DF0]' : 'hover:bg-gray-50 transition-colors' }}">
             <svg width="18" height="20" viewBox="0 0 18 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <g clip-path="url(#clip0_276_20503)">
@@ -104,7 +104,7 @@ $active = $active ?? 'overview';
 
         <form action="{{ route('logout') }}" method="POST" class="m-0">
             @csrf
-            <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-500 hover:bg-red-50/50 transition-colors text-left bg-transparent border-none cursor-pointer">
+            <button type="submit" class="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-2 hover:bg-red-50/50 transition-colors text-left bg-transparent border-none cursor-pointer">
                 <svg width="21" height="21" viewBox="0 0 21 21" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <g clip-path="url(#clip0_276_20450)">
                         <path d="M1.00836 12.9988L4.35786 16.4218C4.69386 16.7578 5.22936 16.7473 5.56536 16.4218C5.56536 16.4218 5.57586 16.4113 5.58636 16.4008C5.91186 16.0543 5.91186 15.5188 5.58636 15.1723L2.23686 11.7493C2.13186 11.6443 2.04786 11.5288 1.97436 11.4028C1.98486 11.4028 1.99536 11.4028 2.01636 11.4028L15.5614 11.3713C16.0444 11.3713 16.4434 10.9723 16.4434 10.4893C16.4434 10.0063 16.0444 9.60734 15.5614 9.60734L2.01636 9.63885C2.01636 9.63885 1.97436 9.64934 1.95336 9.64934C2.02686 9.50234 2.13186 9.36585 2.24736 9.23985L5.59686 5.81684C5.94336 5.47034 5.95386 4.92434 5.61786 4.56734C5.29236 4.22084 4.75686 4.21034 4.42086 4.52534C4.42086 4.52534 4.41036 4.53584 4.39986 4.54634L4.37886 4.56734L1.02936 7.99034C-0.314641 9.38684 -0.314641 11.5918 1.02936 12.9883L1.00836 12.9988Z" fill="#0165FC" />
