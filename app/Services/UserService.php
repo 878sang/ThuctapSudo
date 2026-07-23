@@ -134,4 +134,8 @@ class UserService extends BaseService implements UserServiceInterface
     {
         return $this->repository->getAllUserAdmin($request, $perPage);
     }
+    public function getUserWithOrders(int $userId)
+    {
+        return $this->repository->getUserWithOrders($userId);
+    }
 }

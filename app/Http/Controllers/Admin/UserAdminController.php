@@ -75,4 +75,10 @@ class UserAdminController extends Controller
         $this->userService->restore($id);
         return redirect()->route('admin.users.index')->with('success', 'Khôi phục tài khoản thành công.');
     }
+
+    public function show(int $id)
+    {
+        $user = $this->userService->getUserWithOrders($id);
+        return view('admin.users.show', compact('user'));
+    }
 }

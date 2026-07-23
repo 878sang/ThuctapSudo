@@ -10,8 +10,6 @@
     </div>
 
     <div class="max-w-[1440px] mx-auto px-4">
-
-        {{-- Status Stepper --}}
         @php
         $stepIndex = $order->step_index ?? 1;
         $steps = \App\Models\Order::getStepsList();

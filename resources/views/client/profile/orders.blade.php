@@ -182,11 +182,6 @@
                                             Hủy đơn hàng
                                         </button>
                                     </form>
-                                    @elseif($order->status === 'processing')
-                                    <button type="button" disabled
-                                        class="w-full bg-[#D9534F] text-white py-2.5 px-4 rounded-lg text-sm cursor-not-allowed whitespace-nowrap">
-                                        Hủy đơn hàng
-                                    </button>
                                     @elseif($order->status === 'completed')
                                     <a href="#"
                                         class="inline-block w-full bg-[#0165FC] hover:bg-blue-700 text-white font-bold py-2.5 px-4 rounded-lg text-sm text-center transition-colors cursor-pointer whitespace-nowrap">

@@ -9,4 +9,5 @@ interface ProductRepositoryInterface extends BaseRepositoryInterface
     public function moveProductsToNewCategory(int $oldCategoryId, int $newCategoryId);
     public function getProductsByCategory(int $categoryId);
     public function getProductsByBrand(int $brandId, int $id, int $limit = 6);
+    public function incrementStock(int $id, int $quantity): bool;
 }

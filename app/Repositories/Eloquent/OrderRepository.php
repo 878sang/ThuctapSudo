@@ -142,4 +142,9 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
 
         return $query->paginate($perPage)->withQueryString();
     }
+    public function addHistory(int $orderId, array $historyData): void
+    {
+        $order = $this->model->findOrFail($orderId);
+        $order->histories()->create($historyData);
+    }
 }

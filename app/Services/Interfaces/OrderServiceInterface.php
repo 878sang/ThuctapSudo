@@ -26,5 +26,5 @@ interface OrderServiceInterface extends BaseServiceInterface
 
     public function getPaginatedOrdersAdmin(Request $request, int $perPage = 10);
 
-    public function updateOrderStatus(int $orderId, string $status): bool;
+    public function updateOrderStatus(int $orderId, string $status, ?string $note = null): bool;
 }

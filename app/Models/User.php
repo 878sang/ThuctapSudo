@@ -19,6 +19,7 @@ class User extends Authenticatable
 
     const ROLE_SUPER_ADMIN = 'super_admin';
     const ROLE_STAFF = 'staff';
+    const ROLE_CUSTOMER = 'customer';
 
     /**
      * Check if the user is a super admin.
@@ -26,6 +27,22 @@ class User extends Authenticatable
     public function isSuperAdmin(): bool
     {
         return $this->role === self::ROLE_SUPER_ADMIN;
+    }
+
+    /**
+     * Check if the user is a staff member.
+     */
+    public function isStaff(): bool
+    {
+        return $this->role === self::ROLE_STAFF;
+    }
+
+    /**
+     * Check if the user is a customer.
+     */
+    public function isCustomer(): bool
+    {
+        return $this->role === self::ROLE_CUSTOMER;
     }
     public function likedReviews()
     {

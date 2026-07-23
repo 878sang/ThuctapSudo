@@ -120,6 +120,7 @@ Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(fun
         Route::get('/', [UserAdminController::class, 'index'])->name('users.index');
         Route::get('/create', [UserAdminController::class, 'create'])->name('users.create');
         Route::post('/', [UserAdminController::class, 'store'])->name('users.store');
+        Route::get('/{id}', [UserAdminController::class, 'show'])->name('users.show');
         Route::get('/{id}/edit', [UserAdminController::class, 'edit'])->name('users.edit');
         Route::put('/{id}', [UserAdminController::class, 'update'])->name('users.update');
         Route::patch('/{id}/restore', [UserAdminController::class, 'restore'])->name('users.restore');

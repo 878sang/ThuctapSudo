@@ -12,6 +12,7 @@ use App\Services\Interfaces\UserAddressServiceInterface;
 use Carbon\Carbon;
 use Override;
 use App\Services\Interfaces\CouponServiceInterface;
+use App\Repositories\Interfaces\ProductRepositoryInterface;
 
 /**
  * @property OrderRepositoryInterface $repository
@@ -21,13 +22,15 @@ class OrderService extends BaseService implements OrderServiceInterface
     protected CartServiceInterface $cartService;
     protected UserAddressServiceInterface $userAddressService;
     protected CouponServiceInterface $couponService;
+    protected ProductRepositoryInterface $productRepository;
 
-    public function __construct(OrderRepositoryInterface $repository, CartServiceInterface $cartService, UserAddressServiceInterface $userAddressService, CouponServiceInterface $couponService)
+    public function __construct(OrderRepositoryInterface $repository, CartServiceInterface $cartService, UserAddressServiceInterface $userAddressService, CouponServiceInterface $couponService, ProductRepositoryInterface $productRepository)
     {
         parent::__construct($repository);
         $this->cartService = $cartService;
         $this->userAddressService = $userAddressService;
         $this->couponService = $couponService;
+        $this->productRepository = $productRepository;
     }
     #[Override]
     public function create(array $data)
@@ -100,6 +103,14 @@ class OrderService extends BaseService implements OrderServiceInterface
                 $this->couponService->removeCoupon();
             }
             $this->cartService->clear();
+
+            $this->repository->addHistory($order->id, [
+                'user_id'     => Auth::id(),
+                'from_status' => null,
+                'to_status'   => 'pending',
+                'note'        => 'Đơn hàng được tạo thành công.',
+            ]);
+
             return $order;
         });
     }
@@ -117,7 +128,7 @@ class OrderService extends BaseService implements OrderServiceInterface
         }
 
 
-        return $this->updateOrderStatus($orderId, 'cancelled');
+        return $this->updateOrderStatus($orderId, 'cancelled', 'Khách hàng tự hủy đơn hàng.');
     }
 
     /**
@@ -167,20 +178,26 @@ class OrderService extends BaseService implements OrderServiceInterface
         return $this->repository->getPaginatedOrdersAdmin($request, $perPage);
     }
 
-    public function updateOrderStatus(int $orderId, string $status): bool
+    public function updateOrderStatus(int $orderId, string $status, ?string $note = null): bool
     {
-        return DB::transaction(function () use ($orderId, $status) {
+        return DB::transaction(function () use ($orderId, $status, $note) {
             $order = $this->repository->findOrFail($orderId);
             $oldStatus = $order->status;
 
             if ($status === 'cancelled' && $oldStatus !== 'cancelled') {
                 foreach ($order->items as $item) {
-                    $product = $item->product;
-                    if ($product) {
-                        $product->increment('stock', $item->quantity);
+                    if ($item->product_id) {
+                        $this->productRepository->incrementStock($item->product_id, $item->quantity);
                     }
                 }
             }
+
+            $this->repository->addHistory($orderId, [
+                'user_id'     => Auth::id(),
+                'from_status' => $oldStatus,
+                'to_status'   => $status,
+                'note'        => $note ?? ($status === 'cancelled' ? 'Hệ thống đã hủy đơn hàng.' : 'Cập nhật trạng thái đơn hàng.'),
+            ]);
 
             return $this->repository->updateStatus($orderId, $status);
         });

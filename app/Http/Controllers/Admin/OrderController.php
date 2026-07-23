@@ -24,13 +24,14 @@ class OrderController extends Controller
 
     public function show(int $id)
     {
-        $order = $this->orderService->with(['items.product', 'user'])->findOrFail($id);
+        $order = $this->orderService->with(['items.product', 'user', 'histories.user'])->findOrFail($id);
         return view('admin.orders.show', compact('order'));
     }
 
+
     public function updateStatus(UpdateOrderStatusRequest $request, int $id)
     {
-        $this->orderService->updateOrderStatus($id, $request->status);
+        $this->orderService->updateOrderStatus($id, $request->status, $request->note);
 
         return redirect()->back()->with('success', 'Cập nhật trạng thái đơn hàng thành công.');
     }

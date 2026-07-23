@@ -35,4 +35,5 @@ interface OrderRepositoryInterface extends BaseRepositoryInterface
     public function createOrderWithItems(array $orderData, array $cartItems): Order;
 
     public function getPaginatedOrdersAdmin(Request $request, int $perPage = 10);
+    public function addHistory(int $orderId, array $historyData): void;
 }

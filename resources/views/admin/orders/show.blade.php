@@ -168,6 +168,40 @@
                     <span class="font-semibold uppercase">{{ $order->payment_method === 'cod' ? 'COD (Thanh toán khi nhận hàng)' : 'Chuyển khoản / VNPAY' }}</span>
                 </div>
             </div>
+
+            <!-- Lịch sử xử lý đơn hàng -->
+            <div class="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+                <h2 class="text-base font-bold text-slate-900 mb-4 border-b border-slate-100 pb-3">Lịch sử xử lý</h2>
+                <div class="relative pl-6 border-l-2 border-slate-100 space-y-6">
+                    @forelse($order->histories as $history)
+                    <div class="relative">
+                        <!-- Bullet Node -->
+                        <div class="absolute -left-[31px] top-1 w-3 h-3 rounded-full border-2 border-white bg-indigo-600 shadow-sm"></div>
+                        <div class="text-xs text-slate-500 mb-1">
+                            {{ $history->created_at->format('d/m/Y H:i') }} bởi 
+                            <span class="font-semibold text-slate-700">
+                                {{ $history->user ? $history->user->name : 'Khách hàng / Hệ thống' }}
+                            </span>
+                        </div>
+                        <div class="text-sm font-semibold text-slate-800">
+                            Trạng thái: <span class="text-indigo-600">{{ $history->to_status_label }}</span>
+                        </div>
+                        @if($history->from_status)
+                        <div class="text-xs text-slate-400 mt-0.5">
+                            (Trước đó: {{ $history->from_status_label }})
+                        </div>
+                        @endif
+                        @if($history->note)
+                        <p class="text-xs text-slate-500 italic mt-1 bg-slate-50 p-2 rounded border border-slate-100">
+                            {{ $history->note }}
+                        </p>
+                        @endif
+                    </div>
+                    @empty
+                    <div class="text-xs text-slate-400 italic text-center">Chưa có lịch sử cập nhật.</div>
+                    @endforelse
+                </div>
+            </div>
         </div>
 
         <!-- Khách hàng & Cập nhật trạng thái -->
@@ -213,6 +247,10 @@
                             <option value="completed" {{ $order->status === 'completed' ? 'selected' : '' }}>6. Hoàn tất</option>
                             <option value="cancelled" {{ $order->status === 'cancelled' ? 'selected' : '' }}>Đã hủy đơn hàng</option>
                         </select>
+                    </div>
+                    <div>
+                        <label for="note" class="block text-slate-400 text-xs uppercase tracking-wider mb-2">Ghi chú / Lý do cập nhật</label>
+                        <textarea name="note" id="note" rows="3" placeholder="Nhập lý do hoặc ghi chú cho lần cập nhật này..." class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 resize-none"></textarea>
                     </div>
                     <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-750 text-white py-2.5 rounded-xl text-sm font-semibold transition-colors bg-indigo-650 shadow-sm shadow-indigo-100">
                         Cập nhật trạng thái

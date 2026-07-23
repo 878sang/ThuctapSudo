@@ -23,4 +23,12 @@ class UserRepository extends BaseRepository implements UserRepositoryInterface
         }
         return $query->paginate($perPage)->withQueryString();
     }
+    public function getUserWithOrders(int $userId)
+    {
+        return $this->model->withTrashed()
+            ->with(['orders' => function ($query) {
+                $query->latest();
+            }])
+            ->findOrFail($userId);
+    }
 }

@@ -68,4 +68,12 @@ class ProductRepository extends BaseRepository implements ProductRepositoryInter
     {
         return $this->model->withTrashed()->where('category_id', $oldCategoryId)->update(['category_id' => $newCategoryId]);
     }
+    public function incrementStock(int $id, int $quantity): bool
+    {
+        $product = $this->model->find($id);
+        if ($product) {
+            return (bool) $product->increment('stock', $quantity);
+        }
+        return false;
+    }
 }

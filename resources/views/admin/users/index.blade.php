@@ -70,7 +70,7 @@
                         </td>
                         <td class="py-4 px-6">
                             <div class="flex items-center gap-2">
-                                <div class="font-semibold text-slate-900 text-sm {{ $user->deleted_at ? 'text-slate-400 line-through' : '' }}">{{ $user->name }}</div>
+                                <div class="font-semibold text-slate-900 text-sm {{ $user->deleted_at ? 'text-slate-400 line-through' : '' }}"><a href="{{ route('admin.users.show', $user->id) }}">{{ $user->name }}</a></div>
                                 @if($user->deleted_at)
                                 <span class="inline-flex items-center px-1.5 py-0.2 rounded text-[10px] font-semibold bg-slate-100 text-slate-600 border border-slate-200">Vô hiệu hóa</span>
                                 @endif
@@ -88,9 +88,9 @@
                             <div class="text-slate-400 text-xs mt-0.5">{{ $user->gender ?? 'Chưa cập nhật' }}</div>
                         </td>
                         <td class="py-4 px-6 text-center">
-                            @if($user->role === 'super_admin')
+                            @if($user->isSuperAdmin())
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-100">Super Admin</span>
-                            @elseif($user->role === 'staff')
+                            @elseif($user->isStaff())
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 border border-indigo-100">Nhân viên</span>
                             @else
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-100">Khách hàng</span>
