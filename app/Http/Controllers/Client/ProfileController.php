@@ -13,20 +13,25 @@ use App\Services\Interfaces\UserServiceInterface;
 use App\Http\Requests\UpdateProfileRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 
+use App\Services\Interfaces\CouponServiceInterface;
+
 class ProfileController extends Controller
 {
     protected UserAddressServiceInterface $userAddressService;
     protected OrderServiceInterface $orderService;
     protected UserServiceInterface $userService;
+    protected CouponServiceInterface $couponService;
 
     public function __construct(
         UserAddressServiceInterface $userAddressService,
         OrderServiceInterface $orderService,
-        UserServiceInterface $userService
+        UserServiceInterface $userService,
+        CouponServiceInterface $couponService
     ) {
         $this->userAddressService = $userAddressService;
         $this->orderService = $orderService;
         $this->userService = $userService;
+        $this->couponService = $couponService;
     }
 
     public function index(Request $request)
@@ -314,42 +319,9 @@ class ProfileController extends Controller
     public function vouchers()
     {
         $user = Auth::user();
+        $validCoupons = $this->couponService->getValidCouponsForUser($user->id, 9);
 
-        $currentPage = \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 9;
-
-        $activeTab = request()->get('tab', 'all');
-
-        // Generate mock vouchers
-        $items = [];
-        for ($i = 0; $i < 155; $i++) {
-            $isUnread = ($i === 9); // First item on page 2 (index 9) is unread
-
-            if ($activeTab === 'unread' && !$isUnread) {
-                continue;
-            }
-
-            $items[] = (object)[
-                'is_unread' => $isUnread,
-                'code' => 'HL0254583',
-                'time' => '1 phút trước',
-                'from' => 'Admin'
-            ];
-        }
-
-        $currentPageItems = array_slice($items, ($currentPage - 1) * $perPage, $perPage);
-
-        $vouchers = new \Illuminate\Pagination\LengthAwarePaginator(
-            $currentPageItems,
-            $activeTab === 'unread' ? 1 : 155,
-            $perPage,
-            $currentPage,
-            ['path' => \Illuminate\Pagination\LengthAwarePaginator::resolveCurrentPath()]
-        );
-
-        $vouchers->appends(['tab' => $activeTab]);
-
-        return view('client.profile.vouchers', compact('user', 'vouchers', 'activeTab'));
+        return view('client.profile.vouchers', compact('user', 'validCoupons'));
     }
 
     /**

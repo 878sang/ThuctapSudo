@@ -8,10 +8,10 @@ use App\Repositories\Interfaces\OrderRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
-use Illuminate\Support\Collection;
 use App\Services\Interfaces\UserAddressServiceInterface;
 use Carbon\Carbon;
 use Override;
+use App\Services\Interfaces\CouponServiceInterface;
 
 /**
  * @property OrderRepositoryInterface $repository
@@ -20,12 +20,14 @@ class OrderService extends BaseService implements OrderServiceInterface
 {
     protected CartServiceInterface $cartService;
     protected UserAddressServiceInterface $userAddressService;
+    protected CouponServiceInterface $couponService;
 
-    public function __construct(OrderRepositoryInterface $repository, CartServiceInterface $cartService, UserAddressServiceInterface $userAddressService)
+    public function __construct(OrderRepositoryInterface $repository, CartServiceInterface $cartService, UserAddressServiceInterface $userAddressService, CouponServiceInterface $couponService)
     {
         parent::__construct($repository);
         $this->cartService = $cartService;
         $this->userAddressService = $userAddressService;
+        $this->couponService = $couponService;
     }
     #[Override]
     public function create(array $data, Request $request)
@@ -62,23 +64,41 @@ class OrderService extends BaseService implements OrderServiceInterface
                 ]));
             }
 
+            $totalPrice = $this->cartService->getTotalPrice();
+            $appliedCoupon = $this->couponService->getAppliedCoupon($totalPrice);
+            $discountAmount = 0;
+            $couponCode = null;
+            if ($appliedCoupon && isset($appliedCoupon['discount_amount'])) {
+                $couponCode = $appliedCoupon['code'];
+                $discountAmount = $appliedCoupon['discount_amount'];
+            }
+            $finalTotalPrice = max(0, $totalPrice - $discountAmount);
             $dataOrder = [
-                'user_id' => Auth::id(),
-                'customer_name' => $customerName,
-                'customer_phone' => $customerPhone,
+                'user_id'          => Auth::id(),
+                'customer_name'    => $customerName,
+                'customer_phone'   => $customerPhone,
                 'customer_address' => $customerAddress,
-                'total_price' => $this->cartService->getTotalPrice(),
-                'shipping_fee' => 0,
-                'payment_method' => $data['payment_method'] ?? 'cod',
-                'status' => 'pending',
-                'is_vat' => $data['is_vat'] ?? 0,
-                'company_name' => $data['company_name'] ?? null,
-                'company_email' => $data['company_email'] ?? null,
-                'tax_code' => $data['tax_code'] ?? null,
-                'company_address' => $data['company_address'] ?? null,
+                'total_price'      => $finalTotalPrice,
+                'coupon_code'      => $couponCode,
+                'discount_amount'  => $discountAmount,
+                'shipping_fee'     => 0,
+                'payment_method'   => $data['payment_method'] ?? 'cod',
+                'status'           => 'pending',
+                'is_vat'           => $data['is_vat'] ?? 0,
+                'company_name'     => $data['company_name'] ?? null,
+                'company_email'    => $data['company_email'] ?? null,
+                'tax_code'         => $data['tax_code'] ?? null,
+                'company_address'  => $data['company_address'] ?? null,
             ];
 
             $order = $this->repository->createOrderWithItems($dataOrder, $cartItems);
+            if ($appliedCoupon && isset($appliedCoupon['coupon_id'])) {
+                $coupon = $this->couponService->find($appliedCoupon['coupon_id']);
+                if ($coupon) {
+                    $this->couponService->recordUsage($coupon, Auth::id(), $order->id);
+                }
+                $this->couponService->removeCoupon();
+            }
             $this->cartService->clear();
             return $order;
         });
@@ -128,15 +148,15 @@ class OrderService extends BaseService implements OrderServiceInterface
         return [
             'totalRevenue'   => $delivered->sum('total_price'),
             'monthRevenue'   => $delivered
-                ->filter(fn ($o) => Carbon::parse($o->created_at)->isSameMonth($now))
+                ->filter(fn($o) => Carbon::parse($o->created_at)->isSameMonth($now))
                 ->sum('total_price'),
             'totalDelivered' => $delivered->count(),
             'monthDelivered' => $delivered
-                ->filter(fn ($o) => Carbon::parse($o->created_at)->isSameMonth($now))
+                ->filter(fn($o) => Carbon::parse($o->created_at)->isSameMonth($now))
                 ->count(),
             'totalOrders'    => $allOrders->count(),
             'monthOrders'    => $allOrders
-                ->filter(fn ($o) => Carbon::parse($o->created_at)->isSameMonth($now))
+                ->filter(fn($o) => Carbon::parse($o->created_at)->isSameMonth($now))
                 ->count(),
         ];
     }

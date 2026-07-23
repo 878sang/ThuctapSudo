@@ -33,6 +33,10 @@ use App\Repositories\Eloquent\UserAddressRepository;
 use App\Repositories\Interfaces\UserAddressRepositoryInterface;
 use App\Services\Interfaces\UserAddressServiceInterface;
 use App\Services\UserAddressService;
+use App\Repositories\Eloquent\CouponRepository;
+use App\Repositories\Interfaces\CouponRepositoryInterface;
+use App\Services\Interfaces\CouponServiceInterface;
+use App\Services\CouponService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -100,6 +104,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(
             UserAddressServiceInterface::class,
             UserAddressService::class
+        );
+        $this->app->bind(
+            CouponRepositoryInterface::class,
+            CouponRepository::class
+        );
+        $this->app->bind(
+            CouponServiceInterface::class,
+            CouponService::class
         );
     }
 

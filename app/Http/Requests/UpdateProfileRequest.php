@@ -23,7 +23,6 @@ class UpdateProfileRequest extends FormRequest
         $userId = Auth::id();
 
         return [
-            'type' => 'required|string|in:personal,business',
             'display_name' => 'nullable|string|max:255',
             'name' => 'required|string|max:255',
             'dob_day' => 'required|integer|between:1,31',
@@ -42,8 +41,6 @@ class UpdateProfileRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'type.required' => 'Loại tài khoản không được để trống.',
-            'type.in' => 'Loại tài khoản không hợp lệ.',
             'name.required' => 'Họ và tên không được để trống.',
             'dob_day.required' => 'Ngày sinh không được để trống.',
             'dob_month.required' => 'Tháng sinh không được để trống.',

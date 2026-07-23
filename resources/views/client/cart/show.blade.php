@@ -323,8 +323,8 @@
 
                         </div>
                         <div class="flex-1 bg-white rounded-[10px] p-1 flex items-center justify-between h-[54px] ml-3">
-                            <input type="text" placeholder="Nhập mã khuyến mại" class="flex-1 pl-10 py-1.5 text-xs sm:text-sm text-4 placeholder-4 focus:outline-none focus:ring-0">
-                            <button class="bg-6 hover:bg-blue-600 text-white p-2 rounded-[8px] text-xs sm:text-sm transition-colors cursor-pointer shrink-0">Áp dụng</button>
+                            <input type="text" id="coupon_code_input" placeholder="Nhập mã khuyến mại" class="flex-1 pl-10 py-1.5 text-xs sm:text-sm text-4 placeholder-4 focus:outline-none focus:ring-0">
+                            <button type="button" id="btn_apply_coupon" class="bg-6 hover:bg-blue-600 text-white p-2 rounded-[8px] text-xs sm:text-sm transition-colors cursor-pointer shrink-0">Áp dụng</button>
                         </div>
                     </div>
                     <a href="#" class="text-6 text-sm font-semibold hover:underline block mt-3.5">Xem thêm mã khuyến mại</a>
@@ -361,12 +361,18 @@
                         <!-- <div class="flex justify-between">
                             <span class="text-3 font-medium">Thuế GTGT (VAT)</span>
                             <span class="text-3 font-medium">300.000đ</span>
+                        </div>-->
+                        @php $appliedCoupon = session('applied_coupon'); @endphp
+                        <div id="discount_row" class="flex justify-between items-center {{ $appliedCoupon ? '' : 'hidden' }}">
+                            <div class="flex items-center gap-1.5">
+                                <span class="text-3 font-medium">Mã giảm giá (<span id="coupon_code_display">{{ $appliedCoupon['code'] ?? '' }}</span>)</span>
+
+                                <!-- Nút Hủy ở đây -->
+                                <button type="button" id="btn_remove_coupon" class="text-xs text-red-500 hover:underline cursor-pointer font-semibold ml-1">(Hủy)</button>
+                            </div>
+                            <span class="text-red-500 font-semibold" id="discount_amount_display">-{{ number_format($appliedCoupon['discount_amount'] ?? 0, 0, ',', '.') }} đ</span>
                         </div>
-                        <div class="flex justify-between">
-                            <span class="text-3 font-medium">Áp dụng mã giảm giá</span>
-                            <span class="text-3 font-medium">300.000đ</span>
-                        </div>
-                        <div class="flex justify-between">
+                        <!-- <div class="flex justify-between">
                             <span class="text-3 font-medium">Áp dụng điểm thưởng</span>
                             <span class="text-3 font-medium">300.000đ</span>
                         </div> -->
