@@ -30,7 +30,7 @@ class OrderService extends BaseService implements OrderServiceInterface
         $this->couponService = $couponService;
     }
     #[Override]
-    public function create(array $data, Request $request)
+    public function create(array $data)
     {
         return DB::transaction(function () use ($data) {
             $cartItems = $this->cartService->getCart();
@@ -116,7 +116,8 @@ class OrderService extends BaseService implements OrderServiceInterface
             throw new \Exception('Chỉ có thể hủy đơn hàng đang chờ xử lý.');
         }
 
-        return $this->repository->updateStatus($orderId, 'cancelled');
+
+        return $this->updateOrderStatus($orderId, 'cancelled');
     }
 
     /**
@@ -159,5 +160,29 @@ class OrderService extends BaseService implements OrderServiceInterface
                 ->filter(fn($o) => Carbon::parse($o->created_at)->isSameMonth($now))
                 ->count(),
         ];
+    }
+
+    public function getPaginatedOrdersAdmin(Request $request, int $perPage = 10)
+    {
+        return $this->repository->getPaginatedOrdersAdmin($request, $perPage);
+    }
+
+    public function updateOrderStatus(int $orderId, string $status): bool
+    {
+        return DB::transaction(function () use ($orderId, $status) {
+            $order = $this->repository->findOrFail($orderId);
+            $oldStatus = $order->status;
+
+            if ($status === 'cancelled' && $oldStatus !== 'cancelled') {
+                foreach ($order->items as $item) {
+                    $product = $item->product;
+                    if ($product) {
+                        $product->increment('stock', $item->quantity);
+                    }
+                }
+            }
+
+            return $this->repository->updateStatus($orderId, $status);
+        });
     }
 }

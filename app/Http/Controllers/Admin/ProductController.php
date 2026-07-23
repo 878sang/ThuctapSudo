@@ -42,7 +42,7 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request)
     {
         $data = $request->validated();
-        $this->productService->create($data, $request);
+        $this->productService->create($data);
         return redirect()->route('admin.products.index')->with('success', 'Thêm sản phẩm thành công!');
     }
     public function show(string $slug, string $id)
@@ -65,7 +65,7 @@ class ProductController extends Controller
     {
         $data = $request->validated();
 
-        $this->productService->update($data, $request, $id);
+        $this->productService->update($data, $id);
         return redirect()->route('admin.products.index')->with('success', 'Cập nhật thông tin sản phẩm thành công!');
     }
 

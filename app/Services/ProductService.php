@@ -23,7 +23,7 @@ class ProductService extends BaseService implements ProductServiceInterface
     public function getFilteredProducts(Request $request, int $perPage = 10)
     {
         $filters = $request->only(['category', 'status', 'brand', 'sort', 'search', 'action']);
-        return $this->repository->getFilteredProducts($filters, $perPage);;
+        return $this->repository->getFilteredProducts($filters, $perPage);
     }
     public function deleteByCategoryId(int $categoryId)
     {
@@ -51,15 +51,15 @@ class ProductService extends BaseService implements ProductServiceInterface
         }
         return $slug;
     }
-    protected function validatePublish(array &$data, Request $request, ?Product $product = null, $avatarName = null)
+    protected function validatePublish(array &$data, ?Product $product = null, $avatarName = null)
     {
-        if ($request->status == Product::STATUS_ACTIVE) {
+        if (request()->status == Product::STATUS_ACTIVE) {
             if (($data['stock'] ?? $product->stock) <= 0) {
                 throw ValidationException::withMessages([
                     'stock' => 'Không thể xuất bản sản phẩm khi hết hàng.'
                 ]);
             }
-            if ($avatarName == null && $request->hasFile('thumbnail') == null) {
+            if ($avatarName == null && request()->hasFile('thumbnail') == null) {
                 throw ValidationException::withMessages([
                     'thumbnail' => 'Không thể xuất bản sản phẩm khi chưa có ảnh đại diện.'
                 ]);
@@ -68,26 +68,26 @@ class ProductService extends BaseService implements ProductServiceInterface
         }
     }
     #[Override]
-    public function create(array $data, Request $request)
+    public function create(array $data)
     {
-        $data['slug'] = $this->generateSlug($request->name);
-        $this->validatePublish($data, $request);
-        $data['thumbnail'] = $this->uploadFile($request, 'thumbnail', 'images');
-        $data['gallery'] = $this->uploadMultipleFiles($request, 'gallery', 'products', $product->gallery ?? []);
-        $product = parent::create($data, $request);
-        $this->syncSpecifications($product, $request->input('specs', []));
+        $data['slug'] = $this->generateSlug($data['name']);
+        $this->validatePublish($data);
+        $data['thumbnail'] = $this->uploadFile(request(), 'thumbnail', 'images');
+        $data['gallery'] = $this->uploadMultipleFiles(request(), 'gallery', 'products', $product->gallery ?? []);
+        $product = parent::create($data);
+        $this->syncSpecifications($product, request()->input('specs', []));
         return $product;
     }
     #[Override]
-    public function update(array $data, Request $request, int $id)
+    public function update(array $data, int $id)
     {
         $product = $this->repository->findOrFail($id);
-        $this->validatePublish($data, $request, $product, $product->thumbnail);
-        $data['thumbnail'] = $this->uploadFile($request, 'thumbnail', 'images', $product->thumbnail);
-        $data['gallery'] = $this->uploadMultipleFiles($request, 'gallery', 'products', $product->gallery ?? []);
-        $data['slug'] = $this->generateSlug($request->name);
-        $result = parent::update($data, $request, $id);
-        $this->syncSpecifications($product, $request->input('specs', []));
+        $this->validatePublish($data, $product, $product->thumbnail);
+        $data['thumbnail'] = $this->uploadFile(request(), 'thumbnail', 'images', $product->thumbnail);
+        $data['gallery'] = $this->uploadMultipleFiles(request(), 'gallery', 'products', $product->gallery ?? []);
+        $data['slug'] = $this->generateSlug($data['name']);
+        $result = parent::update($data, $id);
+        $this->syncSpecifications($product, request()->input('specs', []));
         return $result;
     }
 
@@ -105,13 +105,13 @@ class ProductService extends BaseService implements ProductServiceInterface
         $product->specifications()->sync($syncData);
     }
     #[Override]
-    public function delete(int $id, ?Request $request = null)
+    public function delete(int $id, array $options = [])
     {
         $data = $this->repository->withTrashed($id);
         if ($data->deleted_at) {
             $this->repository->forceDelete($id);
             return redirect()->route('admin.products.index')->with('success', 'Xóa sản phẩm vĩnh viễn thành công!');
         }
-        return parent::delete($id, $request);
+        return parent::delete($id);
     }
 }

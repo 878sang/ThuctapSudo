@@ -24,17 +24,17 @@ class CouponService extends BaseService implements CouponServiceInterface
         return $this->repository->getFilteredCoupons($request, $perPage);
     }
 
-    public function create(array $data, Request $request)
+    public function create(array $data)
     {
         $data['code'] = strtoupper($data['code']);
-        $data['is_active'] = $request->has('is_active') ? (bool)$request->is_active : true;
+        $data['is_active'] = isset($data['is_active']) ? (bool)$data['is_active'] : true;
         return $this->repository->create($data);
     }
 
-    public function update(array $data, Request $request, int $id)
+    public function update(array $data, int $id)
     {
         $data['code'] = strtoupper($data['code']);
-        $data['is_active'] = $request->has('is_active') ? (bool)$request->is_active : false;
+        $data['is_active'] = isset($data['is_active']) ? (bool)$data['is_active'] : false;
         return $this->repository->update($data, $id);
     }
 

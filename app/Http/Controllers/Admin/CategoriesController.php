@@ -40,7 +40,7 @@ class CategoriesController extends Controller
     public function store(StoreCategoryRequest $request)
     {
         $data = $request->validated();
-        $this->categoryService->create($data, $request);
+        $this->categoryService->create($data);
         return redirect()->route('admin.categories.index')->with('success', 'Danh mục đã được thêm thành công!');
     }
     public function edit($id)
@@ -51,7 +51,7 @@ class CategoriesController extends Controller
     public function update(UpdateCategoryRequest $request, int  $id)
     {
         $data = $request->validated();
-        $this->categoryService->update($data, $request, $id);
+        $this->categoryService->update($data, $id);
         return redirect()->route('admin.categories.index')->with('success', 'Category updated successfully.');
     }
     public function restore($id)
@@ -71,7 +71,7 @@ class CategoriesController extends Controller
     }
     public function destroy(Request $request, $id)
     {
-        $this->categoryService->delete($id, $request);
+        $this->categoryService->delete($id, $request->only(['option', 'new_category_id']));
         return response()->json([
             'success' => true
         ]);

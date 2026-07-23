@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\AdminLoginRequest;
 use App\Http\Requests\ClientLoginRequest;
-use App\Http\Requests\ClientRegisterRequest;
+use App\Http\Requests\RegisterRequest;
 use App\Services\Interfaces\UserServiceInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -35,7 +35,10 @@ class AuthController extends Controller
     public function showAdminLoginForm()
     {
         if (Auth::check() && in_array(Auth::user()->role, ['super_admin', 'staff'])) {
-            return redirect()->intended('admin/products');
+            if (Auth::user()->role === 'staff') {
+                return redirect()->route('admin.products.index');
+            }
+            return redirect()->route('admin.categories.index');
         }
         return view('auth.login');
     }
@@ -69,9 +72,9 @@ class AuthController extends Controller
         if ($this->userService->loginAdmin($credentials, $remember)) {
             $request->session()->regenerate();
             if (Auth::user()->role === 'staff') {
-                return redirect()->intended('admin/products');
+                return redirect()->route('admin.products.index');
             }
-            return redirect()->intended('admin/categories');
+            return redirect()->route('admin.categories.index');
         }
 
         return back()->withErrors([
@@ -92,22 +95,16 @@ class AuthController extends Controller
         return view('client.auth.register_success');
     }
 
-    /**
-     * Xử lý đăng ký cho Khách hàng
-     */
-    public function registerClient(ClientRegisterRequest $request)
+    public function register(RegisterRequest $request)
     {
         $data = $request->validated();
 
-        $user = $this->userService->registerClient($data);
+        $user = $this->userService->create($data);
         Auth::login($user);
 
         return redirect()->route('register.success');
     }
 
-    /**
-     * Xử lý Đăng xuất chung cho cả hệ thống
-     */
     public function logout(Request $request)
     {
         $isAdmin = Auth::check() && in_array(Auth::user()->role, ['super_admin', 'staff']);

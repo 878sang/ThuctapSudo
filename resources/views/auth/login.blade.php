@@ -37,7 +37,7 @@
 
     <div class="mt-10 sm:mx-auto sm:w-full sm:max-w-[440px] px-4">
         <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 px-6 py-10 shadow-2xl rounded-3xl sm:px-10">
-            <form class="space-y-6" action="/login" method="POST">
+            <form class="space-y-6" action="/admin/login" method="POST">
                 @csrf
                 <div>
                     <label for="email" class="block text-sm font-semibold text-slate-200">Địa chỉ Email</label>

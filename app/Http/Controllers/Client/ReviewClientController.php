@@ -25,7 +25,7 @@ class ReviewClientController extends Controller
             $validated['user_id'] = Auth::id();
         }
         $product = \App\Models\Product::findOrFail($productId);
-        $this->reviewService->create($validated, $request);
+        $this->reviewService->create($validated);
         return redirect()->route('products.detailClient', [$product->slug, $productId])->with('success', 'Đánh giá thành công');
     }
     public function updateReview(UpdateReviewRequest $request, $id)
@@ -35,7 +35,7 @@ class ReviewClientController extends Controller
         if (!Auth::check() || !$review || $review->user_id !== Auth::id()) {
             abort(403, 'Bạn không có quyền chỉnh sửa đánh giá này.');
         }
-        $this->reviewService->update($validated, $request, $id);
+        $this->reviewService->update($validated, $id);
 
         return redirect()->back()->with('success', 'Cập nhật đánh giá thành công!');
     }

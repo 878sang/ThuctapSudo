@@ -6,12 +6,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\BrandController;
 use App\Http\Controllers\Admin\CouponController;
+use App\Http\Controllers\Admin\UserAdminController;
 use App\Http\Controllers\Client\CategoriesClientController;
 use App\Http\Controllers\Client\ProductClientController;
 use App\Http\Controllers\Client\CartClientController;
 use App\Http\Controllers\Client\CheckoutController;
 use App\Http\Controllers\Client\ReviewClientController;
 use App\Http\Controllers\Client\ProfileController;
+use App\Http\Controllers\Admin\OrderController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -73,7 +75,7 @@ Route::prefix('admin')->name('admin.')->group(function () {
     Route::post('/login', [AuthController::class, 'loginAdmin']);
 });
 
-Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
+Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
     Route::prefix('categories')->middleware('role')->group(function () {
         Route::get('/', [CategoriesController::class, 'index'])->name('categories.index');
@@ -113,5 +115,19 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::get('/{id}/edit', [CouponController::class, 'edit'])->name('coupons.edit');
         Route::put('/{id}', [CouponController::class, 'update'])->name('coupons.update');
         Route::delete('/{id}', [CouponController::class, 'destroy'])->name('coupons.destroy');
+    });
+    Route::prefix('users')->group(function () {
+        Route::get('/', [UserAdminController::class, 'index'])->name('users.index');
+        Route::get('/create', [UserAdminController::class, 'create'])->name('users.create');
+        Route::post('/', [UserAdminController::class, 'store'])->name('users.store');
+        Route::get('/{id}/edit', [UserAdminController::class, 'edit'])->name('users.edit');
+        Route::put('/{id}', [UserAdminController::class, 'update'])->name('users.update');
+        Route::patch('/{id}/restore', [UserAdminController::class, 'restore'])->name('users.restore');
+        Route::delete('/{id}', [UserAdminController::class, 'destroy'])->name('users.destroy');
+    });
+    Route::prefix('orders')->group(function () {
+        Route::get('/', [OrderController::class, 'index'])->name('orders.index');
+        Route::get('/{id}', [OrderController::class, 'show'])->name('orders.show');
+        Route::put('/{id}/status', [OrderController::class, 'updateStatus'])->name('orders.updateStatus');
     });
 });

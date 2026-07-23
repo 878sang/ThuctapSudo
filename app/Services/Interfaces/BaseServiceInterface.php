@@ -13,11 +13,11 @@ interface BaseServiceInterface
     public function findOrFail($id);
     public function onlyTrashed(int $id);
     public function withTrashed(int $id);
-    public function create(array $data, Request $request);
+    public function create(array $data);
     public function with(array $data);
     public function where(...$data);
-    public function update(array $data, Request $request, int $id);
-    public function delete(int $id, ?Request $request = null);
+    public function update(array $data, int $id);
+    public function delete(int $id, array $options = []);
     public function restore(int $id);
     public function forceDelete(int $id);
 }

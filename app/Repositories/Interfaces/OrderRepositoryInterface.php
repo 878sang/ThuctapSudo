@@ -5,6 +5,7 @@ namespace App\Repositories\Interfaces;
 use App\Models\Order;
 use Illuminate\Support\Collection;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Http\Request;
 
 interface OrderRepositoryInterface extends BaseRepositoryInterface
 {
@@ -32,4 +33,6 @@ interface OrderRepositoryInterface extends BaseRepositoryInterface
      * Tạo đơn hàng mới cùng với các items và trừ tồn kho sản phẩm
      */
     public function createOrderWithItems(array $orderData, array $cartItems): Order;
+
+    public function getPaginatedOrdersAdmin(Request $request, int $perPage = 10);
 }

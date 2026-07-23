@@ -35,11 +35,11 @@ class BaseService implements BaseServiceInterface
     {
         return $this->repository->findOrFail($id);
     }
-    public function create(array $data, Request $request)
+    public function create(array $data)
     {
         return $this->repository->create($data);
     }
-    public function update(array $data, Request $request, int $id)
+    public function update(array $data, int $id)
     {
         return $this->repository->update($data, $id);
     }
@@ -59,7 +59,7 @@ class BaseService implements BaseServiceInterface
     {
         return $this->repository->where(...$data);
     }
-    public function delete(int $id, ?Request $request = null)
+    public function delete(int $id, array $options = [])
     {
         return $this->repository->delete($id);
     }

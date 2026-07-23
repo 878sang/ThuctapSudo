@@ -1,6 +1,6 @@
 <aside id="sidebar" class=" min-h-screen  flex w-72 flex-col bg-slate-950 text-slate-200 border-r border-slate-800/80">
     <div class="flex-1 overflow-y-auto px-4 py-6 custom-scrollbar space-y-7">
-        @if(auth()->user()->role == 'super_admin')
+        @if(auth()->user()->isSuperAdmin())
         <div>
             <p class="px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Danh Mục Sản Phẩm</p>
             <div class="mt-3 space-y-1">
@@ -35,28 +35,51 @@
                     <span>Thêm Sản Phẩm</span>
                 </a>
             </div>
-        <div>
-            <p class="px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Khuyến Mãi</p>
-            <div class="mt-3 space-y-1">
-                <a href="{{ route('admin.coupons.index') }}" class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.coupons.*') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/10' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-100' }}">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10M7 11h10M7 15h10M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" />
-                    </svg>
-                    <span>Mã Giảm Giá</span>
-                </a>
+            <div>
+                <p class="px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Đơn Hàng</p>
+                <div class="mt-3 space-y-1">
+                    <a href="{{ route('admin.orders.index') }}" class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.orders.*') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/10' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-100' }}">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+                        </svg>
+                        <span>Quản Lý Đơn Hàng</span>
+                    </a>
+                </div>
+            </div>
+            <div>
+                <p class="px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Khuyến Mãi</p>
+                <div class="mt-3 space-y-1">
+                    <a href="{{ route('admin.coupons.index') }}" class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.coupons.*') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/10' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-100' }}">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10M7 11h10M7 15h10M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" />
+                        </svg>
+                        <span>Mã Giảm Giá</span>
+                    </a>
+                </div>
+            </div>
+            @if(auth()->user()->isSuperAdmin())
+            <div class="mt-6">
+                <p class="px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Hệ Thống</p>
+                <div class="mt-3 space-y-1">
+                    <a href="{{ route('admin.users.index') }}" class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.users.*') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/10' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-100' }}">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <span>Quản Lý Người Dùng</span>
+                    </a>
+                </div>
+            </div>
+            @endif
+            <div class="mt-6">
+                <form action="{{ route('admin.auth.logout') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="group flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-slate-400 hover:bg-slate-900 hover:text-slate-100">
+                        <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                        </svg>
+                        <span>Đăng Xuất</span>
+                    </button>
+                </form>
             </div>
         </div>
-        <div class="mt-6">
-            <form action="{{ route('admin.auth.logout') }}" method="POST">
-                @csrf
-                <button type="submit" class="group flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-slate-400 hover:bg-slate-900 hover:text-slate-100">
-                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                    </svg>
-                    <span>Đăng Xuất</span>
-                </button>
-            </form>
-        </div>
-    </div>
 </aside>
-

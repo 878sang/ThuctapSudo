@@ -4,7 +4,7 @@ namespace App\Repositories\Eloquent;
 
 use App\Models\Order;
 use App\Repositories\Interfaces\OrderRepositoryInterface;
-
+use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 
@@ -58,9 +58,9 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
             $search = trim($filters['search']);
             $query->where(function ($q) use ($search) {
                 $q->where('id', 'like', '%' . $search . '%')
-                  ->orWhereHas('items.product', function ($pq) use ($search) {
-                      $pq->where('name', 'like', '%' . $search . '%');
-                  });
+                    ->orWhereHas('items.product', function ($pq) use ($search) {
+                        $pq->where('name', 'like', '%' . $search . '%');
+                    });
             });
         }
 
@@ -104,12 +104,42 @@ class OrderRepository extends BaseRepository implements OrderRepositoryInterface
                     'quantity' => $item['quantity'],
                     'price' => $item['price'],
                 ]);
-                
+
                 // Trừ tồn kho
                 $item['product']->decrement('stock', $item['quantity']);
             }
 
             return $order;
         });
+    }
+    public function getPaginatedOrdersAdmin(Request $request, int $perPage = 10)
+    {
+        $query = $this->model->query()
+            ->with(['items.product', 'user'])
+            ->latest();
+
+        if (!empty($request->status) && $request->status !== 'all') {
+            $query->where('status', $request->status);
+        }
+
+        if (!empty($request->start_date)) {
+            $query->whereDate('created_at', '>=', $request->start_date);
+        }
+
+        if (!empty($request->end_date)) {
+            $query->whereDate('created_at', '<=', $request->end_date);
+        }
+
+        if (!empty($request->search)) {
+            $search = trim($request->search);
+            $query->where(function ($q) use ($search) {
+                $q->where('id', 'like', '%' . $search . '%')
+                    ->orWhereHas('items.product', function ($pq) use ($search) {
+                        $pq->where('name', 'like', '%' . $search . '%');
+                    });
+            });
+        }
+
+        return $query->paginate($perPage)->withQueryString();
     }
 }

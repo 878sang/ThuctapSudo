@@ -31,7 +31,7 @@ class BrandController extends Controller
     public function store(StoreBrandRequest $request)
     {
         $data = $request->validated();
-        $this->brandService->create($data, $request);
+        $this->brandService->create($data);
         return redirect()->route('admin.brands.index')->with('success', 'Tạo thương hiệu thành công.');
     }
 
@@ -50,7 +50,7 @@ class BrandController extends Controller
     public function update(UpdateBrandRequest $request, int  $id)
     {
         $data = $request->validated();
-        $this->brandService->update($data, $request, $id);
+        $this->brandService->update($data, $id);
         return redirect()->route('admin.brands.index')->with('success', 'Cập nhật thương hiệu thành công.');
     }
 

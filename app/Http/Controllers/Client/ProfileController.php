@@ -10,7 +10,7 @@ use App\Http\Requests\UpdateUserAddressRequest;
 use App\Services\Interfaces\UserAddressServiceInterface;
 use App\Services\Interfaces\OrderServiceInterface;
 use App\Services\Interfaces\UserServiceInterface;
-use App\Http\Requests\UpdateProfileRequest;
+use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\UpdatePasswordRequest;
 
 use App\Services\Interfaces\CouponServiceInterface;
@@ -124,9 +124,9 @@ class ProfileController extends Controller
     /**
      * Update the user profile information.
      */
-    public function updateInfo(UpdateProfileRequest $request)
+    public function updateInfo(UpdateUserRequest $request)
     {
-        $this->userService->updateProfile(Auth::id(), $request->validated());
+        $this->userService->update($request->validated(), Auth::id());
 
         return redirect()->back()->with('success', 'Cập nhật thông tin tài khoản thành công.');
     }

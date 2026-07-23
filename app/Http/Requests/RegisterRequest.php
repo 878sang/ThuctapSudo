@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class ClientRegisterRequest extends FormRequest
+class RegisterRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,11 +25,13 @@ class ClientRegisterRequest extends FormRequest
             'email' => 'required|string|email|max:255|unique:users,email',
             'phone' => 'required|string|max:20|unique:users,phone|regex:/^0[0-9]{9}$/',
             'password' => 'required|string|min:6|confirmed',
-            'day' => 'required|integer|between:1,31',
-            'month' => 'required|integer|between:1,12',
-            'year' => 'required|integer|min:1900|max:' . date('Y'),
+            'dob' => 'nullable|date',
+            'day' => 'required_without:dob|nullable|integer|between:1,31',
+            'month' => 'required_without:dob|nullable|integer|between:1,12',
+            'year' => 'required_without:dob|nullable|integer|min:1900|max:' . date('Y'),
             'gender' => 'required|string|in:Nam,Nữ,Khác',
             'avatar' => 'nullable|image|max:2048',
+            'role' => 'nullable|string|in:super_admin,staff,customer',
         ];
     }
 
@@ -55,6 +57,8 @@ class ClientRegisterRequest extends FormRequest
             'gender.required' => 'Giới tính là bắt buộc',
             'avatar.image' => 'Ảnh đại diện phải là định dạng hình ảnh',
             'avatar.max' => 'Ảnh đại diện không được vượt quá 2MB',
+            'role.required' => 'Vai trò là bắt buộc',
+            'role.in' => 'Vai trò không hợp lệ',
         ];
     }
 }

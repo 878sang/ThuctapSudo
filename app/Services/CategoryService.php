@@ -34,27 +34,27 @@ class CategoryService extends BaseService implements CategoryServiceInterface
         return $this->repository->getActiveWithChildren();
     }
     #[Override]
-    public function create(array $data, Request $request)
+    public function create(array $data)
     {
-        $data['avatar'] = $this->uploadFile($request, 'avatar', 'images');
-        $data['slug'] = Str::slug($request->name);
-        return parent::create($data, $request);
+        $data['avatar'] = $this->uploadFile(request(), 'avatar', 'images');
+        $data['slug'] = Str::slug($data['name']);
+        return parent::create($data);
     }
     #[Override]
-    public function update(array $data,  Request $request, int $id)
+    public function update(array $data, int $id)
     {
         $category = $this->repository->findOrFail($id);
-        $data['avatar'] = $this->uploadFile($request, 'avatar', 'images', $category->avatar);
-        $data['slug'] = Str::slug($request->name);
-        return parent::update($data, $request, $id);
+        $data['avatar'] = $this->uploadFile(request(), 'avatar', 'images', $category->avatar);
+        $data['slug'] = Str::slug($data['name']);
+        return parent::update($data, $id);
     }
     #[Override]
-    public function delete(int $id, ?Request $request = null)
+    public function delete(int $id, array $options = [])
     {
         $category = $this->repository->withTrashed($id);
-        $option = $request->option;
+        $option = $options['option'] ?? null;
         if ($option === 'move_products_and_delete_category') {
-            $this->productService->moveProductsToNewCategory($id, $request->new_category_id);
+            $this->productService->moveProductsToNewCategory($id, $options['new_category_id'] ?? null);
         }
         if ($option === 'delete_products_and_category') {
             $this->productService->deleteByCategoryId($id);
@@ -62,6 +62,6 @@ class CategoryService extends BaseService implements CategoryServiceInterface
         if ($category->trashed()) {
             return  $this->repository->forceDelete($id);
         }
-        return parent::delete($id, $request);
+        return parent::delete($id, $options);
     }
 }

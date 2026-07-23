@@ -3,6 +3,7 @@
 namespace App\Services\Interfaces;
 
 use App\Services\Interfaces\BaseServiceInterface;
+use Illuminate\Http\Request;
 
 interface OrderServiceInterface extends BaseServiceInterface
 {
@@ -22,4 +23,8 @@ interface OrderServiceInterface extends BaseServiceInterface
      * Lấy danh sách đơn hàng của user đã phân trang và lọc từ Backend.
      */
     public function getPaginatedOrdersByUser(int $userId, array $filters = [], int $perPage = 10);
+
+    public function getPaginatedOrdersAdmin(Request $request, int $perPage = 10);
+
+    public function updateOrderStatus(int $orderId, string $status): bool;
 }

@@ -24,7 +24,7 @@ class CheckoutController extends Controller
     {
         $data = $request->validated();
         try {
-            $order = $this->orderService->create($data, $request);
+            $order = $this->orderService->create($data);
 
             session()->forget('buy_now_cart');
 

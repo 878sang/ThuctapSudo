@@ -31,7 +31,7 @@ class CouponController extends Controller
     public function store(StoreCouponRequest $request)
     {
         $data = $request->validated();
-        $this->couponService->create($data, $request);
+        $this->couponService->create($data);
         return redirect()->route('admin.coupons.index')->with('success', 'Tạo mã giảm giá thành công.');
     }
 
@@ -44,7 +44,7 @@ class CouponController extends Controller
     public function update(UpdateCouponRequest $request, int $id)
     {
         $data = $request->validated();
-        $this->couponService->update($data, $request, $id);
+        $this->couponService->update($data, $id);
         return redirect()->route('admin.coupons.index')->with('success', 'Cập nhật mã giảm giá thành công.');
     }
 

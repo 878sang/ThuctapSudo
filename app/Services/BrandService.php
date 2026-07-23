@@ -22,29 +22,29 @@ class BrandService extends BaseService implements BrandServiceInterface
         return $this->repository->getFilteredBrands($request, $perPage);
     }
     #[Override]
-    public function create(array $data, Request $request)
+    public function create(array $data)
     {
-        $data['logo'] = $this->uploadFile($request, 'logo', 'images');
-        $data['slug'] = Str::slug($request->name);
-        return parent::create($data, $request);
+        $data['logo'] = $this->uploadFile(request(), 'logo', 'images');
+        $data['slug'] = Str::slug($data['name']);
+        return parent::create($data);
     }
     #[Override]
-    public function update(array $data,  Request $request, int $id)
+    public function update(array $data, int $id)
     {
         $brand = $this->repository->findOrFail($id);
-        $data['logo'] = $this->uploadFile($request, 'logo', 'images', $brand->logo);
-        $data['slug'] = Str::slug($request->name);
-        return parent::update($data, $request, $id);
+        $data['logo'] = $this->uploadFile(request(), 'logo', 'images', $brand->logo);
+        $data['slug'] = Str::slug($data['name']);
+        return parent::update($data, $id);
     }
     #[Override]
-    public function delete(int $id, ?Request $request = null)
+    public function delete(int $id, array $options = [])
     {
         $data = $this->repository->withTrashed($id);
         if ($data->deleted_at) {
             $this->repository->forceDelete($id);
             return redirect()->route('admin.brands.index')->with('success', 'Xóa thương hiệu vĩnh viễn thành công!');
         }
-        return parent::delete($id, $request);
+        return parent::delete($id);
     }
 }
 

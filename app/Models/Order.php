@@ -71,14 +71,14 @@ class Order extends Model
     public function getStatusLabelAttribute(): string
     {
         return match ($this->status) {
-            'pending'    => 'Đang xử lý',
-            'processing' => 'Đã đóng gói',
-            'shipped'    => 'Đang vận chuyển',
-            'delivered'  => 'Đã giao hàng',
-            'paid'       => 'Đã thanh toán',
+            'pending'    => 'Tạo đơn hàng',
+            'processing' => 'Đóng gói',
+            'shipped'    => 'Vận chuyển',
+            'delivered'  => 'Giao hàng',
+            'paid'       => 'Thanh toán',
             'completed'  => 'Hoàn tất',
             'cancelled'  => 'Đã hủy',
-            default      => 'Đang xử lý',
+            default      => 'Tạo đơn hàng',
         };
     }
 
