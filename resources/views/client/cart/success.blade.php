@@ -15,6 +15,9 @@
             <p><span class="text-gray-400">Người nhận:</span> <strong class="text-gray-800">{{ $order->customer_name }}</strong></p>
             <p><span class="text-gray-400">Số điện thoại:</span> <strong class="text-gray-800">{{ $order->customer_phone }}</strong></p>
             <p><span class="text-gray-400">Địa chỉ giao hàng:</span> <strong class="text-gray-800">{{ $order->customer_address }}</strong></p>
+            @if($order->coupon_code)
+            <p><span class="text-gray-400">Mã giảm giá áp dụng:</span> <strong class="text-blue-600">{{ $order->coupon_code }}</strong> <span class="text-red-500 font-semibold">(-{{ number_format($order->discount_amount, 0, ',', '.') }} đ)</span></p>
+            @endif
             <p><span class="text-gray-400">Tổng thanh toán:</span> <strong class="text-[#EB7507]">{{ number_format($order->total_price, 0, ',', '.') }} đ</strong></p>
             <p><span class="text-gray-400">Phương thức thanh toán:</span> 
                 <strong class="text-gray-800">

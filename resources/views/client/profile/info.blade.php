@@ -20,6 +20,7 @@
             {{-- Right Content --}}
             <main class="w-full lg:w-[73%] flex flex-col gap-6">
                 <div class="bg-white rounded-[10px] shadow-sm p-6" x-data="{
+                    type: '{{ old('type', $user->type ?? 'personal') }}',
                     displayName: '{{ old('display_name', $user->display_name ?? '') }}',
                     fullName: '{{ old('name', $user->name ?? '') }}',
                     email: '{{ old('email', $user->email ?? '') }}',
@@ -36,10 +37,17 @@
                 }">
                     <h2 class="text-[22px] font-bold text-gray-800 mb-6">Thông tin tài khoản</h2>
 
+
                     <form action="{{ route('profile.info.update') }}" method="POST" enctype="multipart/form-data">
                         @csrf
+                        <input type="hidden" name="type" :value="type">
 
-                        {{-- Avatar Upload Section --}}
+                        <div class="flex items-center gap-6 mb-6">
+                            <x-radio-button model="type" value="personal" label="Tài khoản cá nhân" />
+                            <x-radio-button model="type" value="business" label="Tài khoản doanh nghiệp" />
+                        </div>
+                        <x-form-error name="type" />
+
                         <div class="relative w-28 h-28 mb-8">
                             <div class="w-full h-full rounded-full overflow-hidden border border-gray-200 shadow-sm bg-gray-100">
                                 <img :src="avatarPreview" class="w-full h-full object-cover" alt="Avatar">
@@ -51,6 +59,7 @@
                                 <input type="file" id="avatar-input" name="avatar" class="hidden" accept="image/*" @change="previewAvatar($event)">
                             </label>
                         </div>
+                        <x-form-error name="avatar" />
 
                         {{-- Form Layout Grid --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -71,6 +80,7 @@
                                             </svg>
                                         </button>
                                     </div>
+                                    <x-form-error name="display_name" />
                                 </div>
 
                                 {{-- Tên đầy đủ --}}
@@ -87,6 +97,7 @@
                                             </svg>
                                         </button>
                                     </div>
+                                    <x-form-error name="name" />
                                 </div>
 
                                 {{-- Sinh nhật --}}
@@ -137,6 +148,9 @@
                                             </select>
                                         </div>
                                     </div>
+                                    <x-form-error name="dob_day" />
+                                    <x-form-error name="dob_month" />
+                                    <x-form-error name="dob_year" />
                                 </div>
 
                                 {{-- Giới tính --}}
@@ -177,6 +191,7 @@
                                             <span class="text-base font-semibold text-gray-800">Khác</span>
                                         </label>
                                     </div>
+                                    <x-form-error name="gender" />
                                 </div>
                             </div>
 
@@ -196,6 +211,7 @@
                                             </svg>
                                         </button>
                                     </div>
+                                    <x-form-error name="email" />
                                 </div>
 
                                 {{-- Số điện thoại --}}
@@ -212,6 +228,7 @@
                                             </svg>
                                         </button>
                                     </div>
+                                    <x-form-error name="phone" />
                                 </div>
 
                                 {{-- Buttons: Save & Cancel --}}

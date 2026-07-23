@@ -7,16 +7,19 @@ use App\Services\Interfaces\CartServiceInterface;
 use Illuminate\Http\Request;
 use App\Services\Interfaces\UserAddressServiceInterface;
 use Illuminate\Support\Facades\Auth;
+use App\Services\Interfaces\CouponServiceInterface;
 
 class CartClientController extends Controller
 {
     protected CartServiceInterface $cartService;
     protected UserAddressServiceInterface $userAddressService;
+    protected CouponServiceInterface $couponService;
 
-    public function __construct(CartServiceInterface $cartService, UserAddressServiceInterface $userAddressService)
+    public function __construct(CartServiceInterface $cartService, UserAddressServiceInterface $userAddressService, CouponServiceInterface $couponService)
     {
         $this->userAddressService = $userAddressService;
         $this->cartService = $cartService;
+        $this->couponService = $couponService;
     }
 
     public function cartClient()
@@ -25,6 +28,8 @@ class CartClientController extends Controller
         $checkoutItems = $this->cartService->getCart();
         $totalPrice = $this->cartService->getTotalPrice();
         $defaultAddress = $this->userAddressService->getDefaultAddressForUser(Auth::id());
+
+        $this->couponService->getAppliedCoupon($totalPrice);
 
         return view('client.cart.show', compact('cartItems', 'checkoutItems', 'totalPrice', 'defaultAddress'));
     }
@@ -112,5 +117,36 @@ class CartClientController extends Controller
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
+    }
+
+    public function applyCoupon(Request $request)
+    {
+        try {
+            $code = $request->input('coupon_code');
+            $totalPrice = $this->cartService->getTotalPrice();
+            $result = $this->couponService->applyCoupon($code, $totalPrice, Auth::id());
+            return response()->json([
+                'success' => true,
+                'message' => 'Áp dụng mã giảm giá thành công!',
+                'discount_amount' => number_format($result['discount_amount'], 0, ',', '.') . ' đ',
+                'new_total' => number_format($result['new_total'], 0, ',', '.') . ' đ',
+                'coupon' => $result['coupon']
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 400);
+        }
+    }
+    public function removeCoupon()
+    {
+        $this->couponService->removeCoupon();
+        $totalPrice = $this->cartService->getTotalPrice();
+        return response()->json([
+            'success' => true,
+            'message' => 'Đã hủy mã giảm giá.',
+            'total_price' => number_format($totalPrice, 0, ',', '.') . ' đ'
+        ]);
     }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\Admin\ProductController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\BrandController;
+use App\Http\Controllers\Admin\CouponController;
 use App\Http\Controllers\Client\CategoriesClientController;
 use App\Http\Controllers\Client\ProductClientController;
 use App\Http\Controllers\Client\CartClientController;
@@ -34,6 +35,8 @@ Route::prefix('cart')->group(function () {
     Route::post('/add', [CartClientController::class, 'add'])->name('cart.add');
     Route::post('/update', [CartClientController::class, 'update'])->name('cart.update');
     Route::post('/remove', [CartClientController::class, 'remove'])->name('cart.remove');
+    Route::post('/apply-coupon', [CartClientController::class, 'applyCoupon'])->name('cart.applyCoupon');
+    Route::post('/remove-coupon', [CartClientController::class, 'removeCoupon'])->name('cart.removeCoupon');
 });
 
 Route::post('/buy-now', [CartClientController::class, 'buyNow'])->name('cart.buyNow');
@@ -102,5 +105,13 @@ Route::middleware('auth')->prefix('admin')->name('admin.')->group(function () {
         Route::put('/{id}', [BrandController::class, 'update'])->name('brands.update');
         Route::patch('/{id}/restore', [BrandController::class, 'restore'])->name('brands.restore');
         Route::delete('/{id}', [BrandController::class, 'destroy'])->name('brands.destroy');
+    });
+    Route::prefix('coupons')->group(function () {
+        Route::get('/', [CouponController::class, 'index'])->name('coupons.index');
+        Route::get('/create', [CouponController::class, 'create'])->name('coupons.create');
+        Route::post('/', [CouponController::class, 'store'])->name('coupons.store');
+        Route::get('/{id}/edit', [CouponController::class, 'edit'])->name('coupons.edit');
+        Route::put('/{id}', [CouponController::class, 'update'])->name('coupons.update');
+        Route::delete('/{id}', [CouponController::class, 'destroy'])->name('coupons.destroy');
     });
 });

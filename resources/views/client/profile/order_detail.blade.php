@@ -258,18 +258,20 @@
                 </div>
                 <div class="text-sm space-y-3 px-2">
                     <div class="flex justify-between items-center">
-                        <span class="text-[#959595]">Tổng</span>
-                        <span class="font-medium text-2">{{ number_format($order->subtotal ?? 0, 0, ',', '.') }}đ</span>
+                        <span class="text-[#959595]">Tổng tiền hàng</span>
+                        <span class="font-medium text-2">{{ number_format(($order->total_price + $order->discount_amount), 0, ',', '.') }}đ</span>
                     </div>
+                    @if($order->coupon_code)
                     <div class="flex justify-between items-center">
-                        <span class="text-[#959595]">Áp dụng mã giảm giá</span>
-                        <span class="font-medium text-2">{{ number_format($order->discount_amount ?? 0, 0, ',', '.') }}đ</span>
+                        <span class="text-[#959595]">Giảm giá (Mã: <strong class="text-blue-600">{{ $order->coupon_code }}</strong>)</span>
+                        <span class="font-medium text-red-500">-{{ number_format($order->discount_amount ?? 0, 0, ',', '.') }}đ</span>
                     </div>
+                    @endif
                     <div class="border-b border-dashed border-gray-300 my-4"></div>
 
                     <div class="flex justify-between items-center pt-1">
                         <span class="font-bold text-2">Tổng tiền cần thanh toán</span>
-                        <span class="font-bold text-[#FF5722] text-sm sm:text-base">{{ number_format($order->total_price ?? 5450000, 0, ',', '.') }}đ</span>
+                        <span class="font-bold text-[#FF5722] text-sm sm:text-base">{{ number_format($order->total_price, 0, ',', '.') }}đ</span>
                     </div>
 
                     <div class="pt-3">

@@ -1,5 +1,4 @@
 function showToast(message, type = 'success') {
-    // Tạo container chứa Toast nếu chưa có
     let container = document.getElementById('toast-container');
     if (!container) {
         container = document.createElement('div');
@@ -8,7 +7,6 @@ function showToast(message, type = 'success') {
         document.body.appendChild(container);
     }
 
-    // Tạo khối Toast
     const toast = document.createElement('div');
     toast.className = `min-w-[280px] max-w-sm bg-white border-l-4 rounded shadow-lg p-4 flex items-center gap-3 transition-all duration-300 transform translate-y-2 opacity-0 pointer-events-auto`;
 
@@ -33,7 +31,6 @@ function showToast(message, type = 'success') {
         </button>
     `;
 
-    // Sự kiện nút đóng
     toast.querySelector('button').addEventListener('click', () => {
         toast.classList.add('translate-y-2', 'opacity-0');
         setTimeout(() => toast.remove(), 300);
@@ -41,12 +38,10 @@ function showToast(message, type = 'success') {
 
     container.appendChild(toast);
 
-    // Kích hoạt hiệu ứng trượt và mờ
     setTimeout(() => {
         toast.classList.remove('translate-y-2', 'opacity-0');
     }, 10);
 
-    // Tự động biến mất sau 3 giây
     setTimeout(() => {
         if (toast.parentNode) {
             toast.classList.add('translate-y-2', 'opacity-0');
@@ -305,3 +300,111 @@ function validateCheckoutStep2(alpineData, url) {
         });
 }
 window.validateCheckoutStep2 = validateCheckoutStep2;
+
+document.addEventListener('DOMContentLoaded', function () {
+    const btnApply = document.getElementById('btn_apply_coupon');
+    const btnRemove = document.getElementById('btn_remove_coupon');
+    const inputCoupon = document.getElementById('coupon_code_input');
+
+    // Sự kiện nút Áp Dụng Mã
+    if (btnApply) {
+        btnApply.onclick = function (e) {
+            e.preventDefault();
+            if (btnApply.disabled || btnApply.dataset.submitting === "true") return;
+
+            const code = inputCoupon.value ? inputCoupon.value.trim() : '';
+            if (!code) {
+                showToast('Vui lòng nhập mã giảm giá!', 'error');
+                return;
+            }
+
+            btnApply.dataset.submitting = "true";
+            btnApply.disabled = true;
+
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+
+            fetch("/cart/apply-coupon", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": token
+                },
+                body: JSON.stringify({
+                    coupon_code: code,
+                    mode: mode
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message || 'Áp dụng mã giảm giá thành công!', 'success');
+
+                        const codeDisplay = document.getElementById('coupon_code_display');
+                        const amountDisplay = document.getElementById('discount_amount_display');
+                        const discountRow = document.getElementById('discount_row');
+
+                        if (codeDisplay) codeDisplay.innerText = data.coupon.code;
+                        if (amountDisplay) amountDisplay.innerText = '-' + data.discount_amount;
+                        if (discountRow) discountRow.classList.remove('hidden');
+
+                        document.querySelectorAll('.cart-total-payment').forEach(el => {
+                            el.innerText = data.new_total;
+                        });
+                    } else {
+                        showToast(data.message || 'Có lỗi xảy ra!', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error("Lỗi áp dụng mã:", error);
+                    showToast('Có lỗi xảy ra khi kết nối máy chủ!', 'error');
+                })
+                .finally(() => {
+                    btnApply.dataset.submitting = "false";
+                    btnApply.disabled = false;
+                });
+        };
+    }
+
+    // Sự kiện nút Hủy Mã
+    if (btnRemove) {
+        btnRemove.onclick = function (e) {
+            e.preventDefault();
+            const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
+
+            fetch("/cart/remove-coupon", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "X-CSRF-TOKEN": token
+                },
+                body: JSON.stringify({
+                    mode: mode
+                })
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message || 'Đã hủy mã giảm giá.', 'success');
+
+                        const discountRow = document.getElementById('discount_row');
+                        if (discountRow) discountRow.classList.add('hidden');
+                        if (inputCoupon) inputCoupon.value = '';
+
+                        document.querySelectorAll('.cart-total-payment').forEach(el => {
+                            el.innerText = data.total_price;
+                        });
+                    } else {
+                        showToast(data.message || 'Có lỗi xảy ra!', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error("Lỗi hủy mã:", error);
+                    showToast('Có lỗi xảy ra khi kết nối máy chủ!', 'error');
+                });
+        };
+    }
+});

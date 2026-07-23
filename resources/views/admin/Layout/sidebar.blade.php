@@ -35,9 +35,19 @@
                     <span>Thêm Sản Phẩm</span>
                 </a>
             </div>
+        <div>
+            <p class="px-3 text-xs font-semibold uppercase tracking-wider text-slate-500">Khuyến Mãi</p>
+            <div class="mt-3 space-y-1">
+                <a href="{{ route('admin.coupons.index') }}" class="group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 {{ request()->routeIs('admin.coupons.*') ? 'bg-indigo-600 text-white shadow-md shadow-indigo-600/10' : 'text-slate-400 hover:bg-slate-900 hover:text-slate-100' }}">
+                    <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h10M7 11h10M7 15h10M5 3h14a2 2 0 012 2v14a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2z" />
+                    </svg>
+                    <span>Mã Giảm Giá</span>
+                </a>
+            </div>
         </div>
         <div class="mt-6">
-            <form action="{{ route('auth.logout') }}" method="POST">
+            <form action="{{ route('admin.auth.logout') }}" method="POST">
                 @csrf
                 <button type="submit" class="group flex w-full items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 text-slate-400 hover:bg-slate-900 hover:text-slate-100">
                     <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
