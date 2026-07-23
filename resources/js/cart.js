@@ -322,6 +322,8 @@ document.addEventListener('DOMContentLoaded', function () {
             btnApply.disabled = true;
 
             const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
 
             fetch("/cart/apply-coupon", {
                 method: "POST",
@@ -329,36 +331,39 @@ document.addEventListener('DOMContentLoaded', function () {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": token
                 },
-                body: JSON.stringify({ coupon_code: code })
+                body: JSON.stringify({
+                    coupon_code: code,
+                    mode: mode
+                })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast(data.message || 'Áp dụng mã giảm giá thành công!', 'success');
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message || 'Áp dụng mã giảm giá thành công!', 'success');
 
-                    const codeDisplay = document.getElementById('coupon_code_display');
-                    const amountDisplay = document.getElementById('discount_amount_display');
-                    const discountRow = document.getElementById('discount_row');
+                        const codeDisplay = document.getElementById('coupon_code_display');
+                        const amountDisplay = document.getElementById('discount_amount_display');
+                        const discountRow = document.getElementById('discount_row');
 
-                    if (codeDisplay) codeDisplay.innerText = data.coupon.code;
-                    if (amountDisplay) amountDisplay.innerText = '-' + data.discount_amount;
-                    if (discountRow) discountRow.classList.remove('hidden');
+                        if (codeDisplay) codeDisplay.innerText = data.coupon.code;
+                        if (amountDisplay) amountDisplay.innerText = '-' + data.discount_amount;
+                        if (discountRow) discountRow.classList.remove('hidden');
 
-                    document.querySelectorAll('.cart-total-payment').forEach(el => {
-                        el.innerText = data.new_total;
-                    });
-                } else {
-                    showToast(data.message || 'Có lỗi xảy ra!', 'error');
-                }
-            })
-            .catch(error => {
-                console.error("Lỗi áp dụng mã:", error);
-                showToast('Có lỗi xảy ra khi kết nối máy chủ!', 'error');
-            })
-            .finally(() => {
-                btnApply.dataset.submitting = "false";
-                btnApply.disabled = false;
-            });
+                        document.querySelectorAll('.cart-total-payment').forEach(el => {
+                            el.innerText = data.new_total;
+                        });
+                    } else {
+                        showToast(data.message || 'Có lỗi xảy ra!', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error("Lỗi áp dụng mã:", error);
+                    showToast('Có lỗi xảy ra khi kết nối máy chủ!', 'error');
+                })
+                .finally(() => {
+                    btnApply.dataset.submitting = "false";
+                    btnApply.disabled = false;
+                });
         };
     }
 
@@ -367,34 +372,39 @@ document.addEventListener('DOMContentLoaded', function () {
         btnRemove.onclick = function (e) {
             e.preventDefault();
             const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+            const urlParams = new URLSearchParams(window.location.search);
+            const mode = urlParams.get('mode');
 
             fetch("/cart/remove-coupon", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": token
-                }
+                },
+                body: JSON.stringify({
+                    mode: mode
+                })
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    showToast(data.message || 'Đã hủy mã giảm giá.', 'success');
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast(data.message || 'Đã hủy mã giảm giá.', 'success');
 
-                    const discountRow = document.getElementById('discount_row');
-                    if (discountRow) discountRow.classList.add('hidden');
-                    if (inputCoupon) inputCoupon.value = '';
+                        const discountRow = document.getElementById('discount_row');
+                        if (discountRow) discountRow.classList.add('hidden');
+                        if (inputCoupon) inputCoupon.value = '';
 
-                    document.querySelectorAll('.cart-total-payment').forEach(el => {
-                        el.innerText = data.total_price;
-                    });
-                } else {
-                    showToast(data.message || 'Có lỗi xảy ra!', 'error');
-                }
-            })
-            .catch(error => {
-                console.error("Lỗi hủy mã:", error);
-                showToast('Có lỗi xảy ra khi kết nối máy chủ!', 'error');
-            });
+                        document.querySelectorAll('.cart-total-payment').forEach(el => {
+                            el.innerText = data.total_price;
+                        });
+                    } else {
+                        showToast(data.message || 'Có lỗi xảy ra!', 'error');
+                    }
+                })
+                .catch(error => {
+                    console.error("Lỗi hủy mã:", error);
+                    showToast('Có lỗi xảy ra khi kết nối máy chủ!', 'error');
+                });
         };
     }
 });

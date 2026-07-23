@@ -29,6 +29,8 @@ class CartClientController extends Controller
         $totalPrice = $this->cartService->getTotalPrice();
         $defaultAddress = $this->userAddressService->getDefaultAddressForUser(Auth::id());
 
+        $this->couponService->getAppliedCoupon($totalPrice);
+
         return view('client.cart.show', compact('cartItems', 'checkoutItems', 'totalPrice', 'defaultAddress'));
     }
     public function add(Request $request)

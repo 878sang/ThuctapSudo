@@ -15,9 +15,7 @@ class CartService implements CartServiceInterface
     }
     public function getCartKey()
     {
-        if (request()->routeIs('cart.showClient', 'checkout.placeOrder', 'checkout.validate') &&
-            request()->get('mode') === 'buy_now'
-        ) {
+        if (request('mode') === 'buy_now') {
             return 'buy_now_cart';
         }
         return 'cart';
@@ -132,6 +130,8 @@ class CartService implements CartServiceInterface
         }
 
         $price = $product->sale_price ?? $product->price;
+
+        session()->forget('applied_coupon');
 
         session()->put('buy_now_cart', [
             $productId => [

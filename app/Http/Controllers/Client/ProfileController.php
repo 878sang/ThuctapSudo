@@ -93,7 +93,6 @@ class ProfileController extends Controller
      */
     public function deleteAddress($id)
     {
-        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         $this->userAddressService->deleteAddressForUser($user->id, $id);
@@ -106,7 +105,6 @@ class ProfileController extends Controller
      */
     public function setDefaultAddress($id)
     {
-        /** @var \App\Models\User $user */
         $user = Auth::user();
 
         $this->userAddressService->setDefaultAddressForUser($user->id, $id);

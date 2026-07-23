@@ -24,7 +24,7 @@ class CouponRepository extends BaseRepository implements CouponRepositoryInterfa
             $search = trim($request->search);
             $query->where(function ($q) use ($search) {
                 $q->where('code', 'like', "%{$search}%")
-                  ->orWhere('name', 'like', "%{$search}%");
+                    ->orWhere('name', 'like', "%{$search}%");
             });
         }
 
@@ -46,8 +46,14 @@ class CouponRepository extends BaseRepository implements CouponRepositoryInterfa
 
     public function getUserUsageCount(int $couponId, int $userId): int
     {
-        $coupon = $this->model->find($couponId);
-        return $coupon ? $coupon->users()->where('user_id', $userId)->count() : 0;
+        $coupon = $this->find($couponId);
+        if (!$coupon) return 0;
+        return $coupon->users()
+            ->where('user_id', $userId)
+            ->whereHas('orders', function ($query) {
+                $query->where('status', '!=', 'cancelled');
+            })
+            ->count();
     }
 
     public function recordUsage(int $couponId, int $userId, int $orderId): void
@@ -68,26 +74,26 @@ class CouponRepository extends BaseRepository implements CouponRepositoryInterfa
         return $this->model->where('is_active', true)
             ->where(function ($q) use ($now) {
                 $q->whereNull('start_date')
-                  ->orWhere('start_date', '<=', $now);
+                    ->orWhere('start_date', '<=', $now);
             })
             ->where(function ($q) use ($now) {
                 $q->whereNull('end_date')
-                  ->orWhere('end_date', '>=', $now);
+                    ->orWhere('end_date', '>=', $now);
             })
             ->where(function ($q) {
                 $q->whereNull('usage_limit')
-                  ->orWhereColumn('used_count', '<', 'usage_limit');
+                    ->orWhereColumn('used_count', '<', 'usage_limit');
             })
             ->when($userId, function ($query, $userId) {
                 $query->where(function ($q) use ($userId) {
                     $q->whereNull('user_limit')
-                      ->orWhere('user_limit', '>', function ($subQuery) use ($userId) {
-                          $subQuery->selectRaw('count(*)')
-                              ->from('coupon_user')
-                              ->whereColumn('coupon_user.coupon_id', 'coupons.id')
-                              ->where('coupon_user.user_id', $userId)
-                              ->whereNotNull('coupon_user.order_id');
-                      });
+                        ->orWhere('user_limit', '>', function ($subQuery) use ($userId) {
+                            $subQuery->selectRaw('count(*)')
+                                ->from('coupon_user')
+                                ->whereColumn('coupon_user.coupon_id', 'coupons.id')
+                                ->where('coupon_user.user_id', $userId)
+                                ->whereNotNull('coupon_user.order_id');
+                        });
                 });
             })
             ->latest()

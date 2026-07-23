@@ -385,11 +385,11 @@
                             <span class="text-sm font-bold text-[#1F4388]">Tổng tiền cần thanh toán</span>
                             <span class="text-[17px] font-extrabold text-[#EB7507] cart-total-payment">{{number_format($totalPrice, 0, ',', '.')}} đ</span>
                         </div>
-                        <!-- Số tiền cần đặt cọc trước, visible in step 3 -->
+                        <!-- Số tiền cần đặt cọc trước, visible in step 3 
                         <div x-show="step === 3" x-cloak class="flex justify-between items-center font-bold mt-2">
                             <span class="text-sm text-[#1F4388]">Số tiền cần đặt cọc trước</span>
                             <span class="text-[17px] text-[#EB7507] cart-total-deposit">{{number_format($totalPrice, 0, ',', '.')}} đ</span>
-                        </div>
+                        </div>-->
                     </div>
 
                     <button @click="if (step === 1) { step = 2 } else if (step === 2) { validateCheckoutStep2($data, '{{ route("checkout.validate", ["mode" => request("mode")]) }}') } else { document.getElementById('checkout-form').submit() }" class="w-full bg-6 hover:bg-blue-600 text-white font-bold py-3.5 rounded-lg text-sm mt-5 transition-all shadow-md text-center cursor-pointer">

@@ -129,6 +129,14 @@ class CouponService extends BaseService implements CouponServiceInterface
                 ];
             }
 
+            $discountAmount = $this->calculateDiscount($coupon, $totalPrice);
+            $newTotal = max(0, $totalPrice - $discountAmount);
+
+            $appliedCoupon['discount_amount'] = $discountAmount;
+            $appliedCoupon['new_total'] = $newTotal;
+
+            session(['applied_coupon' => $appliedCoupon]);
+
             return $appliedCoupon;
         } catch (\Exception $e) {
             session()->forget('applied_coupon');
